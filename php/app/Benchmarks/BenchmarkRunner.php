@@ -66,61 +66,44 @@ class BenchmarkRunner
      */
     public static function runAll(array $options = []): array
     {
-        $startTime = hrtime(true);
+        set_time_limit(300);
+        $options = array_merge([
+            'dto_iterations'   => 50,
+            'iterations'       => 100,
+            'excel_iterations' => 10,
+            'pdf_iterations'   => 50,
+            'pdf_count'        => 50,
+            'zip_iterations'   => 5,
+        ], $options);
 
-        $results = [
-            'meta' => self::getMetadata(),
-            'benchmarks' => [],
-        ];
+
+        $results = [];
 
         // DTO Mapping - THE MOST CRITICAL benchmark for PHP vs Swift
-        $results['benchmarks']['dto_mapping'] = DtoMapping::benchmark(
-            $options['dto_iterations'] ?? 50
-        );
-
+        $results['dto_mapping'] = self::run("dto_mapping", $options);
         // VAT Calculation - multiple cart sizes
-        $results['benchmarks']['vat_calculation'] = [];
+        $results['vat_calculation'] = [];
         foreach (['small_cart', 'medium_cart', 'large_cart', 'xl_cart'] as $scenario) {
-            $results['benchmarks']['vat_calculation'][$scenario] = VatCalculation::benchmark(
-                $scenario,
-                $options['iterations'] ?? 100
-            );
+            $results['vat_calculation'][$scenario] = self::run("vat_calculation", array_merge($options, ["scenario" => $scenario]))[$scenario];
         }
 
         // Cart Calculation - multiple cart sizes
-        $results['benchmarks']['cart_calculation'] = [];
+        $results['cart_calculation'] = [];
         foreach (['small_cart', 'medium_cart', 'large_cart', 'xl_cart'] as $scenario) {
-            $results['benchmarks']['cart_calculation'][$scenario] = CartCalculation::benchmark(
-                $scenario,
-                $options['iterations'] ?? 100
-            );
+            $results["cart_calculation"][$scenario] = self::run("cart_calculation", array_merge($options, ["scenario" => $scenario]))[$scenario];
         }
 
         // JSON Transformation
-        $results['benchmarks']['json_transformation'] = JsonTransformation::benchmark(
-            $options['iterations'] ?? 100
-        );
+        $results['json_transformation'] = self::run("json_transformation", $options);
 
         // Excel Generation (fewer iterations - it's slow)
-        $results['benchmarks']['excel_generation'] = ExcelGeneration::benchmark(
-            $options['excel_iterations'] ?? 10
-        );
+        $results['excel_generation'] = self::run("excel_generation", $options);
 
         // PDF Generation - Single
-        $results['benchmarks']['pdf_generation_single'] = PdfGeneration::benchmarkSingle(
-            $options['pdf_iterations'] ?? 50
-        );
+        $results['pdf_generation_single'] = self::run("pdf_generation_single", $options);
 
         // PDF Generation - ZIP
-        $results['benchmarks']['pdf_generation_zip'] = PdfGeneration::benchmarkZip(
-            $options['pdf_count'] ?? 50,
-            $options['zip_iterations'] ?? 5
-        );
-
-        $endTime = hrtime(true);
-
-        $results['meta']['total_benchmark_time_ms'] = round(($endTime - $startTime) / 1_000_000, 2);
-        $results['meta']['completed_at'] = date('c');
+        $results['pdf_generation_zip'] = self::run("pdf_generation_zip", $options);
 
         return $results;
     }
@@ -134,55 +117,46 @@ class BenchmarkRunner
      */
     public static function run(string $operation, array $options = []): array
     {
-        $startTime = hrtime(true);
-
-        $result = match ($operation) {
+        $scenario = $options['scenario'] ?? 'large_cart';
+        return match ($operation) {
             'dto_mapping' => DtoMapping::benchmark(
                 $options['iterations'] ?? 50
             ),
-            'dto_mapping_product_settings' => DtoMapping::benchmarkProductSettings(
-                $options['iterations'] ?? 50
-            ),
-            'dto_mapping_order_settings' => DtoMapping::benchmarkOrderSettings(
-                $options['iterations'] ?? 50
-            ),
-            'dto_mapping_order_products' => DtoMapping::benchmarkOrderProducts(
-                $options['iterations'] ?? 50
-            ),
-            'dto_mapping_full_order' => DtoMapping::benchmarkFullOrder(
-                $options['iterations'] ?? 50
-            ),
-            'vat_calculation' => VatCalculation::benchmark(
-                $options['scenario'] ?? 'large_cart',
-                $options['iterations'] ?? 100
-            ),
-            'cart_calculation' => CartCalculation::benchmark(
-                $options['scenario'] ?? 'large_cart',
-                $options['iterations'] ?? 100
-            ),
-            'json_transformation' => JsonTransformation::benchmark(
-                $options['iterations'] ?? 100
-            ),
-            'excel_generation' => ExcelGeneration::benchmark(
-                $options['iterations'] ?? 10
-            ),
-            'pdf_generation_single' => PdfGeneration::benchmarkSingle(
-                $options['iterations'] ?? 50
-            ),
-            'pdf_generation_zip' => PdfGeneration::benchmarkZip(
-                $options['pdf_count'] ?? 50,
-                $options['iterations'] ?? 5
-            ),
+            'vat_calculation' => [
+                $scenario => VatCalculation::benchmark(
+                    $options['scenario'] ?? 'large_cart',
+                    $options['iterations'] ?? 100
+                )
+            ],
+            'cart_calculation' => [
+                $scenario => CartCalculation::benchmark(
+                    $options['scenario'] ?? 'large_cart',
+                    $options['iterations'] ?? 100
+                )
+            ],
+            'json_transformation' => [
+                "json_transformation" => JsonTransformation::benchmark(
+                    $options['iterations'] ?? 100
+                )
+            ],
+            'excel_generation' => [
+                'excel_generation' => ExcelGeneration::benchmark(
+                    $options['iterations'] ?? 10
+                )
+            ],
+            'pdf_generation_single' => [
+                'pdf_generation_single' => PdfGeneration::benchmarkSingle(
+                    $options['iterations'] ?? 50
+                )
+            ],
+            'pdf_generation_zip' => [
+                "pdf_generation_zip" => PdfGeneration::benchmarkZip(
+                    $options['pdf_count'] ?? 50,
+                    $options['iterations'] ?? 5
+                )
+            ],
             default => throw new \InvalidArgumentException("Unknown operation: {$operation}"),
         };
-
-        $endTime = hrtime(true);
-
-        return [
-            'meta' => self::getMetadata(),
-            'benchmark' => $result,
-            'execution_time_ms' => round(($endTime - $startTime) / 1_000_000, 2),
-        ];
     }
 
     /**

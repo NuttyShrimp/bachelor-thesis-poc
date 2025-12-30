@@ -74,11 +74,21 @@ class BenchmarkController extends Controller
         ]);
 
         try {
-            $result = BenchmarkRunner::run($operation, [
+            $startTime = hrtime(true);
+            $benchmark = BenchmarkRunner::run($operation, [
                 'iterations' => $validated['iterations'] ?? null,
                 'scenario' => $validated['scenario'] ?? null,
                 'pdf_count' => $validated['pdf_count'] ?? null,
             ]);
+            $endTime = hrtime(true);
+
+            $result =[
+                'meta' => BenchmarkRunner::getMetadata(),
+                'benchmarks' => [
+                    $operation => $benchmark
+                ],
+                'execution_time_ms' => round(($endTime - $startTime) / 1_000_000, 2),
+            ];
 
             return response()->json($result);
         } catch (\InvalidArgumentException $e) {
@@ -117,7 +127,14 @@ class BenchmarkController extends Controller
         ]);
 
         try {
-            $result = BenchmarkRunner::runAll(array_filter($validated));
+            $startTime = hrtime(true);
+            $benchmarks = BenchmarkRunner::runAll(array_filter($validated));
+            $endTime = hrtime(true);
+
+            $result = [
+                'meta' => BenchmarkRunner::getMetadata(),
+                'benchmarks' => $benchmarks,
+            ];
 
             return response()->json($result);
         } catch (\Exception $e) {
@@ -136,13 +153,23 @@ class BenchmarkController extends Controller
     public function quick(): JsonResponse
     {
         try {
-            $result = BenchmarkRunner::runAll([
+
+            $startTime = hrtime(true);
+            $benchmarks = BenchmarkRunner::runAll([
                 'iterations' => 10,
                 'excel_iterations' => 2,
                 'pdf_iterations' => 5,
                 'pdf_count' => 10,
                 'zip_iterations' => 1,
             ]);
+            $endTime = hrtime(true);
+
+            $result = [
+                'meta' => BenchmarkRunner::getMetadata(),
+                'benchmarks' => $benchmarks,
+            ];
+            $result['meta']['total_benchmark_time_ms'] = round(($endTime - $startTime) / 1_000_000, 2);
+            $result['meta']['completed_at'] = date('c');
 
             return response()->json($result);
         } catch (\Exception $e) {
