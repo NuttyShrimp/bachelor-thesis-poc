@@ -1,0 +1,2 @@
+watchexec -w Sources -e .swift -r 'swift run TestSuite' &
+pnpm tailwindcss -i ./Sources/App/main.css -o ./Sources/App/public/out.css --watch
