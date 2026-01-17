@@ -1,5 +1,9 @@
 import Hummingbird
+import Jobs
+import JobsValkey
 import Logging
+import TestSuiteLibrary
+import Valkey
 
 /// Application arguments protocol. We use a protocol so we can call
 /// `buildApplication` inside Tests as well as in the App executable.
@@ -11,8 +15,14 @@ package protocol AppArguments {
     var logLevel: Logger.Level? { get }
 }
 
-// Request context used by application
-typealias AppRequestContext = BasicRequestContext
+struct AppRequestContext: RequestContext {
+    var coreContext: CoreRequestContextStorage
+    var requestDecoder: GeneralRequestDecoder { .init() }
+
+    init(source: Source) {
+        self.coreContext = .init(source: source)
+    }
+}
 
 ///  Build application
 /// - Parameter arguments: application arguments
@@ -26,7 +36,23 @@ func buildApplication(_ arguments: some AppArguments) async throws -> some Appli
             } ?? .info
         return logger
     }()
-    let router = try buildRouter(logger)
+
+    let valkeyLogger = Logger(label: "Valkey")
+    let valkeyHost = environment.get("VALKEY_HOST") ?? "localhost"
+    let valkeyClient = ValkeyClient(.hostname(valkeyHost, port: 6379), logger: valkeyLogger)
+    let jobQueue = try await JobQueue(
+        .valkey(
+            valkeyClient,
+            configuration: .init(
+                queueName: "bap-test-suite", retentionPolicy: .init(completedJobs: .retain)),
+            logger: logger
+        ),
+        logger: logger
+    )
+
+    let jobService = JobService(jobQueue)
+
+    let router = try buildRouter(logger, jobService)
     let app = Application(
         router: router,
         configuration: .init(
@@ -39,7 +65,9 @@ func buildApplication(_ arguments: some AppArguments) async throws -> some Appli
 }
 
 /// Build router
-func buildRouter(_ logger: Logger) throws -> Router<AppRequestContext> {
+func buildRouter(_ logger: Logger, _ jobService: JobService) throws -> Router<
+    AppRequestContext
+> {
     let router = Router(context: AppRequestContext.self)
     // Middlewares
     // Add middleware
@@ -51,7 +79,8 @@ func buildRouter(_ logger: Logger) throws -> Router<AppRequestContext> {
         FileMiddleware("Sources/App/public", logger: logger)
     }
 
-    UIController().addRoutes(to: router.group())
+    UIController(service: jobService).addRoutes(to: router.group())
+    JobController(service: jobService).addRoutes(to: router.group("/job"))
 
     return router
 }

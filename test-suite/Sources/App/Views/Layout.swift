@@ -11,11 +11,11 @@ struct MainLayout<Body: HTML>: HTMLDocument {
         meta(.custom(name: "viewport", value: "width=device-width, initial-scale=1.0"))
         script(.src("/htmx.min.js")) {}
         script(.src("/htmxsse.min.js")) {}
-        link(.href("/main.css"), .rel(.stylesheet))
+        link(.href("/out.css"), .rel(.stylesheet))
     }
 
     var body: some HTML {
-        main {
+        main(.class("container mx-auto py-4")) {
             pageContent
         }
     }

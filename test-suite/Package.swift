@@ -16,16 +16,33 @@ let package = Package(
             url: "https://github.com/hummingbird-community/hummingbird-elementary.git",
             from: "0.4.0"),
         .package(url: "https://github.com/elementary-swift/elementary-htmx.git", from: "0.5.0"),
+        .package(
+            url: "https://github.com/hummingbird-project/hummingbird-valkey.git", from: "0.1.0"),
+        .package(url: "https://github.com/hummingbird-project/swift-jobs.git", from: "1.0.0"),
+        .package(
+            url: "https://github.com/hummingbird-project/swift-jobs-valkey.git", from: "1.0.0-rc.2"),
     ],
     targets: [
+        .target(
+            name: "TestSuiteLibrary",
+            dependencies: [
+                .product(name: "Jobs", package: "swift-jobs"),
+                .product(name: "JobsValkey", package: "swift-jobs-valkey"),
+            ],
+            path: "Sources/Library"
+        ),
         .executableTarget(
             name: "TestSuite",
             dependencies: [
+                .byName(name: "TestSuiteLibrary"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Hummingbird", package: "hummingbird"),
                 .product(name: "HummingbirdElementary", package: "hummingbird-elementary"),
                 .product(name: "ElementaryHTMX", package: "elementary-htmx"),
                 .product(name: "ElementaryHTMXSSE", package: "elementary-htmx"),
+                .product(name: "HummingbirdValkey", package: "hummingbird-valkey"),
+                .product(name: "Jobs", package: "swift-jobs"),
+                .product(name: "JobsValkey", package: "swift-jobs-valkey"),
             ],
             path: "Sources/App",
             resources: [

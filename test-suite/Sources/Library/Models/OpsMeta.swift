@@ -1,6 +1,6 @@
-struct OpsMeta {
-    operations = {},
-    meta = {},
+struct TestResult {
+    let operations: [Operation]
+    let meta: Meta
 }
 
 struct Operation {

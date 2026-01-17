@@ -1,5 +1,5 @@
 {
-  "originHash" : "d2d8ab4809df52dc7b7e87514df288c75d8d7cfe1fe88324bbfd25841997dda2",
+  "originHash" : "43cf7209602bd9d2fb8dc40208bbd21db8124dc1f3b427d6adc890878349e10a",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -44,6 +44,15 @@
       "state" : {
         "revision" : "131b42ae0a7839217c06291ef193d67fe348d7be",
         "version" : "0.4.2"
+      }
+    },
+    {
+      "identity" : "hummingbird-valkey",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/hummingbird-project/hummingbird-valkey.git",
+      "state" : {
+        "revision" : "c5ce48a43d686a76d6e335670b35e2c2ec5162fb",
+        "version" : "0.2.0"
       }
     },
     {
@@ -155,6 +164,24 @@
       }
     },
     {
+      "identity" : "swift-jobs",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/hummingbird-project/swift-jobs.git",
+      "state" : {
+        "revision" : "ea507abff2e5d02cc9b5447ad9ba36142460c844",
+        "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "swift-jobs-valkey",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/hummingbird-project/swift-jobs-valkey.git",
+      "state" : {
+        "revision" : "1c09dc65f9652730dee38e015813c18812bb7387",
+        "version" : "1.0.0-rc.3"
+      }
+    },
+    {
       "identity" : "swift-log",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-log.git",
@@ -251,6 +278,15 @@
       "state" : {
         "revision" : "395a77f0aa927f0ff73941d7ac35f2b46d47c9db",
         "version" : "1.6.3"
+      }
+    },
+    {
+      "identity" : "valkey-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/valkey-io/valkey-swift.git",
+      "state" : {
+        "revision" : "e4bbdd13c71f98dc66c176a776152268fd44a929",
+        "version" : "0.5.0"
       }
     }
   ],
