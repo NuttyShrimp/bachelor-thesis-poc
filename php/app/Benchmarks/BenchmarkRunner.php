@@ -2,6 +2,7 @@
 
 namespace App\Benchmarks;
 
+use Laravel\Octane\FrankenPhp\ServerProcessInspector as FrankenPhpServerProcessInspector;
 use App\Benchmarks\Operations\VatCalculation;
 use App\Benchmarks\Operations\CartCalculation;
 use App\Benchmarks\Operations\JsonTransformation;
@@ -120,17 +121,18 @@ class BenchmarkRunner
         $scenario = $options['scenario'] ?? 'large_cart';
         return match ($operation) {
             'dto_mapping' => DtoMapping::benchmark(
+                $options['scenario'] ?? "all",
                 $options['iterations'] ?? 50
             ),
             'vat_calculation' => [
                 $scenario => VatCalculation::benchmark(
-                    $options['scenario'] ?? 'large_cart',
+                    $options['scenario'],
                     $options['iterations'] ?? 100
                 )
             ],
             'cart_calculation' => [
                 $scenario => CartCalculation::benchmark(
-                    $options['scenario'] ?? 'large_cart',
+                    $options['scenario'],
                     $options['iterations'] ?? 100
                 )
             ],
@@ -164,15 +166,14 @@ class BenchmarkRunner
      */
     public static function getMetadata(): array
     {
-        $isOctane = isset($_SERVER['LARAVEL_OCTANE']) ||
-                    class_exists(\Laravel\Octane\Octane::class) && app()->bound('octane');
+        $isOctane = app(FrankenPhpServerProcessInspector::class)
+            ->serverIsRunning();
 
         return [
             'timestamp' => date('c'),
             'php_version' => PHP_VERSION,
             'laravel_version' => app()->version(),
             'runtime_mode' => $isOctane ? 'octane' : 'php-fpm',
-            'octane_server' => $isOctane ? ($_SERVER['OCTANE_SERVER'] ?? 'unknown') : null,
             'os' => PHP_OS,
             'architecture' => php_uname('m'),
             'memory_limit' => ini_get('memory_limit'),
@@ -188,10 +189,8 @@ class BenchmarkRunner
         return [
             [
                 'name' => 'dto_mapping',
-                'description' => 'JSON to DTO mapping - THE CORE PHP vs Swift comparison',
                 'complexity' => 'O(n * d) - records * nested depth',
-                'scenarios' => null,
-                'sub_benchmarks' => [
+                'scenarios' => [
                     'dto_mapping_product_settings',
                     'dto_mapping_order_settings',
                     'dto_mapping_order_products',
@@ -200,37 +199,31 @@ class BenchmarkRunner
             ],
             [
                 'name' => 'vat_calculation',
-                'description' => 'Calculate VAT for orders with nested items and options',
                 'complexity' => 'O(n * m) - items * options',
                 'scenarios' => ['small_cart', 'medium_cart', 'large_cart', 'xl_cart'],
             ],
             [
                 'name' => 'cart_calculation',
-                'description' => 'Calculate cart totals with discounts',
                 'complexity' => 'O(n * m) - items * options',
                 'scenarios' => ['small_cart', 'medium_cart', 'large_cart', 'xl_cart'],
             ],
             [
                 'name' => 'json_transformation',
-                'description' => 'Transform shop data to API response format',
                 'complexity' => 'O(c * p) - categories * products',
                 'scenarios' => null,
             ],
             [
                 'name' => 'excel_generation',
-                'description' => 'Generate production list Excel file',
                 'complexity' => 'O(d * c * p * o) - dates * categories * products * options',
                 'scenarios' => null,
             ],
             [
                 'name' => 'pdf_generation_single',
-                'description' => 'Generate single PDF invoice',
                 'complexity' => 'O(n) with high constant factor',
                 'scenarios' => null,
             ],
             [
                 'name' => 'pdf_generation_zip',
-                'description' => 'Generate multiple PDFs and ZIP them',
                 'complexity' => 'O(orders * items)',
                 'scenarios' => null,
             ],

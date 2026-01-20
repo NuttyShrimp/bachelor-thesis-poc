@@ -8,6 +8,10 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+Route::get('/health', function (Request $request) {
+    return response(null, 200);
+});
+
 /*
 |--------------------------------------------------------------------------
 | Benchmark API Routes

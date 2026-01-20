@@ -69,7 +69,7 @@ class BenchmarkController extends Controller
     {
         $validated = $request->validate([
             'iterations' => 'nullable|integer|min:1|max:10000',
-            'scenario' => 'nullable|string|in:small_cart,medium_cart,large_cart,xl_cart',
+            'scenario' => 'nullable|string',
             'pdf_count' => 'nullable|integer|min:1|max:500',
         ]);
 
@@ -153,7 +153,6 @@ class BenchmarkController extends Controller
     public function quick(): JsonResponse
     {
         try {
-
             $startTime = hrtime(true);
             $benchmarks = BenchmarkRunner::runAll([
                 'iterations' => 10,

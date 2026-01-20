@@ -373,14 +373,23 @@ class DtoMapping
     /**
      * Run all DTO mapping benchmarks
      */
-    public static function benchmark(int $iterations = 50): array
+    public static function benchmark(string $operation = "all", int $iterations = 50): array
     {
-        return [
-            'product_settings' => self::benchmarkProductSettings($iterations),
-            'order_settings' => self::benchmarkOrderSettings($iterations),
-            'order_products' => self::benchmarkOrderProducts($iterations),
-            'full_order' => self::benchmarkFullOrder($iterations),
-        ];
+        if ($operation == "all") {
+            return [
+                'product_settings' => self::benchmarkProductSettings($iterations),
+                'order_settings' => self::benchmarkOrderSettings($iterations),
+                'order_products' => self::benchmarkOrderProducts($iterations),
+                'full_order' => self::benchmarkFullOrder($iterations),
+            ];
+        }
+        return match ($operation) {
+            'product_settings' => [$operation => self::benchmarkProductSettings($iterations)],
+            'order_settings' => [$operation => self::benchmarkOrderSettings($iterations)],
+            'order_products' => [$operation => self::benchmarkOrderProducts($iterations)],
+            'full_order' => [$operation => self::benchmarkFullOrder($iterations)],
+            default => throw new \InvalidArgumentException("Unknown operation: {$operation}"),
+        };
     }
 
     private static function standardDeviation(array $data): float
