@@ -21,6 +21,7 @@ let package = Package(
         .package(url: "https://github.com/hummingbird-project/swift-jobs.git", from: "1.0.0"),
         .package(
             url: "https://github.com/hummingbird-project/swift-jobs-valkey.git", from: "1.0.0-rc.2"),
+        .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.9.0"),
     ],
     targets: [
         .target(
@@ -28,6 +29,7 @@ let package = Package(
             dependencies: [
                 .product(name: "Jobs", package: "swift-jobs"),
                 .product(name: "JobsValkey", package: "swift-jobs-valkey"),
+                .product(name: "AsyncHTTPClient", package: "async-http-client"),
             ],
             path: "Sources/Library"
         ),

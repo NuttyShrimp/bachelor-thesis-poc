@@ -50,10 +50,10 @@ func buildApplication(_ arguments: some AppArguments) async throws -> some Appli
         logger: logger
     )
 
-    let jobService = JobService(jobQueue)
+    let jobService = JobService(jobQueue, logger: logger)
 
     let router = try buildRouter(logger, jobService)
-    let app = Application(
+    var app = Application(
         router: router,
         configuration: .init(
             address: .hostname(arguments.hostname, port: arguments.port),
@@ -61,6 +61,7 @@ func buildApplication(_ arguments: some AppArguments) async throws -> some Appli
         ),
         logger: logger
     )
+    app.addServices(jobService)
     return app
 }
 
