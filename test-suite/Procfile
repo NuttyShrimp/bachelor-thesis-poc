@@ -1,0 +1,4 @@
+web: watchexec -w Sources -e .swift -r 'swift build --product TestSuite && touch .build/new-build-sync'
+build-trigger: watchexec -w .build/new-build-sync --ignore-nothing -r '.build/debug/TestSuite'
+tw: pnpm tailwindcss -i ./Sources/App/main.css -o ./Sources/App/public/out.css --watch
+redis: redis-server

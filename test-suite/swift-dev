@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-touch .build/new-build-sync
-
-redis-server &
-watchexec -w Sources -e .swift -r 'swift build --product TestSuite && touch .build/new-build-sync' &
-watchexec -w .build/new-build-sync --ignore-nothing -r '.build/debug/TestSuite' &
-pnpm tailwindcss -i ./Sources/App/main.css -o ./Sources/App/public/out.css --watch
-
