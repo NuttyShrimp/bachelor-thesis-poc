@@ -1,5 +1,6 @@
 import Hummingbird
 import HummingbirdElementary
+import Observation
 import TestSuiteLibrary
 
 struct UIController<Context: RequestContext> {
@@ -8,17 +9,34 @@ struct UIController<Context: RequestContext> {
     func addRoutes(to group: RouterGroup<Context>) {
         group
             .get(use: self.index)
+            .get("availability", use: self.getAvailability)
     }
 
     @Sendable
     private func index(_ request: Request, context: Context) async throws -> HTMLResponse {
-        let settings = await service.settings
+        let page =
+            IndexPage(
+                endpoints: await service.settings,
+                availabilities: await service.availability
+            )
         return HTMLResponse {
             MainLayout {
-                IndexPage(
-                    swiftUrl: settings.swiftEndpoint, phpUrl: settings.phpEndpoint,
-                    octaneUrl: settings.octaneEndpoint)
+                page
             }
         }
+    }
+
+    @Sendable
+    private func getAvailability(_ request: Request, context: Context) async throws -> Response {
+        Response(
+            status: .ok,
+            headers: [.contentType: "text/event-stream"],
+            body: .init { writer in
+                for await availabilites in await service.getAvailabilityObservation() {
+                    try await writer.writeSSE(html: WorkerHealth(availabilities: availabilites))
+                }
+                try await writer.finish(nil)
+            }
+        )
     }
 }

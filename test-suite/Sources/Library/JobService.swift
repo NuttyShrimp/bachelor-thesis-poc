@@ -1,5 +1,6 @@
 import Jobs
 import Logging
+import Observation
 import ServiceLifecycle
 
 public actor JobService: Service {
@@ -10,11 +11,22 @@ public actor JobService: Service {
         let scenario: String?
     }
 
-    public private(set) var settings = JobSettings()
     private let workers: Workers
+    private let workerAvailabilty: ObservableState<JobInfo<Bool>>
+    public private(set) var settings = JobSettings()
+    public var availability: JobInfo<Bool> {
+        workerAvailabilty.item
+    }
 
     public init(_ queue: some JobQueueProtocol, logger: Logger) {
         workers = Workers(settings: settings, logger: logger)
+        workerAvailabilty = ObservableState(
+            item: .init(
+                swift: workers.services[.Swift]!.available,
+                php: workers.services[.PHP]!.available,
+                octane: workers.services[.PHPOctane]!.available
+            )
+        )
 
         queue.registerJob(parameters: PerfParameters.self) { parameters, ctx in
             print("New job for \(parameters.type)")
@@ -23,6 +35,7 @@ public actor JobService: Service {
 
     // This is from the Service protocol
     public func run() async throws {
+        await checkAvailability()
         try? await gracefulShutdown()
         try await self.workers.shutdown()
     }
@@ -32,11 +45,11 @@ public actor JobService: Service {
         await workers.applySettings(newSettings)
     }
 
-    public func getAvailability() async -> JobInfo<Bool> {
-        return JobInfo<Bool>(
-            swift: workers.swift.available,
-            php: workers.php.available,
-            octane: workers.octane.available,
-        )
+    public func checkAvailability() async {
+        await workers.checkAvailability()
+    }
+
+    public func getAvailabilityObservation() async -> Observations<JobInfo<Bool>, Never> {
+        Observations { self.workerAvailabilty.item }
     }
 }

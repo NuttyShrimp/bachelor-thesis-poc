@@ -1,9 +1,10 @@
 import Elementary
+import ElementaryHTMXSSE
+import TestSuiteLibrary
 
 struct IndexPage: HTML {
-    var swiftUrl: String = ""
-    var phpUrl: String = ""
-    var octaneUrl: String = ""
+    let endpoints: JobSettings
+    let availabilities: JobInfo<Bool>
 
     var body: some HTML {
         h1(.class("text-xl font-semibold")) { "PHP vs Swift test suite" }
@@ -20,7 +21,7 @@ struct IndexPage: HTML {
                         input(
                             .required, .name("swiftEndpoint"),
                             .placeholder("http://localhost:8081"),
-                            .value(swiftUrl),
+                            .value(endpoints.swiftEndpoint),
                             .class("input"))
 
                         label(.for("phpEndpoint"), .class("label")) {
@@ -29,14 +30,14 @@ struct IndexPage: HTML {
                         input(
                             .required, .name("phpEndpoint"),
                             .placeholder("http://localhost:5000"),
-                            .value(phpUrl),
+                            .value(endpoints.phpEndpoint),
                             .class("input"))
 
                         label(.for("octaneEndpoint"), .class("label")) { "PHP Octane Endpoint" }
                         input(
                             .required, .name("octaneEndpoint"),
                             .placeholder("http://localhost:6000"),
-                            .value(octaneUrl),
+                            .value(endpoints.octaneEndpoint),
                             .class("input"))
 
                         button(.type(.submit), .class("btn btn-info")) { "Update" }
@@ -52,6 +53,10 @@ struct IndexPage: HTML {
                     button(.class("btn btn-info")) { "Run PHP-fpm benchmarks" }
                     button(.class("btn btn-info")) { "Run PHP-octane benchmarks" }
                     button(.class("btn btn-info")) { "Run All benchmarks" }
+                }
+
+                div(.hx.ext(.sse), .sse.connect("/availability"), .hx.swap(.innerHTML)) {
+                    WorkerHealth(availabilities: availabilities)
                 }
             }
 

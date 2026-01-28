@@ -16,6 +16,7 @@ struct JobController {
     {
         let settings = try await request.decode(as: JobSettings.self, context: context)
         await service.modifySettings(settings)
+        await service.checkAvailability()
         return Response.redirect(to: "/")
     }
 }
