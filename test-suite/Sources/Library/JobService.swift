@@ -52,4 +52,13 @@ public actor JobService: Service {
     public func getAvailabilityObservation() async -> Observations<JobInfo<Bool>, Never> {
         Observations { self.workerAvailabilty.item }
     }
+
+    public func runBenchmark(
+        _ operation: String, scenario: String?, jobTypes: [JobType]?
+    ) async -> [JobType: TestResult] {
+        if jobTypes != nil {
+            return await workers.runBenchmark(operation, scenario: scenario, for: jobTypes!)
+        }
+        return await workers.runBenchmark(operation, scenario: scenario)
+    }
 }
