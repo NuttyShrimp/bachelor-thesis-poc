@@ -121,18 +121,18 @@ class BenchmarkRunner
         $scenario = $options['scenario'] ?? 'large_cart';
         return match ($operation) {
             'dto_mapping' => DtoMapping::benchmark(
-                $options['scenario'] ?? "all",
+                $scenario ?? "all",
                 $options['iterations'] ?? 50
             ),
             'vat_calculation' => [
                 $scenario => VatCalculation::benchmark(
-                    $options['scenario'],
+                    $scenario,
                     $options['iterations'] ?? 100
                 )
             ],
             'cart_calculation' => [
                 $scenario => CartCalculation::benchmark(
-                    $options['scenario'],
+                    $scenario,
                     $options['iterations'] ?? 100
                 )
             ],
