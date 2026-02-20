@@ -33,10 +33,18 @@ let package = Package(
             ],
             path: "Sources/Library"
         ),
+        .target(
+            name: "TestSuiteCli",
+            dependencies: [
+                .byName(name: "TestSuiteLibrary"),
+            ],
+            path: "Sources/Cli"
+        ),
         .executableTarget(
             name: "TestSuite",
             dependencies: [
                 .byName(name: "TestSuiteLibrary"),
+                .byName(name: "TestSuiteCli"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Hummingbird", package: "hummingbird"),
                 .product(name: "HummingbirdElementary", package: "hummingbird-elementary"),

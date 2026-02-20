@@ -13,13 +13,13 @@ public actor JobService: Service {
 
     private let workers: Workers
     private let workerAvailabilty: ObservableState<WorkerInfo<Bool>>
-    private let workerOperations: ObservableState<WorkerInfo<[String: [String]]>>
+    private let workerOperations: ObservableState<WorkerInfo<[String: [String]?]>>
 
     public private(set) var settings = JobSettings()
     public var availability: WorkerInfo<Bool> {
         workerAvailabilty.item
     }
-    public var operations: WorkerInfo<[String: [String]]> {
+    public var operations: WorkerInfo<[String: [String]?]> {
         workerOperations.item
     }
 
@@ -66,7 +66,7 @@ public actor JobService: Service {
     }
 
     public func getOperationsObservation() async -> Observations<
-        WorkerInfo<[String: [String]]>, Never
+        WorkerInfo<[String: [String]?]>, Never
     > {
         Observations { self.workerOperations.item }
     }

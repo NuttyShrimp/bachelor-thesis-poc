@@ -74,7 +74,7 @@ struct WorkerHealth: HTML {
 }
 
 struct WorkerOperations: HTML {
-    let operations: WorkerInfo<[String: [String]]>
+    let operations: WorkerInfo<[String: [String]?]>
 
     var body: some HTML {
         div {

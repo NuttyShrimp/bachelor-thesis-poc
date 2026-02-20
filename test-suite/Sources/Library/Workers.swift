@@ -2,9 +2,9 @@ import Logging
 
 public actor Workers {
     private let logger: Logger
-    let services: [JobType: EndpointService]
+    public let services: [JobType: EndpointService]
 
-    init(settings: JobSettings, logger: Logger) {
+    public init(settings: JobSettings, logger: Logger) {
         services = [
             .Swift: EndpointService(endpoint: settings.swiftEndpoint),
             .PHP: EndpointService(endpoint: settings.phpEndpoint),
@@ -77,7 +77,7 @@ public actor Workers {
                     metadata: ["error": "\(e)", "service": "\(type)"])
             } catch WorkerError.InvalidOperation(let op, let sc) {
                 logger.warning(
-                    "Tried running unknown operation and/or scenarion for service",
+                    "Tried running unknown operation and/or scenario for service",
                     metadata: [
                         "service": "\(type)", "operation": .string(op),
                         "scenario": .string(sc ?? "all"),
@@ -97,7 +97,7 @@ public actor Workers {
         return results
     }
 
-    func shutdown() async throws {
+    public func shutdown() async throws {
         for (_, service) in services {
             try await service.destroy()
         }

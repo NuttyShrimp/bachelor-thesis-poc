@@ -2,20 +2,28 @@ import Observation
 
 public enum JobType: Codable, Sendable {
     case Swift, PHP, PHPOctane
-
 }
 
 public struct JobSettings: Codable, Sendable {
     public let swiftEndpoint: String
     public let phpEndpoint: String
     public let octaneEndpoint: String
-    init() {
+
+    /// Default constructor — uses localhost dev endpoints
+    public init() {
         swiftEndpoint = "http://localhost:3000"
         phpEndpoint = "http://localhost:8000"
         octaneEndpoint = "http://localhost:8001"
     }
 
-    func getForType(type: JobType) -> String {
+    /// Explicit constructor for CLI usage
+    public init(swiftEndpoint: String, phpEndpoint: String, octaneEndpoint: String) {
+        self.swiftEndpoint = swiftEndpoint
+        self.phpEndpoint = phpEndpoint
+        self.octaneEndpoint = octaneEndpoint
+    }
+
+    public func getForType(type: JobType) -> String {
         switch type {
         case .Swift: return self.swiftEndpoint
         case .PHP: return self.phpEndpoint
@@ -29,7 +37,13 @@ public struct WorkerInfo<T: Codable & Sendable>: Codable, Sendable {
     public let php: T
     public let octane: T
 
-    func getForType(type: JobType) -> T {
+    public init(swift: T, php: T, octane: T) {
+        self.swift = swift
+        self.php = php
+        self.octane = octane
+    }
+
+    public func getForType(type: JobType) -> T {
         switch type {
         case .Swift: return self.swift
         case .PHP: return self.php
