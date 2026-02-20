@@ -1,3 +1,5 @@
+import Observation
+
 public enum JobType: Codable, Sendable {
     case Swift, PHP, PHPOctane
 
@@ -22,7 +24,7 @@ public struct JobSettings: Codable, Sendable {
     }
 }
 
-public struct JobInfo<T: Codable & Sendable>: Codable, Sendable {
+public struct WorkerInfo<T: Codable & Sendable>: Codable, Sendable {
     public let swift: T
     public let php: T
     public let octane: T

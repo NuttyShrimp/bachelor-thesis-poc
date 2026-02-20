@@ -10,6 +10,7 @@ struct UIController<Context: RequestContext> {
         group
             .get(use: self.index)
             .get("availability", use: self.getAvailability)
+            .get("jobs", use: self.getJobs)
     }
 
     @Sendable
@@ -34,6 +35,20 @@ struct UIController<Context: RequestContext> {
             body: .init { writer in
                 for await availabilites in await service.getAvailabilityObservation() {
                     try await writer.writeSSE(html: WorkerHealth(availabilities: availabilites))
+                }
+                try await writer.finish(nil)
+            }
+        )
+    }
+
+    @Sendable
+    private func getJobs(_ request: Request, context: Context) async throws -> Response {
+        Response(
+            status: .ok,
+            headers: [.contentType: "text/event-stream"],
+            body: .init { writer in
+                for await operations in await service.getOperationsObservation() {
+                    try await writer.writeSSE(html: WorkerOperations(operations: operations))
                 }
                 try await writer.finish(nil)
             }

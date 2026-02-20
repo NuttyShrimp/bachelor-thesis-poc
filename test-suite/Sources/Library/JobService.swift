@@ -12,10 +12,15 @@ public actor JobService: Service {
     }
 
     private let workers: Workers
-    private let workerAvailabilty: ObservableState<JobInfo<Bool>>
+    private let workerAvailabilty: ObservableState<WorkerInfo<Bool>>
+    private let workerOperations: ObservableState<WorkerInfo<[String: [String]]>>
+
     public private(set) var settings = JobSettings()
-    public var availability: JobInfo<Bool> {
+    public var availability: WorkerInfo<Bool> {
         workerAvailabilty.item
+    }
+    public var operations: WorkerInfo<[String: [String]]> {
+        workerOperations.item
     }
 
     public init(_ queue: some JobQueueProtocol, logger: Logger) {
@@ -25,6 +30,13 @@ public actor JobService: Service {
                 swift: workers.services[.Swift]!.available,
                 php: workers.services[.PHP]!.available,
                 octane: workers.services[.PHPOctane]!.available
+            )
+        )
+        workerOperations = ObservableState(
+            item: .init(
+                swift: workers.services[.Swift]!.availableOperations,
+                php: workers.services[.PHP]!.availableOperations,
+                octane: workers.services[.PHPOctane]!.availableOperations
             )
         )
 
@@ -49,8 +61,14 @@ public actor JobService: Service {
         await workers.checkAvailability()
     }
 
-    public func getAvailabilityObservation() async -> Observations<JobInfo<Bool>, Never> {
+    public func getAvailabilityObservation() async -> Observations<WorkerInfo<Bool>, Never> {
         Observations { self.workerAvailabilty.item }
+    }
+
+    public func getOperationsObservation() async -> Observations<
+        WorkerInfo<[String: [String]]>, Never
+    > {
+        Observations { self.workerOperations.item }
     }
 
     public func runBenchmark(

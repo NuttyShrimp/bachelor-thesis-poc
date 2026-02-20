@@ -22,7 +22,7 @@ struct ErrorLabel: HTML {
 }
 
 struct WorkerHealth: HTML {
-    let availabilities: JobInfo<Bool>
+    let availabilities: WorkerInfo<Bool>
 
     var body: some HTML {
         ul(.class("list bg-base-200 border border-base-300 rounded-box shadow-sm p-4 w-xs")) {
@@ -69,6 +69,18 @@ struct WorkerHealth: HTML {
                 }
             }
 
+        }
+    }
+}
+
+struct WorkerOperations: HTML {
+    let operations: WorkerInfo<[String: [String]]>
+
+    var body: some HTML {
+        div {
+            p {
+                "abc"
+            }
         }
     }
 }

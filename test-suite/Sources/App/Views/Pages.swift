@@ -4,7 +4,7 @@ import TestSuiteLibrary
 
 struct IndexPage: HTML {
     let endpoints: JobSettings
-    let availabilities: JobInfo<Bool>
+    let availabilities: WorkerInfo<Bool>
 
     var body: some HTML {
         h1(.class("text-xl font-semibold")) { "PHP vs Swift test suite" }
