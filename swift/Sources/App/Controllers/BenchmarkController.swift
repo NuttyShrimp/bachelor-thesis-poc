@@ -1,16 +1,23 @@
 import Hummingbird
 
 struct BenchmarkController: Sendable {
-    func addRoutes(to group: RouterGroup<some RequestContext>) {
-        let group =
-            group
-            .group("/benchmarks")
+    var benchmark: BenchmarkService
 
+    func addRoutes(to group: RouterGroup<some RequestContext>) {
         group
+            .group("/benchmarks")
             .get(use: self.list)
+            .get("run/:operation", use: self.run)
     }
 
-    func list(_ request: Request, ctx: some RequestContext) async throws -> [BenchmarkOptions] {
+    func list(_ request: Request, ctx: some RequestContext) async throws
+        -> BenchmarkOptionsResponse
+    {
+        return BenchmarkOptionsResponse(
+            operations: benchmark.getAvailableOperations(), meta: CreateMeta())
+    }
 
+    func run(_ request: Request, ctx: some RequestContext) async throws -> BenchmarkRunResponse {
+        return BenchmarkRunResponse(benchmarks: [:], meta: CreateMeta())
     }
 }
