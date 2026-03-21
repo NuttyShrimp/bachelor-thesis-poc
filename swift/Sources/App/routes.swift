@@ -14,9 +14,11 @@ func buildRouter() throws -> Router<AppRequestContext> {
         LogRequestsMiddleware(.info)
     }
 
+    let benchmarkService = BenchmarkService()
+
     let apiGroup = router.group("/api")
 
-    BenchmarkController().addRoutes(to: apiGroup)
+    BenchmarkController(benchmark: benchmarkService).addRoutes(to: apiGroup)
 
     return router
 }
