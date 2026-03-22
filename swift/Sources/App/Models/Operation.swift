@@ -15,7 +15,7 @@ struct ScenarioResult: ResponseEncodable {
     let p95TimeMs: Double
     let p99TimeMs: Double
 
-    let memoryUsedMd: Double
+    let memoryUsedMb: Double
     let avgTimePerOrderMs: Double
 
     let totalTimeMs: Double
@@ -35,7 +35,7 @@ extension ScenarioResult {
             p50TimeMs: sortedTimes[Int(Double(sortedTimes.count) * 0.5)],
             p95TimeMs: sortedTimes[Int(Double(sortedTimes.count) * 0.95)],
             p99TimeMs: sortedTimes[Int(Double(sortedTimes.count) * 0.99)],
-            memoryUsedMd: memoryUsage,
+            memoryUsedMb: memoryUsage,
             avgTimePerOrderMs: times.reduce(0, +) / Double(orderCount * iterations),
             totalTimeMs: times.reduce(0, +),
         )
