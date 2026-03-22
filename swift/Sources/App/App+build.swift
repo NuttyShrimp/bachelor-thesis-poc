@@ -20,7 +20,7 @@ func buildApplication(reader: ConfigReader) async throws -> some ApplicationProt
     otelConfig.logs.enabled = false
     let observability = try OTel.bootstrap(configuration: otelConfig)
 
-    let router = try buildRouter()
+    let router = try buildRouter(logger:logger)
     let app = Application(
         router: router,
         configuration: ApplicationConfiguration(reader: reader.scoped(to: "http")),
