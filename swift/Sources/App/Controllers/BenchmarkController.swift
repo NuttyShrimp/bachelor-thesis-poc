@@ -18,6 +18,8 @@ struct BenchmarkController: Sendable {
     }
 
     func run(_ request: Request, ctx: some RequestContext) async throws -> BenchmarkRunResponse {
-        return BenchmarkRunResponse(benchmarks: [:], meta: CreateMeta())
+        let operation = ctx.parameters.get("operation")!
+        var results = try await benchmark.runOperation(for: operation)
+        return BenchmarkRunResponse(benchmarks: [operation: results], meta: CreateMeta())
     }
 }

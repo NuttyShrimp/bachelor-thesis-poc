@@ -33,12 +33,12 @@ struct DtoMapping: BenchmarkOperation {
 
         resultMap["product_settings"] = benchmarkProductSettings()
 
-        return [:]
+        return resultMap
     }
 
     func benchmarkProductSettings() -> ScenarioResult {
         let products = dataLoader.productsMap()
-        let times: [Double] = []
+        var times: [Double] = []
         var mappedSettings: [ProductSettings] = []
         
         let memoryUsageStart = reportMemory()
@@ -64,6 +64,7 @@ struct DtoMapping: BenchmarkOperation {
             let stopTime = Date()
             let elapsedTime = stopTime.timeIntervalSince(startTime) * 1000
             logger.debug("Iteration completed in \(elapsedTime) ms")
+            times.append(elapsedTime)
         }
         
         let memoryUsageEnd = reportMemory()
