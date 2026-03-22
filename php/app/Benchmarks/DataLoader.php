@@ -68,7 +68,7 @@ class DataLoader
     private static function load(string $filename): array
     {
         if (!isset(self::$cache[$filename])) {
-            $path = base_path('data/' . $filename);
+            $path = base_path('../data/' . $filename);
 
             if (!File::exists($path)) {
                 throw new \RuntimeException("Benchmark data file not found: {$path}. Run 'php artisan benchmark:generate-data' first.");
@@ -96,7 +96,7 @@ class DataLoader
         $requiredFiles = ['orders.json', 'products.json', 'shop.json', 'cart_scenarios.json'];
 
         foreach ($requiredFiles as $file) {
-            if (!File::exists(base_path('data/' . $file))) {
+            if (!File::exists(base_path('../data/' . $file))) {
                 return false;
             }
         }
@@ -113,7 +113,7 @@ class DataLoader
         $missing = [];
 
         foreach ($requiredFiles as $file) {
-            if (!File::exists(base_path('data/' . $file))) {
+            if (!File::exists(base_path('../data/' . $file))) {
                 $missing[] = $file;
             }
         }
