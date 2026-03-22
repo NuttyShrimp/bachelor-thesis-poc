@@ -1,5 +1,17 @@
+import Logging
+
 final class BenchmarkService: Sendable {
-    let operations: [BenchmarkOperation] = []
+    let dataLoader: DataLoader
+    let logger: Logger
+    let operations: [BenchmarkOperation]
+
+    init(logger: Logger) {
+        self.logger = logger
+        self.dataLoader = DataLoader(logger: logger)
+        self.operations = [
+            DtoMapping(dataLoader: dataLoader, logger: logger)
+        ]
+    }
 
     func getAvailableOperations() -> [BenchmarkOperationDescription] {
         return operations.map { $0.description() }
@@ -10,6 +22,8 @@ final class BenchmarkService: Sendable {
         if runner == nil {
             throw BenchmarkError.UnknownOperation(name: operation)
         }
+        
+        logger.info("Running benchmark operation: \(operation)")
 
         return runner!.run()
     }

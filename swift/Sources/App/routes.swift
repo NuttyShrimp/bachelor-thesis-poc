@@ -1,8 +1,9 @@
 import Hummingbird
 import Metrics
 import Tracing
+import Logging
 
-func buildRouter() throws -> Router<AppRequestContext> {
+func buildRouter(logger: Logger) throws -> Router<AppRequestContext> {
     let router = Router(context: AppRequestContext.self)
     // Add middleware
     router.addMiddleware {
@@ -14,7 +15,7 @@ func buildRouter() throws -> Router<AppRequestContext> {
         LogRequestsMiddleware(.info)
     }
 
-    let benchmarkService = BenchmarkService()
+    let benchmarkService = BenchmarkService(logger: logger)
 
     let apiGroup = router.group("/api")
 
