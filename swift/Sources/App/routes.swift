@@ -1,10 +1,10 @@
 import Hummingbird
+import Logging
 import Metrics
 import Tracing
-import Logging
 
-func buildRouter(logger: Logger) throws -> Router<AppRequestContext> {
-    let router = Router(context: AppRequestContext.self)
+func buildRouter(logger: Logger) throws -> Router<MyRequestContext> {
+    let router = Router(context: MyRequestContext.self)
     // Add middleware
     router.addMiddleware {
         // metrics middleware
