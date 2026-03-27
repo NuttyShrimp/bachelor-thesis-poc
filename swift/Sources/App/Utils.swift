@@ -6,21 +6,58 @@
 //
 
 import Foundation
+import Metrics
+import Prometheus
+import SystemPackage
 
-// Source - https://stackoverflow.com/a/64738201
-// Posted by user1300214
-// Retrieved 2026-03-22, License - CC BY-SA 4.0
+enum SystemConfiguration {
+    static let pageByteCount = sysconf(Int32(_SC_PAGESIZE))
+}
 
-func reportMemory() -> Float {
-    var taskInfo = task_vm_info_data_t()
-//    var count = mach_msg_type_number_t(MemoryLayout<task_vm_info>.size) / 4
-//    let result: kern_return_t = withUnsafeMutablePointer(to: &taskInfo) {
-//        $0.withMemoryRebound(to: integer_t.self, capacity: 1) {
-//            task_info(mach_task_self_, task_flavor_t(TASK_VM_INFO), $0, &count)
-//        }
-//    }
-    let usedMb = Float(taskInfo.phys_footprint) / 1048576.0
-    return usedMb
+func reportMemory() -> Double {
+    let factory = MetricsSystem.factory as? PrometheusMetricsFactory
+    if factory != nil {
+        let promData = factory?.registry.emitToString().split(separator: "\n")
+        guard promData != nil && promData!.count >= 13 else {
+            return 0.0
+        }
+        // # TYPE process_cpu_seconds_total gauge
+        // process_cpu_seconds_total 3.5260290000000003
+        // # TYPE process_virtual_memory_bytes gauge
+        // process_virtual_memory_bytes 2601545728.0
+        // # TYPE process_max_fds gauge
+        // process_max_fds 524288.0
+        // # TYPE http_server_active_requests gauge
+        // http_server_active_requests{http_request_method="GET"} 1.0
+        // # TYPE process_open_fds gauge
+        // process_open_fds 63.0
+        // # TYPE process_resident_memory_bytes gauge
+        // process_resident_memory_bytes 403148800.0
+        // # TYPE process_start_time_seconds gauge
+        // process_start_time_seconds 1774638005.0
+
+        guard
+            let memUsageRow = promData?.first(where: {
+                $0.contains(/^process_resident_memory_bytes \d+/)
+            })
+        else {
+            return 0
+        }
+
+        let memUsageStr = memUsageRow.replacingOccurrences(
+            of: "process_resident_memory_bytes ", with: ""
+        ).trimmingCharacters(in: [" "])
+        guard
+            let memUsage = Double(memUsageStr)
+        else {
+            return 0
+        }
+        let usedInMb = memUsage / 1048576.0
+        return usedInMb
+
+    }
+
+    return 0
 }
 
 struct Math {

@@ -1,7 +1,9 @@
 import Configuration
 import Hummingbird
 import Logging
-import OTel
+import Metrics
+import Prometheus
+import SystemMetrics
 
 // Request context used by application
 typealias AppRequestContext = MyRequestContext
@@ -15,16 +17,18 @@ func buildApplication(reader: ConfigReader) async throws -> some ApplicationProt
         return logger
     }()
 
-    var otelConfig = OTel.Configuration.default
-    otelConfig.serviceName = "Bap"
-    otelConfig.logs.enabled = false
-    let observability = try OTel.bootstrap(configuration: otelConfig)
+    let factory = PrometheusMetricsFactory()
+    MetricsSystem.bootstrap(factory)
+    let systemMetricsMonitor = SystemMetricsMonitor(
+        configuration: SystemMetricsMonitor.Configuration(pollInterval: .milliseconds(50)),
+        logger: logger,
+    )
 
     let router = try buildRouter(logger: logger)
     let app = Application(
         router: router,
         configuration: ApplicationConfiguration(reader: reader.scoped(to: "http")),
-        services: [observability],
+        services: [systemMetricsMonitor],
         logger: logger
     )
     return app

@@ -40,7 +40,7 @@ struct DtoMapping: BenchmarkOperation {
         let products = dataLoader.productsMap()
         var times: [Double] = []
         var mappedSettings: [ProductSettings] = []
-        
+
         let memoryUsageStart = reportMemory()
 
         // Extract settings_json key & map to model
@@ -66,16 +66,18 @@ struct DtoMapping: BenchmarkOperation {
             logger.debug("Iteration completed in \(elapsedTime) ms")
             times.append(elapsedTime)
         }
-        
+
         let memoryUsageEnd = reportMemory()
-        logger.debug("Mapped \(mappedSettings.count) product settings. Memory used: \(memoryUsageEnd - memoryUsageStart) MB, Start: \(memoryUsageStart) MB, End: \(memoryUsageEnd) MB")
+        logger.debug(
+            "Mapped \(mappedSettings.count) product settings. Memory used: \(memoryUsageEnd - memoryUsageStart) MB, Start: \(memoryUsageStart) MB, End: \(memoryUsageEnd) MB"
+        )
 
         return ScenarioResult.create(
             for: "dto_mapping_product_settings",
             orderCount: products.count,
             iterations: iterations,
             times: times,
-            memoryUsage: Double(memoryUsageEnd - memoryUsageStart)
+            memoryUsage: memoryUsageEnd - memoryUsageStart
         )
     }
 }

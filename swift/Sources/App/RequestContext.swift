@@ -1,5 +1,6 @@
 import Foundation
 import Hummingbird
+import Prometheus
 
 struct JSONSnakeCaseEncoder: ResponseEncoder {
     let encoder: JSONEncoder
