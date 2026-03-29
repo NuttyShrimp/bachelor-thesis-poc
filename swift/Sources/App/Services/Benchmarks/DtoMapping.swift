@@ -32,6 +32,7 @@ struct DtoMapping: BenchmarkOperation {
         var resultMap = [String: ScenarioResult]()
 
         resultMap["product_settings"] = benchmarkProductSettings()
+        resultMap["order_settings"] = benchmarkOrderSettings()
 
         return resultMap
     }
@@ -48,7 +49,7 @@ struct DtoMapping: BenchmarkOperation {
             let startTime = Date()
 
             for product in products {
-                // NOTE: we can move this operation to a seperate thread
+                // NOTE: we can move this operation to a seperate threads
                 if let productDict = product as? [String: Any],
                     let settingsJson = productDict["settings_json"] as? String,
                     let settingsData = settingsJson.data(using: .utf8)
@@ -75,6 +76,51 @@ struct DtoMapping: BenchmarkOperation {
         return ScenarioResult.create(
             for: "dto_mapping_product_settings",
             orderCount: products.count,
+            iterations: iterations,
+            times: times,
+            memoryUsage: memoryUsageEnd - memoryUsageStart
+        )
+    }
+
+    func benchmarkOrderSettings() -> ScenarioResult {
+        let orders = dataLoader.ordersMap()
+        var times: [Double] = []
+        var mappedSettings: [OrderSettings] = []
+
+        let memoryUsageStart = reportMemory()
+
+        // Extract settings_json key & map to model
+        for _ in 0..<iterations {
+            let startTime = Date()
+
+            for order in orders {
+                // NOTE: we can move this operation to a seperate threads
+                if let orderDict = order as? [String: Any],
+                    let settingsJson = orderDict["settings_json"] as? String,
+                    let settingsData = settingsJson.data(using: .utf8)
+                {
+                    do {
+                        let mapped = try decoder.decode(OrderSettings.self, from: settingsData)
+                        mappedSettings.append(mapped)
+                    } catch {
+                        logger.error("Failed to decode OrderSettings: \(error)")
+                    }
+                }
+            }
+            let stopTime = Date()
+            let elapsedTime = stopTime.timeIntervalSince(startTime) * 1000
+            logger.debug("Iteration completed in \(elapsedTime) ms")
+            times.append(elapsedTime)
+        }
+
+        let memoryUsageEnd = reportMemory()
+        logger.debug(
+            "Mapped \(mappedSettings.count) order settings. Memory used: \(memoryUsageEnd - memoryUsageStart) MB, Start: \(memoryUsageStart) MB, End: \(memoryUsageEnd) MB"
+        )
+
+        return ScenarioResult.create(
+            for: "dto_mapping_product_settings",
+            orderCount: orders.count,
             iterations: iterations,
             times: times,
             memoryUsage: memoryUsageEnd - memoryUsageStart

@@ -30,6 +30,19 @@ class DataLoader {
         }
     }
 
+    func ordersMap() -> [Any] {
+        do {
+            let data = try load(from: "orders")
+            if data["orders"] == nil {
+                throw DataLoaderError.NoDataInFile(file: "orders")
+            }
+            return data["orders"] as? [Any] ?? []
+        } catch {
+            logger.error("Failed to load orders data: \(error)")
+            return []
+        }
+    }
+
     private func load(from file: String) throws -> [String: Any] {
         let fileData = FileManager.default.contents(atPath: "../data/\(file).json")
         if fileData == nil {
