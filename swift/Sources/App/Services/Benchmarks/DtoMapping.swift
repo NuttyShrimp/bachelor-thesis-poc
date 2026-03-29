@@ -119,11 +119,57 @@ struct DtoMapping: BenchmarkOperation {
         )
 
         return ScenarioResult.create(
-            for: "dto_mapping_product_settings",
+            for: "dto_mapping_order_settings",
             orderCount: orders.count,
             iterations: iterations,
             times: times,
             memoryUsage: memoryUsageEnd - memoryUsageStart
         )
     }
+
+    func benchmarkOrderProducts() -> ScenarioResult {
+        let orders = dataLoader.ordersMap()
+        var times: [Double] = []
+        var mappedSettings: [OrderProducts] = []
+
+        let memoryUsageStart = reportMemory()
+
+        // Extract settings_json key & map to model
+        for _ in 0..<iterations {
+            let startTime = Date()
+
+            for order in orders {
+                // NOTE: we can move this operation to a seperate threads
+                if let orderDict = order as? [String: Any],
+                    let settingsJson = orderDict["products_json"] as? String,
+                    let settingsData = settingsJson.data(using: .utf8)
+                {
+                    do {
+                        let mapped = try decoder.decode([OrderProduct].self, from: settingsData)
+                        mappedSettings.append(mapped)
+                    } catch {
+                        logger.error("Failed to decode OrderSettings: \(error)")
+                    }
+                }
+            }
+            let stopTime = Date()
+            let elapsedTime = stopTime.timeIntervalSince(startTime) * 1000
+            logger.debug("Iteration completed in \(elapsedTime) ms")
+            times.append(elapsedTime)
+        }
+
+        let memoryUsageEnd = reportMemory()
+        logger.debug(
+            "Mapped \(mappedSettings.count) order settings. Memory used: \(memoryUsageEnd - memoryUsageStart) MB, Start: \(memoryUsageStart) MB, End: \(memoryUsageEnd) MB"
+        )
+
+        return ScenarioResult.create(
+            for: "dto_mapping_order_products",
+            orderCount: orders.count,
+            iterations: iterations,
+            times: times,
+            memoryUsage: memoryUsageEnd - memoryUsageStart
+        )
+    }
+
 }

@@ -1,3 +1,109 @@
+typealias OrderProducts = [OrderProduct]
+
+struct OrderProduct: Decodable {
+    let vat: OrderProductVatData?
+    let gram: Int?
+    let shop: OrderProductShopData?
+    let amount: Int?
+    let comment: String?
+    let options: [OrderProductOption]
+    let persons: Int?
+    let product: OrderProductData?
+    let category: OrderProductCategory?
+    let amountFree: Int?
+    let productPrice: OrderProductPrice?
+    let discountPrices: OrderProductCalculatedPrices?
+    let calculatedPrices: OrderProductCalculatedPrices?
+}
+
+struct OrderProductVatData: Decodable {
+    let rate: Int?
+    let id: Int?
+}
+
+struct OrderProductShopData: Decodable {
+    let id: Int?
+}
+
+struct OrderProductOption: Decodable {
+    let amount: Int?
+    let product: OrderProductData?
+    let productPrice: OrderProductPrice?
+}
+
+struct OrderProductData: Decodable {
+    let id: Int?
+    let plu: String?
+    let ppp: Double?
+    let vat: OrderProductVatData?
+    let code: String?
+    let name: String?
+    let price: Double?
+    let minMax: OrderProductMinMax?
+    let usePpp: Bool?
+    let category: OrderProductCategory?
+    let warranty: OrderProductWarranty?
+    let priceType: Int?
+    let targetPrice: Double?
+    let onlyOnIsop: Int?
+    let weightBased: Bool?
+    let nameTranslated: String?
+    let temperatureType: Int?
+}
+
+struct OrderProductMinMax: Decodable {
+    let stock: OrderProductMinMaxStock?
+    let amount: OrderProductMinMaxAmount?
+    let weight: OrderProductMinMaxWeight?
+    let persons: OrderProductMinMaxPersons?
+}
+
+struct OrderProductMinMaxStock: Decodable {
+    let amount: Int?
+}
+
+struct OrderProductMinMaxAmount: Decodable {
+    let max: Int?
+    let min: Int?
+    let suggested: Int?
+}
+
+struct OrderProductMinMaxWeight: Decodable {
+    let max: Int?
+    let min: Int?
+    let suggested: Int?
+}
+
+struct OrderProductMinMaxPersons: Decodable {
+    let max: Int?
+    let min: Int?
+    let suggested: Int?
+}
+
+struct OrderProductWarranty: Decodable {
+    let type: Int?
+    let price: Double?
+}
+
+struct OrderProductCategory: Decodable {
+    let id: Int?
+    let name: String?
+    let nameTranslated: String?
+}
+
+struct OrderProductPrice: Decodable {
+    let id: Int?
+    let name: String?
+    let price: Double?
+    let warranty: OrderProductWarranty?
+    let translations: [String: String]?
+}
+
+struct OrderProductCalculatedPrices: Decodable {
+    let price: Double?
+    let unitPrice: Double?
+}
+
 struct OrderSettings: Decodable {
     let user: OrderSettingsUser?
     let deliveryAddress: OrderSettingsAddress?
