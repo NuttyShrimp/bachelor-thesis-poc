@@ -1,5 +1,10 @@
 typealias OrderProducts = [OrderProduct]
 
+struct FullOrder: Decodable {
+    let productsJson: OrderProducts
+    let settingsJson: OrderSettings
+}
+
 struct OrderProduct: Decodable {
     let vat: OrderProductVatData?
     let gram: Int?
