@@ -33,6 +33,8 @@ struct DtoMapping: BenchmarkOperation {
 
         resultMap["product_settings"] = benchmarkProductSettings()
         resultMap["order_settings"] = benchmarkOrderSettings()
+        resultMap["order_products"] = benchmarkOrderProducts()
+        resultMap["full_order"] = benchmarkFullOrder()
 
         return resultMap
     }
@@ -172,4 +174,47 @@ struct DtoMapping: BenchmarkOperation {
         )
     }
 
+    func benchmarkFullOrder() -> ScenarioResult {
+        let orders = dataLoader.ordersMap()
+        var times: [Double] = []
+        var mappedSettings: [FullOrder] = []
+
+        let memoryUsageStart = reportMemory()
+
+        // Extract settings_json key & map to model
+        for _ in 0..<iterations {
+            let startTime = Date()
+
+            for order in orders {
+                if let orderJson = order as? String,
+                    let orderData = orderJson.data(using: .utf8)
+                {
+                    do {
+                        let mapped = try decoder.decode(FullOrder.self, from: orderData)
+                        mappedSettings.append(mapped)
+                    } catch {
+                        logger.error("Failed to decode OrderSettings: \(error)")
+                    }
+                }
+            }
+            let stopTime = Date()
+            let elapsedTime = stopTime.timeIntervalSince(startTime) * 1000
+            logger.debug("Iteration completed in \(elapsedTime) ms")
+            times.append(elapsedTime)
+        }
+
+        let memoryUsageEnd = reportMemory()
+        logger.debug(
+            "Mapped \(mappedSettings.count) order settings. Memory used: \(memoryUsageEnd - memoryUsageStart) MB, Start: \(memoryUsageStart) MB, End: \(memoryUsageEnd) MB"
+        )
+
+        return ScenarioResult.create(
+            for: "dto_mapping_full_order",
+            orderCount: orders.count,
+            iterations: iterations,
+            times: times,
+            memoryUsage: memoryUsageEnd - memoryUsageStart
+        )
+
+    }
 }
