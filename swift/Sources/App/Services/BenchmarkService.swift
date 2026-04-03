@@ -9,7 +9,8 @@ final class BenchmarkService: Sendable {
         self.logger = logger
         self.dataLoader = DataLoader(logger: logger)
         self.operations = [
-            DtoMapping(dataLoader: dataLoader, logger: logger)
+            DtoMapping(dataLoader: dataLoader, logger: logger),
+            JsonTransformation(dataLoader: dataLoader, logger: logger),
         ]
     }
 
