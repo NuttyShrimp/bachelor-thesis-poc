@@ -12,6 +12,7 @@ final class BenchmarkService: Sendable {
             DtoMapping(dataLoader: dataLoader, logger: logger),
             JsonTransformation(dataLoader: dataLoader, logger: logger),
             VatCalculation(dataLoader: dataLoader, logger: logger),
+            CartCalculation(dataLoader: dataLoader, logger: logger),
         ]
     }
 
