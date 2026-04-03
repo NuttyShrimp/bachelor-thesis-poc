@@ -19,13 +19,12 @@ final class BenchmarkService: Sendable {
     }
 
     func runOperation(for operation: String) async throws -> [String: ScenarioResult] {
-        let runner = operations.first { $0.description().name == operation }
-        if runner == nil {
+        guard let runner = operations.first(where: { $0.description().name == operation }) else {
             throw BenchmarkError.UnknownOperation(name: operation)
         }
-        
+
         logger.info("Running benchmark operation: \(operation)")
 
-        return runner!.run()
+        return runner.run()
     }
 }

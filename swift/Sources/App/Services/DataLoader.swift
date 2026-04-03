@@ -43,6 +43,15 @@ class DataLoader {
         }
     }
 
+    func shopData() -> Data {
+        do {
+            return try loadData(from: "shop")
+        } catch {
+            logger.error("Failed to load shop data: \(error)")
+            return Data()
+        }
+    }
+
     private func load(from file: String) throws -> [String: Any] {
         let fileData = FileManager.default.contents(atPath: "../data/\(file).json")
         if fileData == nil {
@@ -55,6 +64,14 @@ class DataLoader {
             throw DataLoaderError.JSONSerializationFailed
         }
         return json
+    }
+
+    private func loadData(from file: String) throws -> Data {
+        let fileData = FileManager.default.contents(atPath: "../data/\(file).json")
+        if fileData == nil {
+            throw DataLoaderError.NoDataInFile(file: file)
+        }
+        return fileData!
     }
 }
 
