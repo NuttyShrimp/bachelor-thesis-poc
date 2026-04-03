@@ -11,6 +11,7 @@ final class BenchmarkService: Sendable {
         self.operations = [
             DtoMapping(dataLoader: dataLoader, logger: logger),
             JsonTransformation(dataLoader: dataLoader, logger: logger),
+            VatCalculation(dataLoader: dataLoader, logger: logger),
         ]
     }
 
