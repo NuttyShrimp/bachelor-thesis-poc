@@ -1,7 +1,9 @@
 import Hummingbird
+import Logging
 
 struct BenchmarkController: Sendable {
     var benchmark: BenchmarkService
+    var logger: Logger
 
     func addRoutes(to group: RouterGroup<MyRequestContext>) {
         group
@@ -19,7 +21,12 @@ struct BenchmarkController: Sendable {
 
     func run(_ request: Request, ctx: MyRequestContext) async throws -> BenchmarkRunResponse {
         let operation = ctx.parameters.get("operation")!
-        let results = try await benchmark.runOperation(for: operation)
-        return BenchmarkRunResponse(benchmarks: [operation: results], meta: CreateMeta())
+        do {
+            let results = try await benchmark.runOperation(for: operation)
+            return BenchmarkRunResponse(benchmarks: [operation: results], meta: CreateMeta())
+        } catch {
+            logger.error("Failed to run benchmark operation: \(error)")
+            throw HTTPError(.internalServerError)
+        }
     }
 }

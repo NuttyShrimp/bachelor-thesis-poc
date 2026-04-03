@@ -19,7 +19,7 @@ func buildRouter(logger: Logger) throws -> Router<MyRequestContext> {
 
     let apiGroup = router.group("/api")
 
-    BenchmarkController(benchmark: benchmarkService).addRoutes(to: apiGroup)
+    BenchmarkController(benchmark: benchmarkService, logger: logger).addRoutes(to: apiGroup)
     StatsController().addRoutes(to: apiGroup)
 
     return router
