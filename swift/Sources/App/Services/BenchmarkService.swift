@@ -13,6 +13,7 @@ final class BenchmarkService: Sendable {
             JsonTransformation(dataLoader: dataLoader, logger: logger),
             VatCalculation(dataLoader: dataLoader, logger: logger),
             CartCalculation(dataLoader: dataLoader, logger: logger),
+            ExcelGeneration(dataLoader: dataLoader, logger: logger),
         ]
     }
 

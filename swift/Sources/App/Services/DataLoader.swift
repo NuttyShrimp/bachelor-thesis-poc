@@ -51,6 +51,16 @@ class DataLoader {
             return Data()
         }
     }
+
+    func ordersData() -> Data {
+        do {
+            return try loadData(from: "orders")
+        } catch {
+            logger.error("Failed to load orders data: \(error)")
+            return Data()
+        }
+    }
+
     func cartScenario<T: Decodable>(_ size: String, as type: T.Type = T.self) -> T? {
         guard let scenarios: [String: T] = decode(from: "cart_scenarios", as: [String: T].self)
         else {
