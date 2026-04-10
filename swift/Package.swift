@@ -17,6 +17,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-metrics.git", from: "2.4.1"),
         .package(url: "https://github.com/apple/swift-system-metrics", from: "1.0.0"),
         .package(url: "https://github.com/swift-server/swift-prometheus.git", from: "2.0.0"),
+        .package(url: "https://github.com/damuellen/xlsxwriter.swift", branch: "main"),
     ],
     targets: [
         .executableTarget(
@@ -27,6 +28,7 @@ let package = Package(
                 .product(name: "Prometheus", package: "swift-prometheus"),
                 .product(name: "Hummingbird", package: "hummingbird"),
                 .product(name: "SystemMetrics", package: "swift-system-metrics"),
+                .product(name: "xlsxwriter", package: "xlsxwriter.swift"),
 
             ],
             path: "Sources/App",

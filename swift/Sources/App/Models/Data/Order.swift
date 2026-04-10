@@ -40,7 +40,7 @@ struct OrderProductData: Decodable {
     let id: Int?
     let plu: String?
     let ppp: Double?
-    let vat: OrderProductVatData?
+    let vat: Int?
     let code: String?
     let name: String?
     let price: Double?
@@ -255,7 +255,7 @@ struct OrderSettingsExtraInfo: Decodable {
 
 struct OrderSettingsExtraInfoTableNumber: Decodable {
     let color: String?
-    let number: Int?
+    let number: String?
 }
 
 struct OrderSettingsStatistics: Decodable {
@@ -274,4 +274,28 @@ struct OrderSettingsXerxes: Decodable {
 
 struct OrderSettingsWebpay: Decodable {
     let token: String?
+}
+
+struct ExcelOrdersPayload: Decodable {
+    let orders: [ExcelOrder]
+    let orderProducts: [ExcelOrderProduct]
+    let orderProductOptions: [ExcelOrderProductOption]
+}
+
+struct ExcelOrder: Decodable {
+    let id: Int
+    let createdAt: String?
+}
+
+struct ExcelOrderProduct: Decodable {
+    let id: Int
+    let orderId: Int
+    let name: String?
+    let category: String?
+    let quantity: Int?
+}
+
+struct ExcelOrderProductOption: Decodable {
+    let orderProductId: Int
+    let name: String?
 }
