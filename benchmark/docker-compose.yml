@@ -4,14 +4,29 @@ services:
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=12w"
       - "--web.enable-admin-api"
-      - "--storage.tsdb.retention.time 12w"
     user: "1000:1000"
     ports:
       - '9090:9090'
     volumes:
       - ./prometheus/config:/etc/prometheus
       - ./prometheus/data:/prometheus
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    ports:
+    - 9080:8080
+    volumes:
+    - /:/rootfs:ro
+    - /var/run:/var/run:rw
+    - /sys:/sys:ro
+    - /var/lib/docker/:/var/lib/docker:ro
+    depends_on:
+    - php-fpm
+    - swift
+
   swift:
     build:
       context: ../swift
@@ -19,3 +34,15 @@ services:
         - bap/swift:latest
     ports:
       - '8080:8080'
+    volumes:
+      - ../data:/data
+  php-fpm:
+    build:
+      context: ../php
+      tags:
+        - bap/php:latest
+    ports:
+      - '8000:8000'
+    volumes:
+      - ../data:/data
+

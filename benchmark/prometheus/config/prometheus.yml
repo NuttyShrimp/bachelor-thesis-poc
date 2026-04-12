@@ -4,7 +4,7 @@ global:
   evaluation_interval: 5s
 
 scrape_configs:
-  - job_name: swift
-    static_configs:
-      - targets:
-        - swift:8080
+- job_name: cadvisor
+  static_configs:
+  - targets:
+    - cadvisor:8080
