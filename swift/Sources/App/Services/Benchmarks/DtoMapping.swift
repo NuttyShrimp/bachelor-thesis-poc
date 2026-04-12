@@ -5,14 +5,10 @@ struct DtoMapping: BenchmarkOperation {
     let iterations = 50
     let dataLoader: DataLoader
     let logger: Logger
-    let decoder: JSONDecoder
 
     init(dataLoader: DataLoader, logger: Logger) {
         self.dataLoader = dataLoader
         self.logger = logger
-        self.decoder = JSONDecoder()
-        self.decoder.dateDecodingStrategy = .iso8601
-        self.decoder.keyDecodingStrategy = .convertFromSnakeCase
     }
 
     func description() -> BenchmarkOperationDescription {
@@ -57,6 +53,7 @@ struct DtoMapping: BenchmarkOperation {
                     let settingsData = settingsJson.data(using: .utf8)
                 {
                     do {
+                        let decoder = createDecoder()
                         let mapped = try decoder.decode(ProductSettings.self, from: settingsData)
                         mappedSettings.append(mapped)
                     } catch {
@@ -102,6 +99,7 @@ struct DtoMapping: BenchmarkOperation {
                     let settingsData = settingsJson.data(using: .utf8)
                 {
                     do {
+                        let decoder = createDecoder()
                         let mapped = try decoder.decode(OrderSettings.self, from: settingsData)
                         mappedSettings.append(mapped)
                     } catch {
@@ -147,6 +145,7 @@ struct DtoMapping: BenchmarkOperation {
                     let settingsData = settingsJson.data(using: .utf8)
                 {
                     do {
+                        let decoder = createDecoder()
                         let mapped = try decoder.decode([OrderProduct].self, from: settingsData)
                         mappedSettings.append(mapped)
                     } catch {
@@ -190,6 +189,7 @@ struct DtoMapping: BenchmarkOperation {
                     let orderData = orderJson.data(using: .utf8)
                 {
                     do {
+                        let decoder = createDecoder()
                         let mapped = try decoder.decode(FullOrder.self, from: orderData)
                         mappedSettings.append(mapped)
                     } catch {

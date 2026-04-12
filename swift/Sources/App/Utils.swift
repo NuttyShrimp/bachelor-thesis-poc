@@ -78,3 +78,18 @@ extension String {
             .trimmingCharacters(in: CharacterSet(charactersIn: "-"))
     }
 }
+
+// Create a new decoder everytime. Otherwise data is kept in memory
+func createDecoder() -> JSONDecoder {
+    let decoder = JSONDecoder()
+    decoder.dateDecodingStrategy = .iso8601
+    decoder.keyDecodingStrategy = .convertFromSnakeCase
+    return decoder
+}
+
+func createEncoder() -> JSONEncoder {
+    let encoder = JSONEncoder()
+    encoder.dateEncodingStrategy = .iso8601
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    return encoder
+}

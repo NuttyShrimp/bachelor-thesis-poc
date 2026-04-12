@@ -7,13 +7,9 @@ enum DataLoaderError: Error {
 }
 
 class DataLoader {
-    let decoder: JSONDecoder
     let logger: Logger
 
     init(logger: Logger) {
-        decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
         self.logger = logger
     }
 
@@ -104,6 +100,7 @@ class DataLoader {
 
     private func decode<T: Decodable>(from file: String, as type: T.Type = T.self) -> T? {
         do {
+            let decoder = createDecoder()
             let raw = try loadData(from: file)
             return try decoder.decode(type, from: raw)
         } catch {
