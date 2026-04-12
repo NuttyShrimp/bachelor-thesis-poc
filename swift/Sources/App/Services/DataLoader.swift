@@ -6,7 +6,7 @@ enum DataLoaderError: Error {
     case JSONSerializationFailed
 }
 
-class DataLoader {
+struct DataLoader {
     let logger: Logger
 
     init(logger: Logger) {
@@ -113,4 +113,4 @@ class DataLoader {
 
 // DataLoader is only used in a read-only context without mutable state
 // So we can flag it as sendable without actually meeting the requirements
-extension DataLoader: @unchecked Sendable {}
+// extension DataLoader: @unchecked Sendable {}
