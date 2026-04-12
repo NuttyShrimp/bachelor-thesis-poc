@@ -22,12 +22,27 @@ final class BenchmarkService: Sendable {
     }
 
     func runOperation(for operation: String) async throws -> [String: ScenarioResult] {
-        guard let runner = operations.first(where: { $0.description().name == operation }) else {
-            throw BenchmarkError.UnknownOperation(name: operation)
-        }
+        let runner = try createOperation(for: operation)
 
         logger.info("Running benchmark operation: \(operation)")
 
         return runner.run()
+    }
+
+    private func createOperation(for name: String) throws -> any BenchmarkOperation {
+        switch name {
+        case "dto_mapping":
+            return DtoMapping(dataLoader: dataLoader, logger: logger)
+        case "json_transformation":
+            return JsonTransformation(dataLoader: dataLoader, logger: logger)
+        case "cart_calculation":
+            return CartCalculation(dataLoader: dataLoader, logger: logger)
+        case "vat_calculation":
+            return VatCalculation(dataLoader: dataLoader, logger: logger)
+        case "excel_generation":
+            return ExcelGeneration(dataLoader: dataLoader, logger: logger)
+        default:
+            throw BenchmarkError.UnknownOperation(name: name)
+        }
     }
 }
