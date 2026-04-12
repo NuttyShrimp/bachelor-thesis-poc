@@ -32,15 +32,15 @@ final class BenchmarkService: Sendable {
     private func createOperation(for name: String) throws -> any BenchmarkOperation {
         switch name {
         case "dto_mapping":
-            return DtoMapping(dataLoader: dataLoader, logger: logger)
+            return DtoMapping(dataLoader: DataLoader(logger:logger), logger: logger)
         case "json_transformation":
-            return JsonTransformation(dataLoader: dataLoader, logger: logger)
+            return JsonTransformation(dataLoader: DataLoader(logger:logger), logger: logger)
         case "cart_calculation":
-            return CartCalculation(dataLoader: dataLoader, logger: logger)
+            return CartCalculation(dataLoader: DataLoader(logger:logger), logger: logger)
         case "vat_calculation":
-            return VatCalculation(dataLoader: dataLoader, logger: logger)
+            return VatCalculation(dataLoader: DataLoader(logger:logger), logger: logger)
         case "excel_generation":
-            return ExcelGeneration(dataLoader: dataLoader, logger: logger)
+            return ExcelGeneration(dataLoader: DataLoader(logger:logger), logger: logger)
         default:
             throw BenchmarkError.UnknownOperation(name: name)
         }
