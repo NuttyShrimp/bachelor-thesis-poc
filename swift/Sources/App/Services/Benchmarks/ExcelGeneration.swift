@@ -22,13 +22,10 @@ struct ExcelGeneration: BenchmarkOperation {
     let iterations = 10
     let dataLoader: DataLoader
     let logger: Logger
-    let decoder: JSONDecoder
 
     init(dataLoader: DataLoader, logger: Logger) {
         self.dataLoader = dataLoader
         self.logger = logger
-        self.decoder = JSONDecoder()
-        self.decoder.keyDecodingStrategy = .convertFromSnakeCase
     }
 
     func description() -> BenchmarkOperationDescription {
@@ -60,6 +57,7 @@ struct ExcelGeneration: BenchmarkOperation {
 
         let payload: ExcelOrdersPayload
         do {
+            let decoder = createDecoder()
             payload = try decoder.decode(ExcelOrdersPayload.self, from: rawData)
         } catch {
             logger.error("Failed to decode orders payload for excel benchmark: \(error)")
@@ -283,6 +281,8 @@ struct ExcelGeneration: BenchmarkOperation {
                 )
             }
         }
+
+        rows.sort(by: { $0.date.compare($1.date) == .orderedAscending })
 
         return rows
     }

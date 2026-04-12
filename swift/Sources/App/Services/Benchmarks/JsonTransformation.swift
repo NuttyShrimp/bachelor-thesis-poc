@@ -5,18 +5,10 @@ struct JsonTransformation: BenchmarkOperation {
     let iterations = 100
     let dataLoader: DataLoader
     let logger: Logger
-    let encoder: JSONEncoder
-    let decoder: JSONDecoder
 
     init(dataLoader: DataLoader, logger: Logger) {
         self.dataLoader = dataLoader
         self.logger = logger
-        self.encoder = JSONEncoder()
-        self.encoder.dateEncodingStrategy = .iso8601
-        self.encoder.keyEncodingStrategy = .convertToSnakeCase
-        self.decoder = JSONDecoder()
-        self.decoder.dateDecodingStrategy = .iso8601
-        self.decoder.keyDecodingStrategy = .convertFromSnakeCase
     }
 
     func description() -> BenchmarkOperationDescription {
@@ -45,6 +37,8 @@ struct JsonTransformation: BenchmarkOperation {
             let startTime = Date()
 
             do {
+                let decoder = createDecoder()
+                let encoder = createEncoder()
                 let result = try decoder.decode(Shop.self, from: data)
                 let string = try encoder.encode(result)
 
