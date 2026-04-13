@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import IkigaJSON
 import Metrics
 import Prometheus
 import SystemPackage
@@ -80,16 +81,16 @@ extension String {
 }
 
 // Create a new decoder everytime. Otherwise data is kept in memory
-func createDecoder() -> JSONDecoder {
-    let decoder = JSONDecoder()
-    decoder.dateDecodingStrategy = .iso8601
-    decoder.keyDecodingStrategy = .convertFromSnakeCase
+func createDecoder() -> IkigaJSONDecoder {
+    var decoder = IkigaJSONDecoder()
+    decoder.settings.dateDecodingStrategy = .iso8601
+    decoder.settings.keyDecodingStrategy = .convertFromSnakeCase
     return decoder
 }
 
-func createEncoder() -> JSONEncoder {
-    let encoder = JSONEncoder()
-    encoder.dateEncodingStrategy = .iso8601
-    encoder.keyEncodingStrategy = .convertToSnakeCase
+func createEncoder() -> IkigaJSONEncoder {
+    var encoder = IkigaJSONEncoder()
+    encoder.settings.dateEncodingStrategy = .iso8601
+    encoder.settings.keyEncodingStrategy = .convertToSnakeCase
     return encoder
 }
