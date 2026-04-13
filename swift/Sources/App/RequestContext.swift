@@ -1,19 +1,29 @@
 import Foundation
 import Hummingbird
+import IkigaJSON
 import Prometheus
 
 struct JSONSnakeCaseEncoder: ResponseEncoder {
-    let encoder: JSONEncoder
+    let encoder: IkigaJSONEncoder
 
     init() {
-        encoder = JSONEncoder()
-        encoder.keyEncodingStrategy = .convertToSnakeCase
+        var encoder = IkigaJSONEncoder()
+        encoder.settings.keyEncodingStrategy = .convertToSnakeCase
+        self.encoder = encoder
     }
 
     func encode(_ value: some Encodable, from request: Request, context: some RequestContext) throws
         -> Response
     {
-        return try encoder.encode(value, from: request, context: context)
+        let data = try encoder.encode(value)
+        let buffer = ByteBuffer(bytes: data)
+        var response = Response(
+            status: .ok,
+            headers: [:],
+            body: .init(byteBuffer: buffer)
+        )
+        response.headers[.contentType] = "application/json; charset=utf-8"
+        return response
     }
 }
 
