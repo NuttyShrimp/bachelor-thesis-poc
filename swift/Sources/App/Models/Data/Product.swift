@@ -11,53 +11,53 @@ struct ProductSettings: Decodable {
     let price: ProductSettingsPrice?
     let stock: ProductSettingsStock?
     // NOTE: The php side does not parse this into a type, just a unstructured array
-    let photos: [ProductSettingsPhoto]
+    let photos: [ProductSettingsPhoto]?
     let photosFs: ProductSettingsPhotosFs?
-    let maxOrder: Int?
-    let minOrder: Int
-    let suggestedOrderWeight: Int
+    let maxOrderAmount: Int?
+    let minOrderAmount: Int?
+    let suggestedOrderWeight: Int?
     let nutrients: ProductSettingsNutrients?
     let version: String?
 }
 
 struct ProductSettingsSeo: Decodable {
-    let url: [String: String]
-    let title: [String: String]
-    let description: [String: String]
+    // Can be Empty array, null or Dictionary[string:string]
+    let url: FlexibleValue?
+    let title: FlexibleValue?
+    let description: FlexibleValue?
 }
 
 struct ProductSettingsPhoto: Decodable {
-    let type: String
-    let fileId: Int
+    let type: String?
+    let fileId: Int?
     let resolutions: [ProductSettingsPhotoResolution]
     let whiteBackground: Bool
 }
 
 struct ProductSettingsPhotoResolution: Decodable {
-    let url: String
-    let width: Int
-    let height: Int
+    let url: String?
+    let width: Int?
+    let height: Int?
 }
 
 struct ProductSettingsPrice: Decodable {
     // NOTE: the array is always empty in the sample data
-    let deviations: [String];
+    let deviations: [String]
 }
 
 struct ProductSettingsStock: Decodable {
-    let amount: Int?
-    let soldout: Bool
+    let amount: Double?
+    let soldout: Bool?
     let soldoutUntil: String?
     let maxAmountPerDay: Int?
-    let maxWeightPerDay: Int?
+    let maxWeightPerDay: Double?
     let maxAmountPerWeek: Int?
-    let maxWeightPerWeek: Int?
+    let maxWeightPerWeek: Double?
 }
 
 struct ProductSettingsPhotosFs: Decodable {
     let items: [ProductSettingsPhoto]
 }
-
 
 struct ProductSettingsNutrients: Decodable {
     let items: [ProductSettingsNutrient]
