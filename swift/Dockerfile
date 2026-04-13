@@ -26,8 +26,8 @@ COPY . .
 # Build the application, with optimizations, with static linking, and using jemalloc
 RUN swift build -c release \
     --product "Bap" \
-    --static-swift-stdlib
-    # -Xlinker -ljemalloc
+    --static-swift-stdlib \
+    -Xlinker -ljemalloc
 
 # Switch to the staging area
 WORKDIR /staging
