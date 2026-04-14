@@ -2,8 +2,8 @@ import Foundation
 import Logging
 
 enum DataLoaderError: Error {
-    case NoDataInFile(file: String)
-    case JSONSerializationFailed
+    case noDataInFile(file: String)
+    case jsonSerializationFailed
 }
 
 struct DataLoader {
@@ -14,47 +14,19 @@ struct DataLoader {
     }
 
     func productsMap() -> [Any] {
-        do {
-            let data = try load(from: "products")
-            if data["products"] == nil {
-                throw DataLoaderError.NoDataInFile(file: "products")
-            }
-            return data["products"] as? [Any] ?? []
-        } catch {
-            logger.error("Failed to load products data: \(error)")
-            return []
-        }
+        extractArray(key: "products", from: "products")
     }
 
-    func ordersMap() -> [Any] {
-        do {
-            let data = try load(from: "orders")
-            if data["orders"] == nil {
-                throw DataLoaderError.NoDataInFile(file: "orders")
-            }
-            return data["orders"] as? [Any] ?? []
-        } catch {
-            logger.error("Failed to load orders data: \(error)")
-            return []
-        }
+    func ordersMap() -> [Data] {
+        extractArrayData(key: "orders", from: "orders")
     }
 
     func shopData() -> Data {
-        do {
-            return try loadData(from: "shop")
-        } catch {
-            logger.error("Failed to load shop data: \(error)")
-            return Data()
-        }
+        loadData(from: "shop") ?? Data()
     }
 
     func ordersData() -> Data {
-        do {
-            return try loadData(from: "orders")
-        } catch {
-            logger.error("Failed to load orders data: \(error)")
-            return Data()
-        }
+        loadData(from: "orders") ?? Data()
     }
 
     func cartScenario<T: Decodable>(_ size: String, as type: T.Type = T.self) -> T? {
@@ -68,6 +40,7 @@ struct DataLoader {
         }
 
         logger.warning("Cart scenario \(size) not found, using medium_cart")
+
         if let fallback = scenarios["medium_cart"] {
             return fallback
         }
@@ -76,39 +49,93 @@ struct DataLoader {
         return nil
     }
 
-    private func load(from file: String) throws -> [String: Any] {
-        let fileData = FileManager.default.contents(atPath: "../data/\(file).json")
-        if fileData == nil {
-            throw DataLoaderError.NoDataInFile(file: file)
-        }
-        guard
-            let json = try JSONSerialization.jsonObject(with: fileData!, options: [])
-                as? [String: Any]
-        else {
-            throw DataLoaderError.JSONSerializationFailed
-        }
-        return json
+    func productSettingsData() -> [Data] {
+        extractFields("settings_json", fromArray: "products", in: "products")
     }
 
-    private func loadData(from file: String) throws -> Data {
-        let fileData = FileManager.default.contents(atPath: "../data/\(file).json")
-        if fileData == nil {
-            throw DataLoaderError.NoDataInFile(file: file)
+    func orderSettingsData() -> [Data] {
+        extractFields("settings_json", fromArray: "orders", in: "orders")
+    }
+
+    func orderProductsData() -> [Data] {
+        extractFields("products_json", fromArray: "orders", in: "orders")
+    }
+
+    private func extractArray(key: String, from file: String) -> [Any] {
+        guard let raw = loadData(from: file) else { return [] }
+
+        do {
+            guard
+                let root = try JSONSerialization.jsonObject(with: raw) as? [String: Any],
+                let array = root[key] as? [Any]
+            else {
+                throw DataLoaderError.jsonSerializationFailed
+            }
+            return array
+        } catch {
+            logger.error("Failed to extract '\(key)' array from \(file).json: \(error)")
+            return []
         }
-        return fileData!
+    }
+
+    private func extractArrayData(key: String, from file: String) -> [Data] {
+        guard let raw = loadData(from: file) else { return [] }
+
+        do {
+            guard
+                let root = try JSONSerialization.jsonObject(with: raw) as? [String: Any],
+                let array = root[key] as? [Any]
+            else {
+                throw DataLoaderError.jsonSerializationFailed
+            }
+
+            return try array.compactMap { try JSONSerialization.data(withJSONObject: $0) }
+        } catch {
+            logger.error("Failed to extract '\(key)' array from \(file).json: \(error)")
+            return []
+        }
+    }
+    private func extractFields(_ field: String, fromArray arrayKey: String, in file: String)
+        -> [Data]
+    {
+        guard let raw = loadData(from: file) else { return [] }
+
+        do {
+            guard
+                let root = try JSONSerialization.jsonObject(with: raw) as? [String: Any],
+                let array = root[arrayKey] as? [[String: Any]]
+            else {
+                throw DataLoaderError.jsonSerializationFailed
+            }
+
+            return try array.compactMap { entry -> Data? in
+                guard let value = entry[field] else { return nil }
+                return try JSONSerialization.data(withJSONObject: value)
+            }
+        } catch {
+            logger.error("Failed to extract '\(field)' from \(file).json[\(arrayKey)]: \(error)")
+            return []
+        }
+    }
+
+    private func loadData(from file: String) -> Data? {
+        guard let data = FileManager.default.contents(atPath: "../data/\(file).json") else {
+            logger.error("No data found in file: \(file).json")
+            return nil
+        }
+        return data
     }
 
     private func decode<T: Decodable>(from file: String, as type: T.Type = T.self) -> T? {
+        guard let raw = loadData(from: file) else { return nil }
+
         do {
-            let decoder = createDecoder()
-            let raw = try loadData(from: file)
-            return try decoder.decode(type, from: raw)
+            return try createDecoder().decode(type, from: raw)
         } catch {
             logger.error("Failed to decode \(file).json into \(String(describing: type)): \(error)")
             return nil
         }
     }
-
 }
 
 // DataLoader is only used in a read-only context without mutable state

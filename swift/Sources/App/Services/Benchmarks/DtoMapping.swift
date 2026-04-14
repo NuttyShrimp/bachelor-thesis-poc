@@ -25,40 +25,33 @@ struct DtoMapping: BenchmarkOperation {
     }
 
     func run() -> [String: ScenarioResult] {
-        var resultMap = [String: ScenarioResult]()
-
-        resultMap["product_settings"] = benchmarkProductSettings()
-        resultMap["order_settings"] = benchmarkOrderSettings()
-        resultMap["order_products"] = benchmarkOrderProducts()
-        resultMap["full_order"] = benchmarkFullOrder()
-
-        return resultMap
+        return [
+            "product_settings": benchmarkProductSettings(),
+            "order_settings": benchmarkOrderSettings(),
+            "order_products": benchmarkOrderProducts(),
+            "full_order": benchmarkFullOrder(),
+        ]
     }
 
     func benchmarkProductSettings() -> ScenarioResult {
-        let products = dataLoader.productsMap()
+        let products = dataLoader.productSettingsData()
         var times: [Double] = []
-        var mappedSettings: [ProductSettings] = []
+        var mappedCount = 0
+        var failedCount = 0
 
         let memoryUsageStart = reportMemory()
 
-        // Extract settings_json key & map to model
         for _ in 0..<iterations {
             let startTime = Date()
 
-            for product in products {
-                // NOTE: we can move this operation to a seperate threads
-                if let productDict = product as? [String: Any],
-                    let settingsJson = productDict["settings_json"] as? String,
-                    let settingsData = settingsJson.data(using: .utf8)
-                {
-                    do {
-                        let decoder = createDecoder()
-                        let mapped = try decoder.decode(ProductSettings.self, from: settingsData)
-                        mappedSettings.append(mapped)
-                    } catch {
-                        logger.error("Failed to decode ProductSettings: \(error)")
-                    }
+            for settings in products {
+                do {
+                    let decoder = createDecoder()
+                    _ = try decoder.decode(ProductSettings.self, from: settings)
+                    mappedCount += 1
+                } catch {
+                    failedCount += 1
+                    logger.error("Failed to decode: \(error)")
                 }
             }
             let stopTime = Date()
@@ -69,8 +62,11 @@ struct DtoMapping: BenchmarkOperation {
 
         let memoryUsageEnd = reportMemory()
         logger.debug(
-            "Mapped \(mappedSettings.count) product settings. Memory used: \(memoryUsageEnd - memoryUsageStart) MB, Start: \(memoryUsageStart) MB, End: \(memoryUsageEnd) MB"
+            "Mapped \(mappedCount) product settings. Memory used: \(memoryUsageEnd - memoryUsageStart) MB, Start: \(memoryUsageStart) MB, End: \(memoryUsageEnd) MB"
         )
+        if failedCount > 0 {
+            logger.warning("Failed to decode \(failedCount) ProductSettings payloads")
+        }
 
         return ScenarioResult.create(
             for: "dto_mapping_product_settings",
@@ -82,29 +78,24 @@ struct DtoMapping: BenchmarkOperation {
     }
 
     func benchmarkOrderSettings() -> ScenarioResult {
-        let orders = dataLoader.ordersMap()
+        let orders = dataLoader.orderSettingsData()
         var times: [Double] = []
-        var mappedSettings: [OrderSettings] = []
+        var mappedCount = 0
+        var failedCount = 0
 
         let memoryUsageStart = reportMemory()
 
-        // Extract settings_json key & map to model
         for _ in 0..<iterations {
             let startTime = Date()
 
-            for order in orders {
-                // NOTE: we can move this operation to a seperate threads
-                if let orderDict = order as? [String: Any],
-                    let settingsJson = orderDict["settings_json"] as? String,
-                    let settingsData = settingsJson.data(using: .utf8)
-                {
-                    do {
-                        let decoder = createDecoder()
-                        let mapped = try decoder.decode(OrderSettings.self, from: settingsData)
-                        mappedSettings.append(mapped)
-                    } catch {
-                        logger.error("Failed to decode OrderSettings: \(error)")
-                    }
+            for settings in orders {
+                do {
+                    let decoder = createDecoder()
+                    _ = try decoder.decode(OrderSettings.self, from: settings)
+                    mappedCount += 1
+                } catch {
+                    failedCount += 1
+                    logger.error("Failed to decode: \(error)")
                 }
             }
             let stopTime = Date()
@@ -115,8 +106,11 @@ struct DtoMapping: BenchmarkOperation {
 
         let memoryUsageEnd = reportMemory()
         logger.debug(
-            "Mapped \(mappedSettings.count) order settings. Memory used: \(memoryUsageEnd - memoryUsageStart) MB, Start: \(memoryUsageStart) MB, End: \(memoryUsageEnd) MB"
+            "Mapped \(mappedCount) order settings. Memory used: \(memoryUsageEnd - memoryUsageStart) MB, Start: \(memoryUsageStart) MB, End: \(memoryUsageEnd) MB"
         )
+        if failedCount > 0 {
+            logger.warning("Failed to decode \(failedCount) OrderSettings payloads")
+        }
 
         return ScenarioResult.create(
             for: "dto_mapping_order_settings",
@@ -128,29 +122,24 @@ struct DtoMapping: BenchmarkOperation {
     }
 
     func benchmarkOrderProducts() -> ScenarioResult {
-        let orders = dataLoader.ordersMap()
+        let orders = dataLoader.orderProductsData()
         var times: [Double] = []
-        var mappedSettings: [OrderProducts] = []
+        var mappedCount = 0
+        var failedCount = 0
 
         let memoryUsageStart = reportMemory()
 
-        // Extract settings_json key & map to model
         for _ in 0..<iterations {
             let startTime = Date()
 
-            for order in orders {
-                // NOTE: we can move this operation to a seperate threads
-                if let orderDict = order as? [String: Any],
-                    let settingsJson = orderDict["products_json"] as? String,
-                    let settingsData = settingsJson.data(using: .utf8)
-                {
-                    do {
-                        let decoder = createDecoder()
-                        let mapped = try decoder.decode([OrderProduct].self, from: settingsData)
-                        mappedSettings.append(mapped)
-                    } catch {
-                        logger.error("Failed to decode OrderSettings: \(error)")
-                    }
+            for products in orders {
+                do {
+                    let decoder = createDecoder()
+                    _ = try decoder.decode([OrderProduct].self, from: products)
+                    mappedCount += 1
+                } catch {
+                    failedCount += 1
+                    logger.error("Failed to decode: \(error)")
                 }
             }
             let stopTime = Date()
@@ -161,8 +150,11 @@ struct DtoMapping: BenchmarkOperation {
 
         let memoryUsageEnd = reportMemory()
         logger.debug(
-            "Mapped \(mappedSettings.count) order settings. Memory used: \(memoryUsageEnd - memoryUsageStart) MB, Start: \(memoryUsageStart) MB, End: \(memoryUsageEnd) MB"
+            "Mapped \(mappedCount) order settings. Memory used: \(memoryUsageEnd - memoryUsageStart) MB, Start: \(memoryUsageStart) MB, End: \(memoryUsageEnd) MB"
         )
+        if failedCount > 0 {
+            logger.warning("Failed to decode \(failedCount) OrderProducts payloads")
+        }
 
         return ScenarioResult.create(
             for: "dto_mapping_order_products",
@@ -176,25 +168,22 @@ struct DtoMapping: BenchmarkOperation {
     func benchmarkFullOrder() -> ScenarioResult {
         let orders = dataLoader.ordersMap()
         var times: [Double] = []
-        var mappedSettings: [FullOrder] = []
+        var mappedCount = 0
+        var failedCount = 0
 
         let memoryUsageStart = reportMemory()
 
-        // Extract settings_json key & map to model
         for _ in 0..<iterations {
             let startTime = Date()
 
-            for order in orders {
-                if let orderJson = order as? String,
-                    let orderData = orderJson.data(using: .utf8)
-                {
-                    do {
-                        let decoder = createDecoder()
-                        let mapped = try decoder.decode(FullOrder.self, from: orderData)
-                        mappedSettings.append(mapped)
-                    } catch {
-                        logger.error("Failed to decode OrderSettings: \(error)")
-                    }
+            for fullOrder in orders {
+                do {
+                    let decoder = createDecoder()
+                    _ = try decoder.decode(FullOrder.self, from: fullOrder)
+                    mappedCount += 1
+                } catch {
+                    failedCount += 1
+                    logger.error("Failed to decode: \(error)")
                 }
             }
             let stopTime = Date()
@@ -205,8 +194,11 @@ struct DtoMapping: BenchmarkOperation {
 
         let memoryUsageEnd = reportMemory()
         logger.debug(
-            "Mapped \(mappedSettings.count) order settings. Memory used: \(memoryUsageEnd - memoryUsageStart) MB, Start: \(memoryUsageStart) MB, End: \(memoryUsageEnd) MB"
+            "Mapped \(mappedCount) order settings. Memory used: \(memoryUsageEnd - memoryUsageStart) MB, Start: \(memoryUsageStart) MB, End: \(memoryUsageEnd) MB"
         )
+        if failedCount > 0 {
+            logger.warning("Failed to decode \(failedCount) FullOrder payloads")
+        }
 
         return ScenarioResult.create(
             for: "dto_mapping_full_order",

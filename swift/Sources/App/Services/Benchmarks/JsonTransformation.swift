@@ -28,8 +28,7 @@ struct JsonTransformation: BenchmarkOperation {
     func benchmark() -> ScenarioResult {
         let data = dataLoader.shopData()
         var times: [Double] = []
-        var mappedShops: [Shop] = []
-        var encodedShops: [Data] = []
+        var transformedCount = 0
 
         let memoryUsageStart = reportMemory()
 
@@ -40,10 +39,8 @@ struct JsonTransformation: BenchmarkOperation {
                 let decoder = createDecoder()
                 let encoder = createEncoder()
                 let result = try decoder.decode(Shop.self, from: data)
-                let string = try encoder.encode(result)
-
-                mappedShops.append(result)
-                encodedShops.append(string)
+                _ = try encoder.encode(result)
+                transformedCount += 1
             } catch {
                 logger.error("Failed to decode & encode shop data: \(error)")
                 continue
@@ -60,7 +57,7 @@ struct JsonTransformation: BenchmarkOperation {
         return ScenarioResult.create(
 
             for: "json_transformation",
-            orderCount: mappedShops.count,
+            orderCount: transformedCount,
             iterations: iterations,
             times: times,
             memoryUsage: memoryUsageEnd - memoryUsageStart

@@ -18,6 +18,20 @@ struct ProductSettings: Decodable {
     let suggestedOrderWeight: Int?
     let nutrients: ProductSettingsNutrients?
     let version: String?
+
+    enum CodingKeys: String, CodingKey {
+        case seo
+        case photo
+        case price
+        case stock
+        case photos
+        case photosFs = "photos_fs"
+        case maxOrderAmount
+        case minOrderAmount
+        case suggestedOrderWeight
+        case nutrients
+        case version = "_version"
+    }
 }
 
 struct ProductSettingsSeo: Decodable {

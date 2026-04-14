@@ -80,11 +80,10 @@ extension String {
     }
 }
 
-// Create a new decoder everytime. Otherwise data is kept in memory
-func createDecoder() -> IkigaJSONDecoder {
-    var decoder = IkigaJSONDecoder()
-    decoder.settings.dateDecodingStrategy = .iso8601
-    decoder.settings.keyDecodingStrategy = .convertFromSnakeCase
+func createDecoder() -> JSONDecoder {
+    let decoder = JSONDecoder()
+    decoder.dateDecodingStrategy = .iso8601
+    decoder.keyDecodingStrategy = .convertFromSnakeCase
     return decoder
 }
 

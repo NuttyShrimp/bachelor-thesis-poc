@@ -1,7 +1,5 @@
-typealias OrderProducts = [OrderProduct]
-
 struct FullOrder: Decodable {
-    let productsJson: OrderProducts
+    let productsJson: [OrderProduct]
     let settingsJson: OrderSettings
 }
 

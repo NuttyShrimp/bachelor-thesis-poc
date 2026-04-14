@@ -3,7 +3,7 @@ import Logging
 final class BenchmarkService: Sendable {
     let dataLoader: DataLoader
     let logger: Logger
-    let operations: [BenchmarkOperation]
+    let operations: [any BenchmarkOperation]
 
     init(logger: Logger) {
         self.logger = logger
@@ -32,15 +32,15 @@ final class BenchmarkService: Sendable {
     private func createOperation(for name: String) throws -> any BenchmarkOperation {
         switch name {
         case "dto_mapping":
-            return DtoMapping(dataLoader: DataLoader(logger: logger), logger: logger)
+            return DtoMapping(dataLoader: dataLoader, logger: logger)
         case "json_transformation":
-            return JsonTransformation(dataLoader: DataLoader(logger: logger), logger: logger)
+            return JsonTransformation(dataLoader: dataLoader, logger: logger)
         case "cart_calculation":
-            return CartCalculation(dataLoader: DataLoader(logger: logger), logger: logger)
+            return CartCalculation(dataLoader: dataLoader, logger: logger)
         case "vat_calculation":
-            return VatCalculation(dataLoader: DataLoader(logger: logger), logger: logger)
+            return VatCalculation(dataLoader: dataLoader, logger: logger)
         case "excel_generation":
-            return ExcelGeneration(dataLoader: DataLoader(logger: logger), logger: logger)
+            return ExcelGeneration(dataLoader: dataLoader, logger: logger)
         default:
             throw BenchmarkError.UnknownOperation(name: name)
         }
