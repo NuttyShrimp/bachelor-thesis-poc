@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import IkigaJSON
 import Metrics
 import Prometheus
 import SystemPackage
@@ -83,13 +82,12 @@ extension String {
 func createDecoder() -> JSONDecoder {
     let decoder = JSONDecoder()
     decoder.dateDecodingStrategy = .iso8601
-    decoder.keyDecodingStrategy = .convertFromSnakeCase
+    // decoder.keyDecodingStrategy = .convertFromSnakeCase
     return decoder
 }
 
-func createEncoder() -> IkigaJSONEncoder {
-    var encoder = IkigaJSONEncoder()
-    encoder.settings.dateEncodingStrategy = .iso8601
-    encoder.settings.keyEncodingStrategy = .convertToSnakeCase
+func createEncoder() -> JSONEncoder {
+    let encoder = JSONEncoder()
+    encoder.dateEncodingStrategy = .iso8601
     return encoder
 }

@@ -1,14 +1,13 @@
 import Foundation
 import Hummingbird
-import IkigaJSON
 import Prometheus
 
 struct JSONSnakeCaseEncoder: ResponseEncoder {
-    let encoder: IkigaJSONEncoder
+    let encoder: JSONEncoder
 
     init() {
-        var encoder = IkigaJSONEncoder()
-        encoder.settings.keyEncodingStrategy = .convertToSnakeCase
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
         self.encoder = encoder
     }
 

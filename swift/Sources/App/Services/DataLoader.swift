@@ -119,7 +119,8 @@ struct DataLoader {
     }
 
     private func loadData(from file: String) -> Data? {
-        guard let data = FileManager.default.contents(atPath: "../data/\(file).json") else {
+        guard let data = try? Data(contentsOf: URL(filePath: "../data/\(file).json")) else {
+            // guard let data = FileManager.default.contents(atPath: "../data/\(file).json") else {
             logger.error("No data found in file: \(file).json")
             return nil
         }

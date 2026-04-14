@@ -16,14 +16,14 @@ struct CartCalculation: BenchmarkOperation {
             name: "cart_calculation",
             complexity: "O(n*m)",
             scenarios: [
-                "small_cart", "medium_cart", "large_cart", "xl_cart",
+                "smallCart", "mediumCart", "largeCart", "xlCart",
             ]
         )
     }
 
     func run() -> [String: ScenarioResult] {
         var resultMap = [String: ScenarioResult]()
-        let scenarioNames = ["small_cart", "medium_cart", "large_cart", "xl_cart"]
+        let scenarioNames = ["smallCart", "mediumCart", "largeCart", "xlCart"]
 
         for scenario in scenarioNames {
             guard let cart = dataLoader.cartScenario(scenario, as: CartScenario.self) else {
@@ -55,7 +55,7 @@ struct CartCalculation: BenchmarkOperation {
         let memoryUsageEnd = reportMemory()
 
         return ScenarioResult.create(
-            for: "vat_calculation_\(scenario)",
+            for: "cart_calculation_\(scenario)",
             orderCount: 0,
             iterations: iterations,
             times: times,

@@ -16,14 +16,14 @@ struct VatCalculation: BenchmarkOperation {
             name: "vat_calculation",
             complexity: "O(n*m)",
             scenarios: [
-                "small_cart", "medium_cart", "large_cart", "xl_cart",
+                "smallCart", "mediumCart", "largeCart", "xlCart",
             ]
         )
     }
 
     func run() -> [String: ScenarioResult] {
         var resultMap = [String: ScenarioResult]()
-        let scenarioNames = ["small_cart", "medium_cart", "large_cart", "xl_cart"]
+        let scenarioNames = ["smallCart", "mediumCart", "largeCart", "xlCart"]
 
         for scenario in scenarioNames {
             guard let cart = dataLoader.cartScenario(scenario, as: CartScenario.self) else {

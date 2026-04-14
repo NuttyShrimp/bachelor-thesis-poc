@@ -1,6 +1,11 @@
 struct FullOrder: Decodable {
     let productsJson: [OrderProduct]
     let settingsJson: OrderSettings
+
+    enum CodingKeys: String, CodingKey {
+        case productsJson = "products_json"
+        case settingsJson = "settings_json"
+    }
 }
 
 struct OrderProduct: Decodable {
@@ -17,6 +22,22 @@ struct OrderProduct: Decodable {
     let productPrice: OrderProductPrice?
     let discountPrices: OrderProductCalculatedPrices?
     let calculatedPrices: OrderProductCalculatedPrices?
+
+    enum CodingKeys: String, CodingKey {
+        case vat
+        case gram
+        case shop
+        case amount
+        case comment
+        case options
+        case persons
+        case product
+        case category
+        case amountFree = "amount_free"
+        case productPrice = "product_price"
+        case discountPrices = "discount_prices"
+        case calculatedPrices = "calculated_prices"
+    }
 }
 
 struct OrderProductVatData: Decodable {
@@ -32,6 +53,12 @@ struct OrderProductOption: Decodable {
     let amount: Int?
     let product: OrderProductData?
     let productPrice: OrderProductPrice?
+
+    enum CodingKeys: String, CodingKey {
+        case amount
+        case product
+        case productPrice = "product_price"
+    }
 }
 
 struct OrderProductData: Decodable {
@@ -52,6 +79,26 @@ struct OrderProductData: Decodable {
     let weightBased: Bool?
     let nameTranslated: String?
     let temperatureType: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case plu
+        case ppp
+        case vat
+        case code
+        case name
+        case price
+        case minMax = "min_max"
+        case usePpp = "use_ppp"
+        case category
+        case warranty
+        case priceType = "price_type"
+        case targetPrice = "target_price"
+        case onlyOnIsop = "only_on_isop"
+        case weightBased = "weight_based"
+        case nameTranslated = "name_translated"
+        case temperatureType = "temperature_type"
+    }
 }
 
 struct OrderProductMinMax: Decodable {
@@ -92,6 +139,12 @@ struct OrderProductCategory: Decodable {
     let id: Int?
     let name: String?
     let nameTranslated: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case nameTranslated = "name_translated"
+    }
 }
 
 struct OrderProductPrice: Decodable {
@@ -105,6 +158,11 @@ struct OrderProductPrice: Decodable {
 struct OrderProductCalculatedPrices: Decodable {
     let price: Double?
     let unitPrice: Double?
+
+    enum CodingKeys: String, CodingKey {
+        case price
+        case unitPrice = "unit_price"
+    }
 }
 
 struct OrderSettings: Decodable {
@@ -141,6 +199,15 @@ struct OrderSettingsUser: Decodable {
     let firstname: String?
     let telephone: String?
     let userId: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case email
+        case tinNr = "tin_nr"
+        case lastname
+        case firstname
+        case telephone
+        case userId = "user_id"
+    }
 }
 
 struct OrderSettingsAddress: Decodable {
@@ -158,16 +225,30 @@ struct OrderSettingsCosts: Decodable {
 
 struct OrderSettingsEvent: Decodable {
     let orderNr: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case orderNr = "order_nr"
+    }
 }
 
 struct OrderSettingsLatch: Decodable {
     let notificationMethod: String?
+
+    enum CodingKeys: String, CodingKey {
+        case notificationMethod = "notification_method"
+    }
 }
 
 struct OrderSettingsPiggy: Decodable {
     let qr: OrderSettingsPiggyQr?
     let sent: Bool?
     let cardNumber: String?
+
+    enum CodingKeys: String, CodingKey {
+        case qr
+        case sent
+        case cardNumber = "card_number"
+    }
 }
 
 struct OrderSettingsPiggyQr: Decodable {
@@ -179,35 +260,69 @@ struct OrderSettingsPiggyQr: Decodable {
 struct OrderSettingsBackup: Decodable {
     let shopId: Int?
     let shopName: String?
+
+    enum CodingKeys: String, CodingKey {
+        case shopId = "shop_id"
+        case shopName = "shop_name"
+    }
 }
 
 struct OrderSettingsStripe: Decodable {
     let paymentIntentId: String?
+
+    enum CodingKeys: String, CodingKey {
+        case paymentIntentId = "payment_intent_id"
+    }
 }
 
 struct OrderSettingsPayu: Decodable {
     let void: OrderSettingsPayuVoid?
     let brazil: OrderSettingsPayuBrazil?
     let authToken: String?
+
+    enum CodingKeys: String, CodingKey {
+        case void
+        case brazil
+        case authToken = "auth_token"
+    }
 }
 
 struct OrderSettingsPayuVoid: Decodable {
     let lastStatus: String?
+
+    enum CodingKeys: String, CodingKey {
+        case lastStatus = "last_status"
+    }
 }
 
 struct OrderSettingsPayuBrazil: Decodable {
     let sessionId: String?
+
+    enum CodingKeys: String, CodingKey {
+        case sessionId = "session_id"
+    }
 }
 
 struct OrderSettingsSibs: Decodable {
     let formContext: String?
     let purchaseRequestSent: Bool?
     let transactionSignature: String?
+
+    enum CodingKeys: String, CodingKey {
+        case formContext = "form_context"
+        case purchaseRequestSent = "purchase_request_sent"
+        case transactionSignature = "transaction_signature"
+    }
 }
 
 struct OrderSettingsAdyen: Decodable {
     let link: OrderSettingsAdyenLink?
     let paymentMethod: String?
+
+    enum CodingKeys: String, CodingKey {
+        case link
+        case paymentMethod = "payment_method"
+    }
 }
 
 struct OrderSettingsAdyenLink: Decodable {
@@ -217,6 +332,11 @@ struct OrderSettingsAdyenLink: Decodable {
 struct OrderSettingsUrls: Decodable {
     let failUrl: String?
     let successUrl: String?
+
+    enum CodingKeys: String, CodingKey {
+        case failUrl = "fail_url"
+        case successUrl = "success_url"
+    }
 }
 
 struct OrderSettingsAdelya: Decodable {
@@ -226,29 +346,56 @@ struct OrderSettingsAdelya: Decodable {
 
 struct OrderSettingsEdenred: Decodable {
     let authorizationId: String?
+
+    enum CodingKeys: String, CodingKey {
+        case authorizationId = "authorization_id"
+    }
 }
 
 struct OrderSettingsMonizze: Decodable {
     let transactionId: String?
+
+    enum CodingKeys: String, CodingKey {
+        case transactionId = "transaction_id"
+    }
 }
 
 struct OrderSettingsParcify: Decodable {
     let orderId: String?
+
+    enum CodingKeys: String, CodingKey {
+        case orderId = "order_id"
+    }
 }
 
 struct OrderSettingsPayconiq: Decodable {
     let paymentId: String?
+
+    enum CodingKeys: String, CodingKey {
+        case paymentId = "payment_id"
+    }
 }
 
 struct OrderSettingsJoynBadge: Decodable {
     let points: Int?
     let token: String?
     let imageUrl: String?
+
+    enum CodingKeys: String, CodingKey {
+        case points
+        case token
+        case imageUrl = "image_url"
+    }
 }
 
 struct OrderSettingsExtraInfo: Decodable {
     let tableNumber: OrderSettingsExtraInfoTableNumber?
     let note: String?
+
+    enum CodingKeys: String, CodingKey {
+        case tableNumber = "table_number"
+        case note
+    }
 }
 
 struct OrderSettingsExtraInfoTableNumber: Decodable {
@@ -260,14 +407,28 @@ struct OrderSettingsStatistics: Decodable {
     let appSpace: String?
     let userAgent: String?
     let deviceInfo: String?
+
+    enum CodingKeys: String, CodingKey {
+        case appSpace = "app_space"
+        case userAgent = "user_agent"
+        case deviceInfo = "device_info"
+    }
 }
 
 struct OrderSettingsWarranty: Decodable {
     let bankAccount: String?
+
+    enum CodingKeys: String, CodingKey {
+        case bankAccount = "bank_account"
+    }
 }
 
 struct OrderSettingsXerxes: Decodable {
     let transactionId: String?
+
+    enum CodingKeys: String, CodingKey {
+        case transactionId = "transaction_id"
+    }
 }
 
 struct OrderSettingsWebpay: Decodable {
@@ -278,11 +439,22 @@ struct ExcelOrdersPayload: Decodable {
     let orders: [ExcelOrder]
     let orderProducts: [ExcelOrderProduct]
     let orderProductOptions: [ExcelOrderProductOption]
+
+    enum CodingKeys: String, CodingKey {
+        case orders
+        case orderProducts = "order_products"
+        case orderProductOptions = "order_product_options"
+    }
 }
 
 struct ExcelOrder: Decodable {
     let id: Int
     let createdAt: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case createdAt = "created_at"
+    }
 }
 
 struct ExcelOrderProduct: Decodable {
@@ -291,9 +463,22 @@ struct ExcelOrderProduct: Decodable {
     let name: String?
     let category: String?
     let quantity: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case orderId = "order_id"
+        case name
+        case category
+        case quantity
+    }
 }
 
 struct ExcelOrderProductOption: Decodable {
     let orderProductId: Int
     let name: String?
+
+    enum CodingKeys: String, CodingKey {
+        case orderProductId = "order_product_id"
+        case name
+    }
 }

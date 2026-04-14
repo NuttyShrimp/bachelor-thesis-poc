@@ -8,6 +8,15 @@ struct Shop: Codable {
     let meta: [String: Int]
     let transformedAt: Date
 
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case slug
+        case categories
+        case meta
+        case transformedAt = "transformed_at"
+    }
+
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -32,6 +41,12 @@ struct ShopCategory: Codable {
     let productCount: Int
     let products: [ShopProduct]
 
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case products
+    }
+
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -52,6 +67,17 @@ struct ShopProduct: Codable {
     let vatRate: Int
     let pricing: ShopProductPricing
     let availability: ShopProductAvailability
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case description
+        case price
+        case vatRate = "vat_rate"
+        case slug
+        case pricing
+        case availability
+    }
 
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)

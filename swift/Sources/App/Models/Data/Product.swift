@@ -46,6 +46,13 @@ struct ProductSettingsPhoto: Decodable {
     let fileId: Int?
     let resolutions: [ProductSettingsPhotoResolution]
     let whiteBackground: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case type
+        case fileId = "file_id"
+        case resolutions
+        case whiteBackground = "white_background"
+    }
 }
 
 struct ProductSettingsPhotoResolution: Decodable {
@@ -67,6 +74,16 @@ struct ProductSettingsStock: Decodable {
     let maxWeightPerDay: Double?
     let maxAmountPerWeek: Int?
     let maxWeightPerWeek: Double?
+
+    enum CodingKeys: String, CodingKey {
+        case amount
+        case soldout
+        case soldoutUntil = "soldout_until"
+        case maxAmountPerDay = "max_amount_per_day"
+        case maxWeightPerDay = "max_weight_per_day"
+        case maxAmountPerWeek = "max_amount_per_week"
+        case maxWeightPerWeek = "max_weight_per_week"
+    }
 }
 
 struct ProductSettingsPhotosFs: Decodable {
@@ -81,4 +98,10 @@ struct ProductSettingsNutrient: Decodable {
     let type: String
     let value: Double
     let unitLabel: String
+
+    enum CodingKeys: String, CodingKey {
+        case type
+        case value
+        case unitLabel = "unit_label"
+    }
 }

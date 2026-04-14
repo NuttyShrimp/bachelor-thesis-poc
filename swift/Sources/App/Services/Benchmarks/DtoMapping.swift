@@ -40,13 +40,13 @@ struct DtoMapping: BenchmarkOperation {
         var failedCount = 0
 
         let memoryUsageStart = reportMemory()
+        let decoder = createDecoder()
 
         for _ in 0..<iterations {
             let startTime = Date()
 
             for settings in products {
                 do {
-                    let decoder = createDecoder()
                     _ = try decoder.decode(ProductSettings.self, from: settings)
                     mappedCount += 1
                 } catch {
@@ -84,13 +84,13 @@ struct DtoMapping: BenchmarkOperation {
         var failedCount = 0
 
         let memoryUsageStart = reportMemory()
+        let decoder = createDecoder()
 
         for _ in 0..<iterations {
             let startTime = Date()
 
             for settings in orders {
                 do {
-                    let decoder = createDecoder()
                     _ = try decoder.decode(OrderSettings.self, from: settings)
                     mappedCount += 1
                 } catch {
@@ -128,13 +128,13 @@ struct DtoMapping: BenchmarkOperation {
         var failedCount = 0
 
         let memoryUsageStart = reportMemory()
+        let decoder = createDecoder()
 
         for _ in 0..<iterations {
             let startTime = Date()
 
             for products in orders {
                 do {
-                    let decoder = createDecoder()
                     _ = try decoder.decode([OrderProduct].self, from: products)
                     mappedCount += 1
                 } catch {
@@ -150,7 +150,7 @@ struct DtoMapping: BenchmarkOperation {
 
         let memoryUsageEnd = reportMemory()
         logger.debug(
-            "Mapped \(mappedCount) order settings. Memory used: \(memoryUsageEnd - memoryUsageStart) MB, Start: \(memoryUsageStart) MB, End: \(memoryUsageEnd) MB"
+            "Mapped \(mappedCount) order products. Memory used: \(memoryUsageEnd - memoryUsageStart) MB, Start: \(memoryUsageStart) MB, End: \(memoryUsageEnd) MB"
         )
         if failedCount > 0 {
             logger.warning("Failed to decode \(failedCount) OrderProducts payloads")
@@ -172,13 +172,13 @@ struct DtoMapping: BenchmarkOperation {
         var failedCount = 0
 
         let memoryUsageStart = reportMemory()
+        let decoder = createDecoder()
 
         for _ in 0..<iterations {
             let startTime = Date()
 
             for fullOrder in orders {
                 do {
-                    let decoder = createDecoder()
                     _ = try decoder.decode(FullOrder.self, from: fullOrder)
                     mappedCount += 1
                 } catch {
@@ -194,7 +194,7 @@ struct DtoMapping: BenchmarkOperation {
 
         let memoryUsageEnd = reportMemory()
         logger.debug(
-            "Mapped \(mappedCount) order settings. Memory used: \(memoryUsageEnd - memoryUsageStart) MB, Start: \(memoryUsageStart) MB, End: \(memoryUsageEnd) MB"
+            "Mapped \(mappedCount) full orders. Memory used: \(memoryUsageEnd - memoryUsageStart) MB, Start: \(memoryUsageStart) MB, End: \(memoryUsageEnd) MB"
         )
         if failedCount > 0 {
             logger.warning("Failed to decode \(failedCount) FullOrder payloads")

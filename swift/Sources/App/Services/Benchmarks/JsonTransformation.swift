@@ -31,13 +31,13 @@ struct JsonTransformation: BenchmarkOperation {
         var transformedCount = 0
 
         let memoryUsageStart = reportMemory()
+        let decoder = createDecoder()
+        let encoder = createEncoder()
 
         for _ in 0..<iterations {
             let startTime = Date()
 
             do {
-                let decoder = createDecoder()
-                let encoder = createEncoder()
                 let result = try decoder.decode(Shop.self, from: data)
                 _ = try encoder.encode(result)
                 transformedCount += 1

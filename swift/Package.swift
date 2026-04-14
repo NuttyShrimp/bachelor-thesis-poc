@@ -11,7 +11,6 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/hummingbird-project/hummingbird.git", from: "2.0.0"),
-        .package(url: "https://github.com/orlandos-nl/swift-json.git", from: "2.0.0"),
         .package(
             url: "https://github.com/apple/swift-configuration.git", from: "1.0.0",
             traits: [.defaults, "CommandLineArguments"]),
@@ -28,7 +27,6 @@ let package = Package(
                 .product(name: "Metrics", package: "swift-metrics"),
                 .product(name: "Prometheus", package: "swift-prometheus"),
                 .product(name: "Hummingbird", package: "hummingbird"),
-                .product(name: "IkigaJSON", package: "swift-json"),
                 .product(name: "SystemMetrics", package: "swift-system-metrics"),
                 .product(name: "xlsxwriter", package: "xlsxwriter.swift"),
 

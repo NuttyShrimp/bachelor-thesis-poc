@@ -1,6 +1,7 @@
 struct CartScenario: Decodable {
     let itemCount: Int
     let items: [CartItem]
+
 }
 
 struct CartItem: Decodable, Sendable {
@@ -9,11 +10,24 @@ struct CartItem: Decodable, Sendable {
     let unitPrice: Double
     let vatRate: Int
     let options: [CartOption]
+
+    enum CodingKeys: String, CodingKey {
+        case productId = "product_id"
+        case quantity
+        case unitPrice = "unit_price"
+        case vatRate = "vat_rate"
+        case options
+    }
 }
 
 struct CartOption: Decodable, Sendable {
     let price: Double
     let vatRate: Int
+
+    enum CodingKeys: String, CodingKey {
+        case vatRate = "vat_rate"
+        case price
+    }
 }
 
 struct VatGroup: Sendable {
