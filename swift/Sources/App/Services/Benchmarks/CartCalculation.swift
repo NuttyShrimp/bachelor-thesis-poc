@@ -23,26 +23,20 @@ struct CartCalculation: BenchmarkOperation {
 
     func run() -> [String: ScenarioResult] {
         var resultMap = [String: ScenarioResult]()
-        let scenarios = ["small_cart", "medium_cart", "large_cart", "xl_cart"]
+        let scenarioNames = ["small_cart", "medium_cart", "large_cart", "xl_cart"]
 
-        for scenario in scenarios {
-            guard let result = benchmark(scenario: scenario) else {
-                logger.error("Failed to run benchmark for: \(scenario)")
-                continue
+        for scenario in scenarioNames {
+            guard let cart = dataLoader.cartScenario(scenario, as: CartScenario.self) else {
+                logger.error("Failed to load cart scenarios")
+                return resultMap
             }
-            resultMap[scenario] = result
+            resultMap[scenario] = benchmark(scenario: scenario, cart: cart)
         }
 
         return resultMap
     }
 
-    private func benchmark(scenario: String) -> ScenarioResult? {
-        guard let cart: CartScenario = dataLoader.cartScenario(scenario, as: CartScenario.self)
-        else {
-            return nil
-        }
-        var results: [CartTotal] = []
-
+    private func benchmark(scenario: String, cart: CartScenario) -> ScenarioResult {
         _ = calculateCartTotal(cart: cart, discount: 10)
 
         var times: [Double] = []
@@ -51,8 +45,7 @@ struct CartCalculation: BenchmarkOperation {
         for i in 0..<iterations {
             let startTime = Date()
 
-            let result = calculateCartTotal(cart: cart, discount: i)
-            results.append(result)
+            _ = calculateCartTotal(cart: cart, discount: i)
 
             let stopTime = Date()
             let elapsedTime = stopTime.timeIntervalSince(startTime) * 1000

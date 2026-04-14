@@ -76,6 +76,9 @@ COPY --from=build --chown=hummingbird:hummingbird /staging /app
 # Provide configuration needed by the built-in crash reporter and some sensible default behaviors.
 ENV SWIFT_BACKTRACE=enable=yes,sanitize=yes,threads=all,images=all,interactive=no,swift-backtrace=./swift-backtrace-static
 
+# Tune jemalloc to return unused pages to the OS more aggressively.
+ENV MALLOC_CONF=background_thread:true,dirty_decay_ms:500,muzzy_decay_ms:500
+
 # Ensure all further commands run as the hummingbird user
 USER hummingbird:hummingbird
 

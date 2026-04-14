@@ -23,20 +23,22 @@ struct VatCalculation: BenchmarkOperation {
 
     func run() -> [String: ScenarioResult] {
         var resultMap = [String: ScenarioResult]()
-        let scenarios = ["small_cart", "medium_cart", "large_cart", "xl_cart"]
+        let scenarioNames = ["small_cart", "medium_cart", "large_cart", "xl_cart"]
 
-        for scenario in scenarios {
-            resultMap[scenario] = benchmark(scenario: scenario)
+        for scenario in scenarioNames {
+            guard let cart = dataLoader.cartScenario(scenario, as: CartScenario.self) else {
+                logger.error("Failed to load cart scenarios")
+                return resultMap
+            }
+            resultMap[scenario] = benchmark(scenario: scenario, cart: cart)
         }
 
         return resultMap
     }
 
-    private func benchmark(scenario: String) -> ScenarioResult {
-        let cart: CartScenario? = dataLoader.cartScenario(scenario, as: CartScenario.self)
-        let products = cart?.items ?? []
-        let itemCount = cart?.itemCount ?? 0
-        var results: [VatResult] = []
+    private func benchmark(scenario: String, cart: CartScenario) -> ScenarioResult {
+        let products = cart.items
+        let itemCount = cart.itemCount
 
         _ = calculateForOrder(products: products)
 
@@ -45,8 +47,7 @@ struct VatCalculation: BenchmarkOperation {
 
         for _ in 0..<iterations {
             let startTime = Date()
-            let result = calculateForOrder(products: products)
-            results.append(result)
+            _ = calculateForOrder(products: products)
             let stopTime = Date()
             let elapsedTime = stopTime.timeIntervalSince(startTime) * 1000
             times.append(elapsedTime)
