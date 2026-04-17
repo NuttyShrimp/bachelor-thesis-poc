@@ -39,10 +39,25 @@ services:
   php-fpm:
     build:
       context: ../php
+      target: app
       tags:
-        - bap/php:latest
-    ports:
-      - '8000:8000'
+        - bap/php-fpm:latest
+    expose:
+      - '9000'
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_URL: http://localhost:8000
     volumes:
-      - ../data:/data
+      - ../data:/var/www/data:ro
 
+  php-nginx:
+    build:
+      context: ../php
+      target: web
+      tags:
+        - bap/php-nginx:latest
+    ports:
+      - '8000:80'
+    depends_on:
+      - php-fpm
