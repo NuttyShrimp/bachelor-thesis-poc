@@ -11,7 +11,9 @@ struct ScenarioResult: ResponseEncodable {
     let maxTimeMs: Double
 
     let stdDevMs: Double
+    let p25TimeMs: Double
     let p50TimeMs: Double
+    let p75TimeMs: Double
     let p95TimeMs: Double
     let p99TimeMs: Double
 
@@ -22,7 +24,9 @@ struct ScenarioResult: ResponseEncodable {
 }
 
 extension ScenarioResult {
-    static func create(for name: String, orderCount: Int, iterations: Int, times: [Double], memoryUsage: Double) -> ScenarioResult {
+    static func create(
+        for name: String, orderCount: Int, iterations: Int, times: [Double], memoryUsage: Double
+    ) -> ScenarioResult {
         let safeOrderCount = max(orderCount, 0)
         let safeIterations = max(iterations, 0)
         let safeDenominator = safeOrderCount * safeIterations
@@ -46,7 +50,9 @@ extension ScenarioResult {
             minTimeMs: times.min() ?? 0,
             maxTimeMs: times.max() ?? 0,
             stdDevMs: times.isEmpty ? 0 : Math.stdDev(times),
+            p25TimeMs: percentile(0.25),
             p50TimeMs: percentile(0.50),
+            p75TimeMs: percentile(0.75),
             p95TimeMs: percentile(0.95),
             p99TimeMs: percentile(0.99),
             memoryUsedMb: memoryUsage,
