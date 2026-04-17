@@ -14,7 +14,7 @@ struct OrderProduct: Decodable {
     let shop: OrderProductShopData?
     let amount: Int?
     let comment: String?
-    let options: [OrderProductOption]
+    let options: [OrderProductOption]?
     let persons: Int?
     let product: OrderProductData?
     let category: OrderProductCategory?
@@ -64,11 +64,11 @@ struct OrderProductOption: Decodable {
 struct OrderProductData: Decodable {
     let id: Int?
     let plu: String?
-    let ppp: Double?
-    let vat: Int?
+    let ppp: Float?
+    let vat: Float?
     let code: String?
     let name: String?
-    let price: Double?
+    let price: Float?
     let minMax: OrderProductMinMax?
     let usePpp: Bool?
     let category: OrderProductCategory?
