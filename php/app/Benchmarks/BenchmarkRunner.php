@@ -173,7 +173,7 @@ class BenchmarkRunner
             'timestamp' => date('c'),
             'php_version' => PHP_VERSION,
             'laravel_version' => app()->version(),
-            'runtime_mode' => $isOctane ? 'octane' : 'php-fpm',
+            'runtime' => $isOctane ? 'octane' : 'php-fpm',
             'os' => PHP_OS,
             'architecture' => php_uname('m'),
             'memory_limit' => ini_get('memory_limit'),
