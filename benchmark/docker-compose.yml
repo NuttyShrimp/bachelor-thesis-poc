@@ -4,7 +4,7 @@ services:
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
-      - "--storage.tsdb.retention.time=12w"
+      - "--storage.tsdb.retention.time=24w"
       - "--web.enable-admin-api"
     user: "1000:1000"
     ports:
@@ -19,11 +19,11 @@ services:
     ports:
       - '3000:3000'
     volumes:
-      - ./grafana/config/dashboard.yaml:/etc/grafana/provisioning/dashboards/main.yaml
-      - ./grafana/config/datasource.yaml:/etc/grafana/provisioning/datasources/main.yaml
-      - ./grafana/config/dashboards:/var/lib/grafana/dashboards
+      - ./grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/main.yaml
+      - ./grafana/datasource.yaml:/etc/grafana/provisioning/datasources/main.yaml
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana-storage:/var/lib/grafana
     depends_on:
-      - prometheus
       - cadvisor
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
@@ -32,6 +32,13 @@ services:
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor
+    command: 
+    - cadvisor
+    - --docker_only=true
+    - --enable_metric=cpu,memory,shed,network,referenced_memory
+    - --housekeeping_interval=100ms        # refresh rate
+    - --max_housekeeping_interval=150ms    # max jitter allowed
+    - --allow_dynamic_housekeeping=false   # disable adaptive throttling
     ports:
     - 9080:8080
     volumes:
@@ -69,8 +76,6 @@ services:
       - ../data:/var/www/data:ro
 
   php-nginx:
-    depends_on:
-      - cadvisor
     build:
       context: ../php
       target: web
@@ -80,3 +85,7 @@ services:
       - '8000:80'
     depends_on:
       - php-fpm
+      - cadvisor
+
+volumes:
+  grafana-storage: {}
