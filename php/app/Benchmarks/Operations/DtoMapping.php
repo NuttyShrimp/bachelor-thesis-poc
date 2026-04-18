@@ -139,7 +139,7 @@ class DtoMapping
 
         $times = [];
         $memoryStart = memory_get_usage(true);
-        $totalStart = hrtime(true);
+        $totalStart = time();
         $dtoCount = 0;
 
         for ($i = 0; $i < $iterations; $i++) {
@@ -158,7 +158,7 @@ class DtoMapping
             $times[] = ($end - $start) / 1_000_000;
         }
 
-        $totalEnd = hrtime(true);
+        $totalEnd = time();
         $memoryEnd = memory_get_usage(true);
 
         sort($times);
@@ -207,7 +207,7 @@ class DtoMapping
 
         $times = [];
         $memoryStart = memory_get_usage(true);
-        $totalStart = hrtime(true);
+        $totalStart = time();
         $dtoCount = 0;
 
         for ($i = 0; $i < $iterations; $i++) {
@@ -226,7 +226,7 @@ class DtoMapping
             $times[] = ($end - $start) / 1_000_000;
         }
 
-        $totalEnd = hrtime(true);
+        $totalEnd = time();
         $memoryEnd = memory_get_usage(true);
 
         sort($times);
@@ -275,7 +275,7 @@ class DtoMapping
 
         $times = [];
         $memoryStart = memory_get_usage(true);
-        $totalStart = hrtime(true);
+        $totalStart = time();
         $dtoCount = 0;
         $totalProducts = 0;
 
@@ -301,7 +301,7 @@ class DtoMapping
             $times[] = ($end - $start) / 1_000_000;
         }
 
-        $totalEnd = hrtime(true);
+        $totalEnd = time();
         $memoryEnd = memory_get_usage(true);
 
         sort($times);
@@ -350,7 +350,7 @@ class DtoMapping
 
         $times = [];
         $memoryStart = memory_get_usage(true);
-        $totalStart = hrtime(true);
+        $totalStart = time();
 
         for ($i = 0; $i < $iterations; $i++) {
             $start = hrtime(true);
@@ -368,7 +368,7 @@ class DtoMapping
             $times[] = ($end - $start) / 1_000_000;
         }
 
-        $totalEnd = hrtime(true);
+        $totalEnd = time();
         $memoryEnd = memory_get_usage(true);
 
         sort($times);

@@ -361,7 +361,7 @@ HTML;
         $times = [];
         $pdfSizes = [];
         $memoryStart = memory_get_usage(true);
-        $totalStart = hrtime(true);
+        $totalStart = time();
 
         for ($i = 0; $i < $iterations; $i++) {
             $start = hrtime(true);
@@ -373,8 +373,8 @@ HTML;
             $pdfSizes[] = strlen($pdf);
         }
 
+        $totalEnd = time();
         $memoryEnd = memory_get_usage(true);
-        $totalEnd = hrtime(true);
 
         sort($times);
 
@@ -414,7 +414,7 @@ HTML;
         $times = [];
         $zipSizes = [];
         $memoryStart = memory_get_usage(true);
-        $totalStart = hrtime(true);
+        $totalStart = time();
 
         for ($i = 0; $i < $iterations; $i++) {
             $start = hrtime(true);
@@ -433,8 +433,8 @@ HTML;
             gc_collect_cycles();
         }
 
+        $totalEnd = time();
         $memoryEnd = memory_get_usage(true);
-        $totalEnd = hrtime(true);
 
         sort($times);
 

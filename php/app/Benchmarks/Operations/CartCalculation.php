@@ -176,7 +176,7 @@ class CartCalculation
 
         $times = [];
         $memoryStart = memory_get_usage(true);
-        $totalStart = hrtime(true);
+        $totalStart = time();
 
         for ($i = 0; $i < $iterations; $i++) {
             $start = hrtime(true);
@@ -188,7 +188,7 @@ class CartCalculation
         }
 
         $memoryEnd = memory_get_usage(true);
-        $totalEnd = hrtime(true);
+        $totalEnd = time();
 
         sort($times);
 

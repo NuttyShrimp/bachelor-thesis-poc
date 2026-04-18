@@ -173,7 +173,7 @@ class VatCalculation
 
         $times = [];
         $memoryStart = memory_get_usage(true);
-        $totalStart = hrtime(true);
+        $totalStart = time();
 
         for ($i = 0; $i < $iterations; $i++) {
             $start = hrtime(true);
@@ -184,8 +184,8 @@ class VatCalculation
             $times[] = ($end - $start) / 1_000_000; // Convert nanoseconds to ms
         }
 
+        $totalEnd = time();
         $memoryEnd = memory_get_usage(true);
-        $totalEnd = hrtime(true);
 
         return [
             'operation' => 'vat_calculation',

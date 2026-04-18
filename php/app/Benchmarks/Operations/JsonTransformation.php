@@ -216,7 +216,7 @@ class JsonTransformation
         $times = [];
         $jsonSizes = [];
         $memoryStart = memory_get_usage(true);
-        $totalStart = hrtime(true);
+        $totalStart = time();
 
         for ($i = 0; $i < $iterations; $i++) {
             $start = hrtime(true);
@@ -230,8 +230,8 @@ class JsonTransformation
             $jsonSizes[] = strlen($json);
         }
 
+        $totalEnd = time();
         $memoryEnd = memory_get_usage(true);
-        $totalEnd = hrtime(true);
 
         sort($times);
 
