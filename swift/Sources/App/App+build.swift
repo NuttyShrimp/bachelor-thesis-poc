@@ -1,9 +1,6 @@
 import Configuration
 import Hummingbird
 import Logging
-import Metrics
-import Prometheus
-import SystemMetrics
 
 // Request context used by application
 typealias AppRequestContext = MyRequestContext
@@ -17,18 +14,10 @@ func buildApplication(reader: ConfigReader) async throws -> some ApplicationProt
         return logger
     }()
 
-    let factory = PrometheusMetricsFactory()
-    MetricsSystem.bootstrap(factory)
-    let systemMetricsMonitor = SystemMetricsMonitor(
-        configuration: SystemMetricsMonitor.Configuration(pollInterval: .milliseconds(50)),
-        logger: logger,
-    )
-
     let router = try buildRouter(logger: logger)
     let app = Application(
         router: router,
         configuration: ApplicationConfiguration(reader: reader.scoped(to: "http")),
-        services: [systemMetricsMonitor],
         logger: logger
     )
     return app
