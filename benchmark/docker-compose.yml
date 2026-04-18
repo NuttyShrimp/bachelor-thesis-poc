@@ -13,6 +13,22 @@ services:
       - ./prometheus/config:/etc/prometheus
       - ./prometheus/data:/prometheus
 
+  grafana:
+    image: grafana/grafana:latest
+    user: '1000:1000'
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./grafana/config/dashboard.yaml:/etc/grafana/provisioning/dashboards/main.yaml
+      - ./grafana/config/datasource.yaml:/etc/grafana/provisioning/datasources/main.yaml
+      - ./grafana/config/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - prometheus
+      - cadvisor
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    restart: unless-stopped
+
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor
@@ -23,11 +39,10 @@ services:
     - /var/run:/var/run:rw
     - /sys:/sys:ro
     - /var/lib/docker/:/var/lib/docker:ro
-    depends_on:
-    - php-fpm
-    - swift
 
   swift:
+    depends_on:
+      - cadvisor
     build:
       context: ../swift
       tags:
@@ -37,6 +52,8 @@ services:
     volumes:
       - ../data:/data
   php-fpm:
+    depends_on:
+      - cadvisor
     build:
       context: ../php
       target: app
@@ -52,6 +69,8 @@ services:
       - ../data:/var/www/data:ro
 
   php-nginx:
+    depends_on:
+      - cadvisor
     build:
       context: ../php
       target: web
