@@ -6,6 +6,9 @@ struct ScenarioResult: ResponseEncodable {
     let orderCount: Int
     let iterations: Int
 
+    let startTimeMs: Int
+    let endTimeMs: Int
+
     let avgTimeMs: Double
     let minTimeMs: Double
     let maxTimeMs: Double
@@ -25,7 +28,8 @@ struct ScenarioResult: ResponseEncodable {
 
 extension ScenarioResult {
     static func create(
-        for name: String, orderCount: Int, iterations: Int, times: [Double], memoryUsage: Double
+        for name: String, orderCount: Int, iterations: Int, times: [Double], memoryUsage: Double,
+        startTime: Int, endTime: Int
     ) -> ScenarioResult {
         let safeOrderCount = max(orderCount, 0)
         let safeIterations = max(iterations, 0)
@@ -46,6 +50,8 @@ extension ScenarioResult {
             operation: name,
             orderCount: safeOrderCount,
             iterations: safeIterations,
+            startTimeMs: startTime,
+            endTimeMs: endTime,
             avgTimeMs: averageTime,
             minTimeMs: times.min() ?? 0,
             maxTimeMs: times.max() ?? 0,

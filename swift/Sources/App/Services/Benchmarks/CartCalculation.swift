@@ -41,6 +41,7 @@ struct CartCalculation: BenchmarkOperation {
 
         var times: [Double] = []
         let memoryUsageStart = reportMemory()
+        let startTime = Int(Date.now.timeIntervalSince1970)
 
         for i in 0..<iterations {
             let startTime = Date()
@@ -52,6 +53,7 @@ struct CartCalculation: BenchmarkOperation {
             times.append(elapsedTime)
         }
 
+        let endTime = Int(Date.now.timeIntervalSince1970)
         let memoryUsageEnd = reportMemory()
 
         return ScenarioResult.create(
@@ -59,7 +61,9 @@ struct CartCalculation: BenchmarkOperation {
             orderCount: 0,
             iterations: iterations,
             times: times,
-            memoryUsage: memoryUsageEnd - memoryUsageStart
+            memoryUsage: memoryUsageEnd - memoryUsageStart,
+            startTime: startTime,
+            endTime: endTime
         )
 
     }

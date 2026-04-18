@@ -361,6 +361,7 @@ HTML;
         $times = [];
         $pdfSizes = [];
         $memoryStart = memory_get_usage(true);
+        $totalStart = hrtime(true);
 
         for ($i = 0; $i < $iterations; $i++) {
             $start = hrtime(true);
@@ -373,6 +374,7 @@ HTML;
         }
 
         $memoryEnd = memory_get_usage(true);
+        $totalEnd = hrtime(true);
 
         sort($times);
 
@@ -380,6 +382,8 @@ HTML;
             'operation' => 'pdf_generation_single',
             'product_count' => count($order['products']),
             'iterations' => $iterations,
+            'start_time_ms' => $totalStart,
+            'end_time_ms' => $totalEnd,
             'avg_time_ms' => round(array_sum($times) / count($times), 3),
             'min_time_ms' => round(min($times), 3),
             'max_time_ms' => round(max($times), 3),
@@ -410,6 +414,7 @@ HTML;
         $times = [];
         $zipSizes = [];
         $memoryStart = memory_get_usage(true);
+        $totalStart = hrtime(true);
 
         for ($i = 0; $i < $iterations; $i++) {
             $start = hrtime(true);
@@ -429,6 +434,7 @@ HTML;
         }
 
         $memoryEnd = memory_get_usage(true);
+        $totalEnd = hrtime(true);
 
         sort($times);
 
@@ -436,6 +442,8 @@ HTML;
             'operation' => 'pdf_generation_zip',
             'pdf_count' => $pdfCount,
             'iterations' => $iterations,
+            'start_time_ms' => $totalStart,
+            'end_time_ms' => $totalEnd,
             'avg_time_ms' => round(array_sum($times) / count($times), 3),
             'min_time_ms' => round(min($times), 3),
             'max_time_ms' => round(max($times), 3),

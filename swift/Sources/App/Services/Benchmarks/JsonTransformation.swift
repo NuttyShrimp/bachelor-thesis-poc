@@ -31,6 +31,7 @@ struct JsonTransformation: BenchmarkOperation {
         var transformedCount = 0
 
         let memoryUsageStart = reportMemory()
+        let startTime = Int(Date.now.timeIntervalSince1970)
         let decoder = createDecoder()
         let encoder = createEncoder()
 
@@ -52,6 +53,7 @@ struct JsonTransformation: BenchmarkOperation {
             times.append(elapsedTime)
         }
 
+        let endTime = Int(Date.now.timeIntervalSince1970)
         let memoryUsageEnd = reportMemory()
 
         return ScenarioResult.create(
@@ -60,7 +62,9 @@ struct JsonTransformation: BenchmarkOperation {
             orderCount: transformedCount,
             iterations: iterations,
             times: times,
-            memoryUsage: memoryUsageEnd - memoryUsageStart
+            memoryUsage: memoryUsageEnd - memoryUsageStart,
+            startTime: startTime,
+            endTime: endTime
         )
     }
 

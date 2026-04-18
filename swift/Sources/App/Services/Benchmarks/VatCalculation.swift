@@ -44,6 +44,7 @@ struct VatCalculation: BenchmarkOperation {
 
         var times: [Double] = []
         let memoryUsageStart = reportMemory()
+        let startTime = Int(Date.now.timeIntervalSince1970)
 
         for _ in 0..<iterations {
             let startTime = Date()
@@ -53,6 +54,7 @@ struct VatCalculation: BenchmarkOperation {
             times.append(elapsedTime)
         }
 
+        let endTime = Int(Date.now.timeIntervalSince1970)
         let memoryUsageEnd = reportMemory()
 
         return ScenarioResult.create(
@@ -60,7 +62,9 @@ struct VatCalculation: BenchmarkOperation {
             orderCount: itemCount,
             iterations: iterations,
             times: times,
-            memoryUsage: memoryUsageEnd - memoryUsageStart
+            memoryUsage: memoryUsageEnd - memoryUsageStart,
+            startTime: startTime,
+            endTime: endTime
         )
     }
 

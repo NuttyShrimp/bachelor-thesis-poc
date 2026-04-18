@@ -216,6 +216,7 @@ class JsonTransformation
         $times = [];
         $jsonSizes = [];
         $memoryStart = memory_get_usage(true);
+        $totalStart = hrtime(true);
 
         for ($i = 0; $i < $iterations; $i++) {
             $start = hrtime(true);
@@ -230,6 +231,7 @@ class JsonTransformation
         }
 
         $memoryEnd = memory_get_usage(true);
+        $totalEnd = hrtime(true);
 
         sort($times);
 
@@ -241,6 +243,8 @@ class JsonTransformation
             'category_count' => $categoryCount,
             'product_count' => $productCount,
             'iterations' => $iterations,
+            'start_time_ms' => $totalStart,
+            'end_time_ms' => $totalEnd,
             'avg_time_ms' => round(array_sum($times) / count($times), 3),
             'min_time_ms' => round(min($times), 3),
             'max_time_ms' => round(max($times), 3),

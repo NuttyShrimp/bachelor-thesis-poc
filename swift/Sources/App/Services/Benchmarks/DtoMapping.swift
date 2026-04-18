@@ -40,6 +40,7 @@ struct DtoMapping: BenchmarkOperation {
         var failedCount = 0
 
         let memoryUsageStart = reportMemory()
+        let startTime = Int(Date.now.timeIntervalSince1970)
         let decoder = createDecoder()
 
         for _ in 0..<iterations {
@@ -60,6 +61,7 @@ struct DtoMapping: BenchmarkOperation {
             times.append(elapsedTime)
         }
 
+        let endTime = Int(Date.now.timeIntervalSince1970)
         let memoryUsageEnd = reportMemory()
         logger.debug(
             "Mapped \(mappedCount) product settings. Memory used: \(memoryUsageEnd - memoryUsageStart) MB, Start: \(memoryUsageStart) MB, End: \(memoryUsageEnd) MB"
@@ -73,7 +75,9 @@ struct DtoMapping: BenchmarkOperation {
             orderCount: products.count,
             iterations: iterations,
             times: times,
-            memoryUsage: memoryUsageEnd - memoryUsageStart
+            memoryUsage: memoryUsageEnd - memoryUsageStart,
+            startTime: startTime,
+            endTime: endTime
         )
     }
 
@@ -85,6 +89,7 @@ struct DtoMapping: BenchmarkOperation {
 
         let memoryUsageStart = reportMemory()
         let decoder = createDecoder()
+        let startTime = Int(Date.now.timeIntervalSince1970)
 
         for _ in 0..<iterations {
             let startTime = Date()
@@ -104,6 +109,7 @@ struct DtoMapping: BenchmarkOperation {
             times.append(elapsedTime)
         }
 
+        let endTime = Int(Date.now.timeIntervalSince1970)
         let memoryUsageEnd = reportMemory()
         logger.debug(
             "Mapped \(mappedCount) order settings. Memory used: \(memoryUsageEnd - memoryUsageStart) MB, Start: \(memoryUsageStart) MB, End: \(memoryUsageEnd) MB"
@@ -117,7 +123,9 @@ struct DtoMapping: BenchmarkOperation {
             orderCount: orders.count,
             iterations: iterations,
             times: times,
-            memoryUsage: memoryUsageEnd - memoryUsageStart
+            memoryUsage: memoryUsageEnd - memoryUsageStart,
+            startTime: startTime,
+            endTime: endTime
         )
     }
 
@@ -129,6 +137,7 @@ struct DtoMapping: BenchmarkOperation {
 
         let memoryUsageStart = reportMemory()
         let decoder = createDecoder()
+        let startTime = Int(Date.now.timeIntervalSince1970)
 
         for _ in 0..<iterations {
             let startTime = Date()
@@ -148,6 +157,7 @@ struct DtoMapping: BenchmarkOperation {
             times.append(elapsedTime)
         }
 
+        let endTime = Int(Date.now.timeIntervalSince1970)
         let memoryUsageEnd = reportMemory()
         logger.debug(
             "Mapped \(mappedCount) order products. Memory used: \(memoryUsageEnd - memoryUsageStart) MB, Start: \(memoryUsageStart) MB, End: \(memoryUsageEnd) MB"
@@ -161,7 +171,9 @@ struct DtoMapping: BenchmarkOperation {
             orderCount: orders.count,
             iterations: iterations,
             times: times,
-            memoryUsage: memoryUsageEnd - memoryUsageStart
+            memoryUsage: memoryUsageEnd - memoryUsageStart,
+            startTime: startTime,
+            endTime: endTime
         )
     }
 
@@ -173,6 +185,7 @@ struct DtoMapping: BenchmarkOperation {
 
         let memoryUsageStart = reportMemory()
         let decoder = createDecoder()
+        let startTime = Int(Date.now.timeIntervalSince1970)
 
         for _ in 0..<iterations {
             let startTime = Date()
@@ -192,6 +205,7 @@ struct DtoMapping: BenchmarkOperation {
             times.append(elapsedTime)
         }
 
+        let endTime = Int(Date.now.timeIntervalSince1970)
         let memoryUsageEnd = reportMemory()
         logger.debug(
             "Mapped \(mappedCount) full orders. Memory used: \(memoryUsageEnd - memoryUsageStart) MB, Start: \(memoryUsageStart) MB, End: \(memoryUsageEnd) MB"
@@ -205,7 +219,9 @@ struct DtoMapping: BenchmarkOperation {
             orderCount: orders.count,
             iterations: iterations,
             times: times,
-            memoryUsage: memoryUsageEnd - memoryUsageStart
+            memoryUsage: memoryUsageEnd - memoryUsageStart,
+            startTime: startTime,
+            endTime: endTime,
         )
 
     }

@@ -173,6 +173,7 @@ class VatCalculation
 
         $times = [];
         $memoryStart = memory_get_usage(true);
+        $totalStart = hrtime(true);
 
         for ($i = 0; $i < $iterations; $i++) {
             $start = hrtime(true);
@@ -184,12 +185,15 @@ class VatCalculation
         }
 
         $memoryEnd = memory_get_usage(true);
+        $totalEnd = hrtime(true);
 
         return [
             'operation' => 'vat_calculation',
             'scenario' => $scenario,
             'item_count' => $cart['item_count'],
             'iterations' => $iterations,
+            'start_time_ms' => $totalStart,
+            'end_time_ms' => $totalEnd,
             'avg_time_ms' => round(array_sum($times) / count($times), 3),
             'min_time_ms' => round(min($times), 3),
             'max_time_ms' => round(max($times), 3),

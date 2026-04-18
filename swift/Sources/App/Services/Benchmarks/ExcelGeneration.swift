@@ -51,7 +51,9 @@ struct ExcelGeneration: BenchmarkOperation {
                 orderCount: 0,
                 iterations: iterations,
                 times: [],
-                memoryUsage: 0
+                memoryUsage: 0,
+                startTime: 0,
+                endTime: 0
             )
         }
 
@@ -66,7 +68,9 @@ struct ExcelGeneration: BenchmarkOperation {
                 orderCount: 0,
                 iterations: iterations,
                 times: [],
-                memoryUsage: 0
+                memoryUsage: 0,
+                startTime: 0,
+                endTime: 0
             )
         }
 
@@ -86,6 +90,7 @@ struct ExcelGeneration: BenchmarkOperation {
         var generatedFileCount = 0
 
         let memoryUsageStart = reportMemory()
+        let startTime = Int(Date.now.timeIntervalSince1970)
 
         for _ in 0..<iterations {
             let startTime = DispatchTime.now().uptimeNanoseconds
@@ -116,6 +121,7 @@ struct ExcelGeneration: BenchmarkOperation {
             }
         }
 
+        let endTime = Int(Date.now.timeIntervalSince1970)
         let memoryUsageEnd = reportMemory()
         if generatedFileCount > 0 {
             let avgSizeKb = totalGeneratedFileSize / Double(generatedFileCount) / 1024
@@ -127,7 +133,9 @@ struct ExcelGeneration: BenchmarkOperation {
             orderCount: payload.orders.count,
             iterations: iterations,
             times: times,
-            memoryUsage: memoryUsageEnd - memoryUsageStart
+            memoryUsage: memoryUsageEnd - memoryUsageStart,
+            startTime: startTime,
+            endTime: endTime
         )
     }
 
