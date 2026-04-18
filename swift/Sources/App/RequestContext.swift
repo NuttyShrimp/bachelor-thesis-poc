@@ -28,6 +28,7 @@ struct JSONSnakeCaseEncoder: ResponseEncoder {
 
 struct MyRequestContext: RequestContext {
     var requestEncoder: JSONSnakeCaseEncoder { .init() }
+    var responseEncoder: JSONSnakeCaseEncoder { .init() }
     var coreContext: CoreRequestContextStorage
 
     init(source: Source) {
