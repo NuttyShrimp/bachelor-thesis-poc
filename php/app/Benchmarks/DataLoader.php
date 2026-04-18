@@ -67,17 +67,13 @@ class DataLoader
      */
     private static function load(string $filename): array
     {
-        if (!isset(self::$cache[$filename])) {
-            $path = base_path('../data/' . $filename);
+        $path = base_path('../data/' . $filename);
 
-            if (!File::exists($path)) {
-                throw new \RuntimeException("Benchmark data file not found: {$path}. Run 'php artisan benchmark:generate-data' first.");
-            }
-
-            self::$cache[$filename] = json_decode(File::get($path), true);
+        if (!File::exists($path)) {
+            throw new \RuntimeException("Benchmark data file not found: {$path}. Run 'php artisan benchmark:generate-data' first.");
         }
 
-        return self::$cache[$filename];
+        return json_decode(File::get($path), true);
     }
 
     /**
