@@ -15,7 +15,6 @@ let package = Package(
             url: "https://github.com/apple/swift-configuration.git", from: "1.0.0",
             traits: [.defaults, "CommandLineArguments"]),
         .package(url: "https://github.com/damuellen/xlsxwriter.swift", branch: "main"),
-        .package(url: "https://github.com/Swiftly-Developed/Swiftly-PDFKit.git", from: "0.2.0"),
     ],
     targets: [
         .executableTarget(
@@ -24,7 +23,6 @@ let package = Package(
                 .product(name: "Configuration", package: "swift-configuration"),
                 .product(name: "Hummingbird", package: "hummingbird"),
                 .product(name: "xlsxwriter", package: "xlsxwriter.swift"),
-                .product(name: "SwiftlyPDFKit", package: "Swiftly-PDFKit"),
             ],
             path: "Sources/App",
             swiftSettings: [

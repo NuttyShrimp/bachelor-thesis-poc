@@ -1,6 +1,5 @@
 import Foundation
 import Logging
-import SwiftlyPDFKit
 
 struct PdfGeneration: BenchmarkOperation {
     let iterations = 50
@@ -49,7 +48,7 @@ struct PdfGeneration: BenchmarkOperation {
 
         var order = payload.orders[0]
 
-        order.products = payload.orderProducts.filter { $0.orderId != order.id }
+        order.products = payload.orderProducts.filter { $0.orderId == order.id }
         for i in order.products.indices {
             order.products[i].options = payload.orderProductOptions.filter {
                 $0.orderProductId == order.products[i].id
@@ -63,7 +62,8 @@ struct PdfGeneration: BenchmarkOperation {
         for _ in 0..<iterations {
             do {
                 let start = Date()
-                let _ = try renderInvoiceHtml(order: order)
+                let pdf = try renderInvoiceHtml(order: order)
+                FileManager.default.createFile(atPath: "/tmp/swift-invoice.pdf", contents: pdf)
                 let end = Date()
                 let elapsedTime = end.timeIntervalSince(start) * 1000
                 times.append(elapsedTime)
@@ -87,62 +87,165 @@ struct PdfGeneration: BenchmarkOperation {
     }
 
     func renderInvoiceHtml(order: ExcelOrder) throws -> Data {
-        let pdf = PDF {
-            Page(size: .a4, margins: 40) {
-                Text("INVOICE")
-                    .foregroundColor(.init(red: 68, green: 114, blue: 196))
-                    .fontSize(28)
-                Spacer(height: 5)
-                Columns(spacing: 0) {
-                    ColumnItem {
-                        Text("Invoice Number: ")
-                    }
-                    ColumnItem {
-                        Text("#\(order.id)").bold()
-                    }
-                }
-                Text("Date: \(order.createdAt)")
-                Spacer(height: 70)
-                Table(
-                    data: order.products.map {
-                        var output = [String]()
-                        output.append("\($0.name ?? "Product")")
-                        output.append(String($0.quantity ?? 1))
-                        output.append(String($0.unitPrice ?? 0))
-                        output.append(String($0.vatRate ?? 21))
-                        output.append(String($0.total))
+        var itemsHtml = ""
 
-                        return output
-                    },
-                    style: .init(
-                        headerBackground: .init(red: 68, green: 114, blue: 196),
-                        headerTextColor: .white, headerFontSize: 10, cellFontSize: 10,
-                        rowHeight: 20, alternateRowColor: .init(red: 248, green: 249, blue: 250),
-                        borderColor: PDFColor(white: 0.7),
-                        borderWidth: 0.25, cellPadding: 4, cellBold: false)
-                ) {
-                    Column("Product")
-                    Column("Qty", alignment: .center, headerAlignment: .center)
-                    Column("Unit Price", alignment: .trailing, headerAlignment: .trailing)
-                    Column("VAT", alignment: .center, headerAlignment: .center)
-                    Column("Total", alignment: .trailing, headerAlignment: .trailing)
-                }
-                Spacer(height: 50)
-                Columns(spacing: 0) {
-                    ColumnItem {
-                        Text("Subtotal:")
-                        Text("VAT:")
-                        Text("Total:")
-                    }
-                    ColumnItem {
-                        Text("€\(order.products.reduce(0) { $0 + $1.total})")
-                        Text("€\(order.products.reduce(0, { $0 + $1.vatTotal}))")
-                        Text("€\(order.products.reduce(0, { $0 + $1.total + $1.vatTotal}))")
-                    }
-                }
-            }
+        order.products.forEach { product in
+            itemsHtml += """
+                    <tr>
+                        <td>\(product.name ?? "Product")<br><small style="color: #666;">\(product.options.map{$0.name ?? "Option"}.joined(separator: ","))</small></td>
+                        <td style="text-align: center;">\(product.quantity)</td>
+                        <td style="text-align: right;">€\(String(format: "%.2f", product.unitPrice))</td>
+                        <td style="text-align: center;">\(String(format: "%.2f", product.vatRate))</td>
+                        <td style="text-align: right;">€\(String(format: "%.2f", product.total))</td>
+                    </tr> 
+                """
         }
 
-        return try pdf.render()
+        let content = """
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="utf-8">
+                    <title>Invoice #\(order.id)</title>
+                    <style>
+                        * { margin: 0; padding: 0; box-sizing: border-box; }
+                        body {
+                            font-family: 'DejaVu Sans', Arial, sans-serif;
+                            font-size: 11px;
+                            line-height: 1.4;
+                            color: #333;
+                            padding: 40px;
+                        }
+                        .header {
+                            border-bottom: 2px solid #4472C4;
+                            padding-bottom: 20px;
+                            margin-bottom: 30px;
+                        }
+                        .header h1 {
+                            color: #4472C4;
+                            font-size: 28px;
+                            margin-bottom: 5px;
+                        }
+                        .invoice-info {
+                            display: flex;
+                            justify-content: space-between;
+                            margin-bottom: 30px;
+                        }
+                        .invoice-info div {
+                            width: 48%;
+                        }
+                        .invoice-info h3 {
+                            color: #4472C4;
+                            margin-bottom: 10px;
+                            font-size: 14px;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 20px 0;
+                        }
+                        th {
+                            background-color: #4472C4;
+                            color: white;
+                            padding: 12px 8px;
+                            text-align: left;
+                            font-weight: bold;
+                        }
+                        td {
+                            border-bottom: 1px solid #ddd;
+                            padding: 10px 8px;
+                            vertical-align: top;
+                        }
+                        tr:nth-child(even) {
+                            background-color: #f8f9fa;
+                        }
+                        .totals {
+                            margin-top: 30px;
+                            text-align: right;
+                        }
+                        .totals table {
+                            width: 300px;
+                            margin-left: auto;
+                        }
+                        .totals td {
+                            padding: 8px;
+                            border: none;
+                        }
+                        .totals .label {
+                            text-align: right;
+                            color: #666;
+                        }
+                        .totals .value {
+                            text-align: right;
+                            font-weight: bold;
+                        }
+                        .totals .grand-total {
+                            font-size: 16px;
+                            color: #4472C4;
+                            border-top: 2px solid #4472C4;
+                        }
+                        .footer {
+                            position: fixed;
+                            bottom: 40px;
+                            left: 40px;
+                            right: 40px;
+                            text-align: center;
+                            color: #666;
+                            font-size: 10px;
+                            border-top: 1px solid #ddd;
+                            padding-top: 15px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>INVOICE</h1>
+                        <p>Invoice Number: <strong>#\(order.id)</strong></p>
+                        <p>Date: \(order.createdAt ?? Date().formatted(.dateTime))</p>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 40%;">Product</th>
+                                <th style="width: 10%; text-align: center;">Qty</th>
+                                <th style="width: 15%; text-align: right;">Unit Price</th>
+                                <th style="width: 10%; text-align: center;">VAT</th>
+                                <th style="width: 15%; text-align: right;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            \(itemsHtml)
+                        </tbody>
+                    </table>
+
+                    <div class="totals">
+                        <table>
+                            <tr>
+                                <td class="label">Subtotal:</td>
+                                <td class="value">€\(String(format: "%.3f", order.products.reduce(0) { $0 + $1.total}))</td>
+                            </tr>
+                            <tr>
+                                <td class="label">VAT:</td>
+                                <td class="value">€\(String(format: "%.3f",order.products.reduce(0, { $0 + $1.vatTotal})))</td>
+                            </tr>
+                            <tr class="grand-total">
+                                <td class="label">Total:</td>
+                                <td class="value">€\(String(format: "%.3f",order.products.reduce(0, { $0 + $1.total + $1.vatTotal})))</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="footer">
+                        <p>Thank you for your business!</p>
+                        <p>This is a computer-generated invoice for benchmark testing purposes.</p>
+                    </div>
+                </body>
+                </html>
+            """
+
+        let helper = PdfHelper(content: content)
+
+        return try helper.render()
     }
 }
