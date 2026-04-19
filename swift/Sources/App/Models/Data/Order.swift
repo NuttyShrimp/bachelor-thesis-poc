@@ -435,6 +435,7 @@ struct OrderSettingsWebpay: Decodable {
     let token: String?
 }
 
+// TODO: Should be renamed as its also used in the pdf tests
 struct ExcelOrdersPayload: Decodable {
     let orders: [ExcelOrder]
     let orderProducts: [ExcelOrderProduct]
@@ -450,6 +451,7 @@ struct ExcelOrdersPayload: Decodable {
 struct ExcelOrder: Decodable {
     let id: Int
     let createdAt: String?
+    var products: [ExcelOrderProduct] = []
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -462,7 +464,17 @@ struct ExcelOrderProduct: Decodable {
     let orderId: Int
     let name: String?
     let category: String?
-    let quantity: Int?
+    var quantity: Int = 1
+    var unitPrice: Double = 0
+    var vatRate: Int = 21
+    var options: [ExcelOrderProductOption] = []
+
+    var total: Double {
+        return Double(quantity) * unitPrice
+    }
+    var vatTotal: Double {
+        return total * (Double(vatRate) / 100.0)
+    }
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -470,6 +482,8 @@ struct ExcelOrderProduct: Decodable {
         case name
         case category
         case quantity
+        case unitPrice = "unit_price"
+        case vatRate = "vat_rate"
     }
 }
 

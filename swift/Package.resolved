@@ -1,5 +1,5 @@
 {
-  "originHash" : "3a45c75ca4ed3eef64893be2aa730a9fbbdee02b61ade8eca27993b3cc440167",
+  "originHash" : "e40a27880dc58cb65dc318961c0d3d139c435f69a6a99ed37fe64e4e68270c13",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -200,6 +200,15 @@
       }
     },
     {
+      "identity" : "swift-qrcode-generator",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/fwcd/swift-qrcode-generator.git",
+      "state" : {
+        "revision" : "5ca09b6a2ad190f94aa3d6ddef45b187f8c0343b",
+        "version" : "1.0.3"
+      }
+    },
+    {
       "identity" : "swift-service-context",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-service-context.git",
@@ -224,6 +233,15 @@
       "state" : {
         "revision" : "7c6ad0fc39d0763e0b699210e4124afd5041c5df",
         "version" : "1.6.4"
+      }
+    },
+    {
+      "identity" : "swiftly-pdfkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Swiftly-Developed/Swiftly-PDFKit.git",
+      "state" : {
+        "revision" : "5c2e92f6bce019ea0f8ae0e9b24dee47e449d8f5",
+        "version" : "0.2.1"
       }
     },
     {

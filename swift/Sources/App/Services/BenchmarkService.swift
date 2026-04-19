@@ -14,6 +14,7 @@ final class BenchmarkService: Sendable {
             VatCalculation(dataLoader: dataLoader, logger: logger),
             CartCalculation(dataLoader: dataLoader, logger: logger),
             ExcelGeneration(dataLoader: dataLoader, logger: logger),
+            PdfGeneration(dataLoader: dataLoader, logger: logger),
         ]
     }
 
@@ -41,6 +42,8 @@ final class BenchmarkService: Sendable {
             return VatCalculation(dataLoader: dataLoader, logger: logger)
         case "excel_generation":
             return ExcelGeneration(dataLoader: dataLoader, logger: logger)
+        case "pdf_generation":
+            return PdfGeneration(dataLoader: dataLoader, logger: logger)
         default:
             throw BenchmarkError.UnknownOperation(name: name)
         }
