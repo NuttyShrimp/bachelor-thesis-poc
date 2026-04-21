@@ -402,7 +402,7 @@ HTML;
     /**
      * Run benchmark - ZIP with multiple PDFs
      */
-    public static function benchmarkZip(int $pdfCount = 50, int $iterations = 5): array
+    public static function benchmarkZip(int $pdfCount = 50, int $iterations = 10): array
     {
         $orders = DataLoader::orders();
 
@@ -420,6 +420,7 @@ HTML;
             $start = hrtime(true);
 
             $zipFile = self::generateInvoiceZip($orders, $pdfCount);
+            set_time_limit(300);
 
             $end = hrtime(true);
             $times[] = ($end - $start) / 1_000_000;

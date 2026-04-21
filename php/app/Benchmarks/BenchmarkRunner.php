@@ -146,12 +146,10 @@ class BenchmarkRunner
                     $options['iterations'] ?? 10
                 )
             ],
-            'pdf_generation_single' => [
+            'pdf_generation' => [
                 'pdf_generation_single' => PdfGeneration::benchmarkSingle(
                     $options['iterations'] ?? 50
-                )
-            ],
-            'pdf_generation_zip' => [
+                ),
                 "pdf_generation_zip" => PdfGeneration::benchmarkZip(
                     $options['pdf_count'] ?? 50,
                     $options['iterations'] ?? 5
