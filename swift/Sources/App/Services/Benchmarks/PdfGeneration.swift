@@ -1,5 +1,6 @@
 import Foundation
 import Logging
+import ZIPFoundation
 
 struct PdfGeneration: BenchmarkOperation {
     let iterations = 50
@@ -23,7 +24,8 @@ struct PdfGeneration: BenchmarkOperation {
 
     func run() -> [String: ScenarioResult] {
         return [
-            "single": benchmarkSingle()
+            "single": benchmarkSingle(),
+            "zip": benchmarkZip(),
         ]
     }
 
@@ -36,7 +38,7 @@ struct PdfGeneration: BenchmarkOperation {
         } catch {
             logger.error("Failed to decode orders payload for excel benchmark: \(error)")
             return ScenarioResult.create(
-                for: "excel_generation",
+                for: "pdf_generation_single",
                 orderCount: 0,
                 iterations: iterations,
                 times: [],
@@ -46,14 +48,7 @@ struct PdfGeneration: BenchmarkOperation {
             )
         }
 
-        var order = payload.orders[0]
-
-        order.products = payload.orderProducts.filter { $0.orderId == order.id }
-        for i in order.products.indices {
-            order.products[i].options = payload.orderProductOptions.filter {
-                $0.orderProductId == order.products[i].id
-            }
-        }
+        var order = getFullOrder(payload: payload, for: 0)
 
         var times: [Double] = []
         let memoryUsageStart = reportMemory()
@@ -84,6 +79,94 @@ struct PdfGeneration: BenchmarkOperation {
             startTime: startTime,
             endTime: endTime
         )
+    }
+
+    func benchmarkZip() -> ScenarioResult {
+        let orders = dataLoader.ordersData()
+        let payload: ExcelOrdersPayload
+        do {
+            let decoder = createDecoder()
+            payload = try decoder.decode(ExcelOrdersPayload.self, from: orders)
+        } catch {
+            logger.error("Failed to decode orders payload for excel benchmark: \(error)")
+            return ScenarioResult.create(
+                for: "pdf_generation_zip",
+                orderCount: 0,
+                iterations: iterations,
+                times: [],
+                memoryUsage: 0,
+                startTime: 0,
+                endTime: 0
+            )
+        }
+
+        var times: [Double] = []
+        let memoryUsageStart = reportMemory()
+        let startTime = Int(Date.now.timeIntervalSince1970)
+
+        for _ in 0..<10 {
+            do {
+                let start = Date()
+
+                let url = try generateInvoiceZip(payload: payload)
+                logger.debug("\(url)")
+
+                let end = Date()
+                let elapsedTime = end.timeIntervalSince(start) * 1000
+                times.append(elapsedTime)
+                logger.debug("Iteration elapsed in \(elapsedTime)")
+            } catch {
+                logger.error("Failed to render invoice: \(error)")
+            }
+        }
+
+        let endTime = Int(Date.now.timeIntervalSince1970)
+        let memoryUsageEnd = reportMemory()
+        return ScenarioResult.create(
+            for: "pdf_generation_zip",
+            orderCount: 100,
+            iterations: iterations,
+            times: times,
+            memoryUsage: memoryUsageEnd - memoryUsageStart,
+            startTime: startTime,
+            endTime: endTime
+        )
+    }
+
+    func generateInvoiceZip(payload: ExcelOrdersPayload, limit: Int = 50) throws -> String {
+        let fileManager = FileManager()
+        var archiveURL = fileManager.temporaryDirectory
+        archiveURL.appendPathComponent("bap")
+        archiveURL.appendPathComponent("invoices_\(Int.random(in: 1000...9999)).zip")
+        let archive = try Archive(url: archiveURL, accessMode: .create)
+
+        for i in 0..<limit {
+            let order = getFullOrder(payload: payload, for: i)
+            let invoice = try renderInvoiceHtml(order: order)
+
+            try archive.addEntry(
+                with: "invoice_\(order.id).pdf", type: .file,
+                uncompressedSize: Int64(invoice.count),
+                // bufferSize: 4,
+                provider: { (position, size) -> Data in
+                    return invoice.subdata(in: Data.Index(position)..<Int(position) + size)
+                })
+        }
+
+        return archiveURL.absoluteString
+    }
+
+    private func getFullOrder(payload: ExcelOrdersPayload, for index: Int) -> ExcelOrder {
+        var order = payload.orders[index]
+
+        order.products = payload.orderProducts.filter { $0.orderId == order.id }
+        for i in order.products.indices {
+            order.products[i].options = payload.orderProductOptions.filter {
+                $0.orderProductId == order.products[i].id
+            }
+        }
+
+        return order
     }
 
     func renderInvoiceHtml(order: ExcelOrder) throws -> Data {

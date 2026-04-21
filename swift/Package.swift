@@ -15,6 +15,8 @@ let package = Package(
             url: "https://github.com/apple/swift-configuration.git", from: "1.0.0",
             traits: [.defaults, "CommandLineArguments"]),
         .package(url: "https://github.com/damuellen/xlsxwriter.swift", branch: "main"),
+        .package(
+            url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.0")),
     ],
     targets: [
         .executableTarget(
@@ -23,6 +25,7 @@ let package = Package(
                 .product(name: "Configuration", package: "swift-configuration"),
                 .product(name: "Hummingbird", package: "hummingbird"),
                 .product(name: "xlsxwriter", package: "xlsxwriter.swift"),
+                .product(name: "ZIPFoundation", package: "ZIPFoundation"),
             ],
             path: "Sources/App",
             swiftSettings: [

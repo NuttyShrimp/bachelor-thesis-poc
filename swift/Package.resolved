@@ -1,5 +1,5 @@
 {
-  "originHash" : "e40a27880dc58cb65dc318961c0d3d139c435f69a6a99ed37fe64e4e68270c13",
+  "originHash" : "923ee8c630eeadb0d2f171d9e8d1b69afb78a0d4d0ad5c1c9f0bf49044544828",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -200,15 +200,6 @@
       }
     },
     {
-      "identity" : "swift-qrcode-generator",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/fwcd/swift-qrcode-generator.git",
-      "state" : {
-        "revision" : "5ca09b6a2ad190f94aa3d6ddef45b187f8c0343b",
-        "version" : "1.0.3"
-      }
-    },
-    {
       "identity" : "swift-service-context",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-service-context.git",
@@ -236,21 +227,21 @@
       }
     },
     {
-      "identity" : "swiftly-pdfkit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Swiftly-Developed/Swiftly-PDFKit.git",
-      "state" : {
-        "revision" : "5c2e92f6bce019ea0f8ae0e9b24dee47e449d8f5",
-        "version" : "0.2.1"
-      }
-    },
-    {
       "identity" : "xlsxwriter.swift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/damuellen/xlsxwriter.swift",
       "state" : {
         "branch" : "main",
         "revision" : "5f581ad5194e7e7cd1c6f04e98c99f42c4a347e3"
+      }
+    },
+    {
+      "identity" : "zipfoundation",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/weichsel/ZIPFoundation.git",
+      "state" : {
+        "revision" : "22787ffb59de99e5dc1fbfe80b19c97a904ad48d",
+        "version" : "0.9.20"
       }
     }
   ],
