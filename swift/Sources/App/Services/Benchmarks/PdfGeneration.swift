@@ -16,9 +16,7 @@ struct PdfGeneration: BenchmarkOperation {
         return BenchmarkOperationDescription(
             name: "vat_calculation",
             complexity: "O(n*m)",
-            scenarios: [
-                "smallCart", "mediumCart", "largeCart", "xlCart",
-            ]
+            scenarios: []
         )
     }
 

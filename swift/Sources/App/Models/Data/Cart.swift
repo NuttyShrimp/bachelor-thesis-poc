@@ -2,6 +2,11 @@ struct CartScenario: Decodable {
     let itemCount: Int
     let items: [CartItem]
 
+    enum CodingKeys: String, CodingKey {
+        case items
+        case itemCount = "item_count"
+    }
+
 }
 
 struct CartItem: Decodable, Sendable {
