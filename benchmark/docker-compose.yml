@@ -56,8 +56,10 @@ services:
         - bap/swift:latest
     ports:
       - '8080:8080'
+    privileged: true
     volumes:
       - ../data:/data
+
   php-fpm:
     depends_on:
       - cadvisor

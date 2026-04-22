@@ -1,7 +1,7 @@
 # ================================
 # Build image
 # ================================
-FROM swift:6.2-noble AS build
+FROM swift:6.3-bookworm AS build
 
 # Install OS updates
 RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
@@ -48,7 +48,10 @@ RUN [ -d /build/public ] && { mv /build/public ./public && chmod -R a-w ./public
 # ================================
 # Run image
 # ================================
-FROM ubuntu:noble
+# FROM ubuntu:noble
+FROM debian:trixie
+
+COPY ./packages/paper-muncher_0.3.0_trixie_amd64.deb /tmp/packages/paper-muncher_0.3.0_trixie_amd64.deb
 
 # Make sure all system packages are up to date, and install only essential packages.
 RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
@@ -58,12 +61,13 @@ RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
       libjemalloc2 \
       ca-certificates \
       tzdata \
-      wkhtmltopdf \
-# If your app or its dependencies import FoundationNetworking, also install `libcurl4`.
-      # libcurl4 \
-# If your app or its dependencies import FoundationXML, also install `libxml2`.
-      # libxml2 \
+      libxlsxwriter8 \
+      # paper-muncher dependencies
+      liburing2  libseccomp2  libsdl3-0 \
+    && apt-get -q install -y /tmp/packages/paper-muncher_0.3.0_trixie_amd64.deb \
     && rm -r /var/lib/apt/lists/*
+
+RUN ln -s /opt/paper-muncher/bin/paper-muncher /usr/local/bin/paper-muncher
 
 # Create a hummingbird user and group with /app as its home directory
 RUN useradd --user-group --create-home --system --skel /dev/null --home-dir /app hummingbird
