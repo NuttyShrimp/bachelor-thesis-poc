@@ -188,7 +188,7 @@ class VatCalculation
         $memoryEnd = memory_get_usage(true);
 
         return [
-            'operation' => 'vat_calculation',
+            'operation' => "vat_calculation_{$scenario}",
             'scenario' => $scenario,
             'item_count' => $cart['item_count'],
             'iterations' => $iterations,

@@ -193,7 +193,7 @@ class CartCalculation
         sort($times);
 
         return [
-            'operation' => 'cart_calculation',
+            'operation' => "cart_calculation_{$scenario}",
             'scenario' => $scenario,
             'item_count' => $cart['item_count'],
             'iterations' => $iterations,

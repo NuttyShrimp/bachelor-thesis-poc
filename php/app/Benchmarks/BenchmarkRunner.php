@@ -125,16 +125,16 @@ class BenchmarkRunner
                 $options['iterations'] ?? 50
             ),
             'vat_calculation' => [
-                $scenario => VatCalculation::benchmark(
-                    $scenario,
-                    $options['iterations'] ?? 100
-                )
+                "small_cart" => VatCalculation::benchmark("small_cart", 100),
+                "medium_cart" => VatCalculation::benchmark("medium_cart", 100),
+                "large_cart" => VatCalculation::benchmark("large_cart", 100),
+                "xl_cart" => VatCalculation::benchmark("xl_cart", 100),
             ],
             'cart_calculation' => [
-                $scenario => CartCalculation::benchmark(
-                    $scenario,
-                    $options['iterations'] ?? 100
-                )
+                "small_cart" => CartCalculation::benchmark("small_cart", 100),
+                "medium_cart" => CartCalculation::benchmark("medium_cart", 100),
+                "large_cart" => CartCalculation::benchmark("large_cart", 100),
+                "xl_cart" => CartCalculation::benchmark("xl_cart", 100),
             ],
             'json_transformation' => [
                 "json_transformation" => JsonTransformation::benchmark(
