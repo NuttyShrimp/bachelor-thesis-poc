@@ -1,6 +1,7 @@
 #! /usr/bin/env bash
 
 result=$(curl "http://$1/api/benchmarks/run/$2")
+echo "$result"
 
 echo "$result" | jq -c ".benchmarks.$2[]" | while read -r scenario; do
   startTime=$(($(echo $scenario | jq ".start_time_ms") * 1000))
