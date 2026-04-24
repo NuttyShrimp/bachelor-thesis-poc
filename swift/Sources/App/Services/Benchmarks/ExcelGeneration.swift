@@ -36,7 +36,7 @@ struct ExcelGeneration: BenchmarkOperation {
         )
     }
 
-    func run() -> [String: ScenarioResult] {
+    func run() async -> [String: ScenarioResult] {
         return [
             "excel_generation": benchmark()
         ]

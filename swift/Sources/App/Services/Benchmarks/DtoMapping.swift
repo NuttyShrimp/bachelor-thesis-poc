@@ -24,7 +24,7 @@ struct DtoMapping: BenchmarkOperation {
         )
     }
 
-    func run() -> [String: ScenarioResult] {
+    func run() async -> [String: ScenarioResult] {
         return [
             "product_settings": benchmarkProductSettings(),
             "order_settings": benchmarkOrderSettings(),

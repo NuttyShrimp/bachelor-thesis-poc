@@ -448,7 +448,7 @@ struct ExcelOrdersPayload: Decodable {
     }
 }
 
-struct ExcelOrder: Decodable {
+struct ExcelOrder: Decodable, Sendable {
     let id: Int
     let createdAt: String?
     var products: [ExcelOrderProduct] = []
@@ -459,7 +459,7 @@ struct ExcelOrder: Decodable {
     }
 }
 
-struct ExcelOrderProduct: Decodable {
+struct ExcelOrderProduct: Decodable, Sendable {
     let id: Int
     let orderId: Int
     let name: String?
@@ -487,7 +487,7 @@ struct ExcelOrderProduct: Decodable {
     }
 }
 
-struct ExcelOrderProductOption: Decodable {
+struct ExcelOrderProductOption: Decodable, Sendable {
     let orderProductId: Int
     let name: String?
 

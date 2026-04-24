@@ -1,4 +1,4 @@
 protocol BenchmarkOperation: Sendable {
     func description() -> BenchmarkOperationDescription
-    func run() -> [String: ScenarioResult]
+    func run() async -> [String: ScenarioResult]
 }

@@ -21,7 +21,7 @@ struct VatCalculation: BenchmarkOperation {
         )
     }
 
-    func run() -> [String: ScenarioResult] {
+    func run() async -> [String: ScenarioResult] {
         var resultMap = [String: ScenarioResult]()
         let scenarioNames = ["small_cart", "medium_cart", "large_cart", "xl_cart"]
 

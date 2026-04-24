@@ -19,7 +19,7 @@ struct JsonTransformation: BenchmarkOperation {
         )
     }
 
-    func run() -> [String: ScenarioResult] {
+    func run() async -> [String: ScenarioResult] {
         return [
             "json_transformation": benchmark()
         ]

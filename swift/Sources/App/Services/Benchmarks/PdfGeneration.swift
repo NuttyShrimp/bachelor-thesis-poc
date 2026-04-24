@@ -20,8 +20,8 @@ struct PdfGeneration: BenchmarkOperation {
         )
     }
 
-    func run() -> [String: ScenarioResult] {
-        return [
+    func run() async -> [String: ScenarioResult] {
+        return await [
             "single": benchmarkSingle(),
             "zip": benchmarkZip(),
         ]
@@ -79,7 +79,7 @@ struct PdfGeneration: BenchmarkOperation {
         )
     }
 
-    func benchmarkZip() -> ScenarioResult {
+    func benchmarkZip() async -> ScenarioResult {
         let orders = dataLoader.ordersData()
         let payload: ExcelOrdersPayload
         do {
@@ -123,7 +123,7 @@ struct PdfGeneration: BenchmarkOperation {
             do {
                 let start = Date()
 
-                let url = try generateInvoiceZip(payload: payload)
+                let url = try await generateInvoiceZip(payload: payload)
                 logger.debug("\(url)")
 
                 let end = Date()
@@ -148,24 +148,21 @@ struct PdfGeneration: BenchmarkOperation {
         )
     }
 
-    func generateInvoiceZip(payload: ExcelOrdersPayload, limit: Int = 50) throws -> String {
+    func generateInvoiceZip(payload: ExcelOrdersPayload, limit: Int = 50) async throws -> String {
         let fileManager = FileManager()
         var archiveURL = fileManager.temporaryDirectory
         archiveURL.appendPathComponent("bap")
         archiveURL.appendPathComponent("invoices_\(Int.random(in: 1000...9999)).zip")
-        let archive = try Archive(url: archiveURL, accessMode: .create)
+        let archive = try ArchiveActor(url: archiveURL, accessMode: .create)
 
-        for i in 0..<limit {
-            let order = getFullOrder(payload: payload, for: i)
-            let invoice = try renderInvoiceHtml(order: order)
-
-            try archive.addEntry(
-                with: "invoice_\(order.id).pdf", type: .file,
-                uncompressedSize: Int64(invoice.count),
-                // bufferSize: 4,
-                provider: { (position, size) -> Data in
-                    return invoice.subdata(in: Data.Index(position)..<Int(position) + size)
-                })
+        await withThrowingTaskGroup(of: Void.self) { group in
+            for i in 0..<limit {
+                group.addTask {
+                    let order = getFullOrder(payload: payload, for: i)
+                    let invoice = try renderInvoiceHtml(order: order)
+                    try await archive.addInvoicePdf(orderId: order.id, invoice: invoice)
+                }
+            }
         }
 
         return archiveURL.absoluteString

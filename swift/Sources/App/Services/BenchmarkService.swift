@@ -27,7 +27,7 @@ final class BenchmarkService: Sendable {
 
         logger.info("Running benchmark operation: \(operation)")
 
-        return runner.run()
+        return await runner.run()
     }
 
     private func createOperation(for name: String) throws -> any BenchmarkOperation {
