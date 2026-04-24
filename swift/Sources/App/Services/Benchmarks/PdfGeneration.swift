@@ -98,6 +98,23 @@ struct PdfGeneration: BenchmarkOperation {
             )
         }
 
+        do {
+            try FileManager.default.createDirectory(
+                at: FileManager.default.temporaryDirectory.appending(path: "bap"),
+                withIntermediateDirectories: true)
+        } catch {
+            logger.error("Failed to create directory for invoice storage: \(error)")
+            return ScenarioResult.create(
+                for: "pdf_generation_zip",
+                orderCount: 0,
+                iterations: iterations,
+                times: [],
+                memoryUsage: 0,
+                startTime: 0,
+                endTime: 0
+            )
+        }
+
         var times: [Double] = []
         let memoryUsageStart = reportMemory()
         let startTime = Int(Date.now.timeIntervalSince1970)
