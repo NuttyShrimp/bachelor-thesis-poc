@@ -73,6 +73,7 @@ services:
     environment:
       APP_ENV: production
       APP_DEBUG: "false"
+      APP_KEY: base64:6p01NdMHOMdQPhQWf4PwKm4YQ12b6NWvR4N4ctA4fuY=
       APP_URL: http://localhost:8000
     volumes:
       - ../data:/var/www/data:ro
@@ -88,6 +89,26 @@ services:
     depends_on:
       - php-fpm
       - cadvisor
+
+  php-octane:
+    depends_on:
+      - cadvisor
+    build:
+      context: ../php
+      dockerfile: Dockerfile.octane
+      target: octane
+      tags:
+        - bap/php-octane:latest
+    ports:
+      - "8001:8000"
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_KEY: base64:6p01NdMHOMdQPhQWf4PwKm4YQ12b6NWvR4N4ctA4fuY=
+      APP_URL: http://localhost:8001
+      OCTANE_SERVER: frankenphp
+    volumes:
+      - ../data:/var/www/data:ro
 
 volumes:
   grafana-storage: {}
