@@ -133,8 +133,10 @@ class DtoMapping
         }
 
         // Warm up
-        foreach (array_slice($products, 0, 10) as $product) {
-            self::mapProductSettings($product);
+        if ($iterations > 1){
+            foreach (array_slice($products, 0, 10) as $product) {
+                self::mapProductSettings($product);
+            }
         }
 
         $times = [];
@@ -201,8 +203,10 @@ class DtoMapping
         }
 
         // Warm up
-        foreach (array_slice($orders, 0, 10) as $order) {
-            self::mapOrderSettings($order);
+        if ($iterations > 1){
+            foreach (array_slice($orders, 0, 10) as $order) {
+                self::mapOrderSettings($order);
+            }
         }
 
         $times = [];
@@ -269,8 +273,10 @@ class DtoMapping
         }
 
         // Warm up
-        foreach (array_slice($orders, 0, 10) as $order) {
-            self::mapOrderProducts($order);
+        if ($iterations > 1){
+            foreach (array_slice($orders, 0, 10) as $order) {
+                self::mapOrderProducts($order);
+            }
         }
 
         $times = [];
@@ -344,8 +350,10 @@ class DtoMapping
         }
 
         // Warm up
-        foreach (array_slice($orders, 0, 5) as $order) {
-            self::mapFullOrder($order);
+        if ($iterations > 1){
+            foreach (array_slice($orders, 0, 5) as $order) {
+                self::mapFullOrder($order);
+            }
         }
 
         $times = [];

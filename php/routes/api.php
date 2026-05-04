@@ -44,6 +44,9 @@ Route::prefix('benchmarks')->group(function () {
     // Run single benchmark
     Route::get('/run/{operation}', [BenchmarkController::class, 'run']);
 
+    // Run single operation
+    Route::get('/single/{operation}/{scenario}', [BenchmarkController::class, 'runSingle']);
+
     // Run all benchmarks (POST because it's a heavy operation)
     Route::post('/run-all', [BenchmarkController::class, 'runAll']);
 });

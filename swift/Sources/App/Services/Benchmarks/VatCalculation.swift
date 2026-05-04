@@ -36,6 +36,15 @@ struct VatCalculation: BenchmarkOperation {
         return resultMap
     }
 
+    func single(scenario: String) async {
+        guard let cart = dataLoader.cartScenario(scenario, as: CartScenario.self) else {
+            logger.error("Failed to load cart scenarios")
+            return
+        }
+
+        _ = calculateForOrder(products: cart.items)
+    }
+
     private func benchmark(scenario: String, cart: CartScenario) -> ScenarioResult {
         let products = cart.items
         let itemCount = cart.itemCount

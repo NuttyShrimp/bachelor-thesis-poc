@@ -30,6 +30,12 @@ final class BenchmarkService: Sendable {
         return await runner.run()
     }
 
+    func runScenario(for operation: String, _ scenario: String) async throws {
+        let runner = try createOperation(for: operation)
+
+        return await runner.single(scenario: scenario)
+    }
+
     private func createOperation(for name: String) throws -> any BenchmarkOperation {
         switch name {
         case "dto_mapping":

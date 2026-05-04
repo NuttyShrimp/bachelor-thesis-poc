@@ -42,6 +42,29 @@ struct ExcelGeneration: BenchmarkOperation {
         ]
     }
 
+    func single(scenario: String) async {
+        let rawData = dataLoader.ordersData()
+        if rawData.isEmpty {
+            logger.error("Orders payload is empty, cannot run excel generation benchmark")
+            return
+        }
+
+        do {
+            let decoder = createDecoder()
+            let payload = try decoder.decode(ExcelOrdersPayload.self, from: rawData)
+            let outputDirectory = benchmarkOutputDirectory()
+
+            let fileURL = try generateProductionList(
+                payload: payload,
+                outputDirectory: outputDirectory
+            )
+
+            try? FileManager.default.removeItem(at: fileURL)
+        } catch {
+            logger.error("Failed to generate excel file in benchmark iteration: \(error)")
+        }
+    }
+
     private func benchmark() -> ScenarioResult {
         let rawData = dataLoader.ordersData()
         if rawData.isEmpty {

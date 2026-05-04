@@ -36,6 +36,15 @@ struct CartCalculation: BenchmarkOperation {
         return resultMap
     }
 
+    func single(scenario: String) async {
+        let discount = Int.random(in: 0...10)
+        guard let cart = dataLoader.cartScenario(scenario, as: CartScenario.self) else {
+            logger.error("Failed to load cart scenarios")
+            return
+        }
+        _ = calculateCartTotal(cart: cart, discount: discount)
+    }
+
     private func benchmark(scenario: String, cart: CartScenario) -> ScenarioResult {
         _ = calculateCartTotal(cart: cart, discount: 10)
 

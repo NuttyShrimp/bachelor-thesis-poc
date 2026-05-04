@@ -10,6 +10,7 @@ struct BenchmarkController: Sendable {
             .group("/benchmarks")
             .get(use: self.list)
             .get("run/:operation", use: self.run)
+            .get("single/:operation/:scenario", use: self.single)
     }
 
     func list(_ request: Request, ctx: MyRequestContext) async throws
@@ -28,5 +29,17 @@ struct BenchmarkController: Sendable {
             logger.error("Failed to run benchmark operation: \(error)")
             throw HTTPError(.internalServerError)
         }
+    }
+
+    func single(_ request: Request, ctx: MyRequestContext) async throws -> Response {
+        let operation = ctx.parameters.get("operation")!
+        let scenario = ctx.parameters.get("scenario")!
+        do {
+            let results = try await benchmark.runScenario(for: operation, scenario)
+        } catch {
+            logger.error("Failed to run benchmark operation: \(error)")
+            throw HTTPError(.internalServerError)
+        }
+        return .init(status: .ok)
     }
 }

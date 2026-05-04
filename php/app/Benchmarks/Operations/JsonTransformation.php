@@ -211,7 +211,9 @@ class JsonTransformation
         $shop = DataLoader::shop();
 
         // Warm up
-        self::transformShop($shop);
+        if ($iterations > 1){
+            self::transformShop($shop);
+        }
 
         $times = [];
         $jsonSizes = [];

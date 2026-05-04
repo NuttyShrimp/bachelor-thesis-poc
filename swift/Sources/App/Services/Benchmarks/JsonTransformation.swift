@@ -68,4 +68,16 @@ struct JsonTransformation: BenchmarkOperation {
         )
     }
 
+    func single(scenario: String) async {
+        let decoder = createDecoder()
+        let encoder = createEncoder()
+        let data = dataLoader.shopData()
+        do {
+            let result = try decoder.decode(Shop.self, from: data)
+            _ = try encoder.encode(result)
+        } catch {
+            logger.error("JSON transformation failed: \(error)")
+        }
+    }
+
 }

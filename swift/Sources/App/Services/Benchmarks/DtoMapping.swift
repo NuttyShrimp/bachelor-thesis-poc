@@ -33,6 +33,55 @@ struct DtoMapping: BenchmarkOperation {
         ]
     }
 
+    func single(scenario: String) async {
+        let decoder = createDecoder()
+        switch scenario {
+        case "product_settings":
+            let products = dataLoader.productSettingsData()
+            for settings in products {
+                do {
+                    _ = try decoder.decode(ProductSettings.self, from: settings)
+                } catch {
+                    logger.error("Failed to decode: \(error)")
+                }
+            }
+            break
+        case "order_settings":
+            let orders = dataLoader.orderSettingsData()
+            for settings in orders {
+                do {
+                    _ = try decoder.decode(OrderSettings.self, from: settings)
+                } catch {
+                    logger.error("Failed to decode: \(error)")
+                }
+            }
+            break
+        case "order_products":
+            let orders = dataLoader.orderProductsData()
+            for products in orders {
+                do {
+                    _ = try decoder.decode([OrderProduct].self, from: products)
+                } catch {
+                    logger.error("Failed to decode: \(error)")
+                }
+            }
+            break
+        case "full_order":
+            let orders = dataLoader.ordersMap()
+            for fullOrder in orders {
+                do {
+                    _ = try decoder.decode(FullOrder.self, from: fullOrder)
+                } catch {
+                    logger.error("Failed to decode: \(error)")
+                }
+            }
+            break
+        default:
+            logger.error("Unknown scenario: \(scenario) in DTO mapping operation")
+            return
+        }
+    }
+
     func benchmarkProductSettings() -> ScenarioResult {
         let products = dataLoader.productSettingsData()
         var times: [Double] = []

@@ -169,7 +169,9 @@ class VatCalculation
         $cart = DataLoader::cartScenario($scenario);
 
         // Warm up (ensure code paths are hot)
-        self::calculateForOrder(['products' => $cart['items']]);
+        if ($iterations > 1){
+            self::calculateForOrder(['products' => $cart['items']]);
+        }
 
         $times = [];
         $memoryStart = memory_get_usage(true);

@@ -159,6 +159,23 @@ class BenchmarkRunner
         };
     }
 
+
+    public static function runScenario(string $operation, string $scenario, array $options = []): array
+    {
+        return match ($operation) {
+            'dto_mapping' => DtoMapping::benchmark($scenario,1),
+            'vat_calculation' => VatCalculation::benchmark($scenario, 1),
+            'cart_calculation' => CartCalculation::benchmark($scenario, 1),
+            'json_transformation' => JsonTransformation::benchmark(1),
+            'excel_generation' => ExcelGeneration::benchmark(1),
+            'pdf_generation' => match($scenario) {
+                'single' => PdfGeneration::benchmarkSingle(1),
+                'zip' => PdfGeneration::benchmarkZip(1,1),
+            },
+            default => throw new \InvalidArgumentException("Unknown operation: {$operation}"),
+        };
+    }
+
     /**
      * Get system metadata for benchmark context
      */

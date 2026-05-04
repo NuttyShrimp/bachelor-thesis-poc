@@ -253,9 +253,11 @@ class ExcelGeneration
         }
 
         // Warm up
-        $warmupFile = self::generateProductionList($orders);
-        if (file_exists($warmupFile)) {
-            unlink($warmupFile);
+        if ($iterations > 1){
+            $warmupFile = self::generateProductionList($orders);
+            if (file_exists($warmupFile)) {
+                unlink($warmupFile);
+            }
         }
 
         $times = [];

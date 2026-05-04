@@ -356,7 +356,9 @@ HTML;
         }
 
         // Warm up
-        self::generateInvoice($order);
+        if ($iterations > 1){
+            self::generateInvoice($order);
+        }
 
         $times = [];
         $pdfSizes = [];

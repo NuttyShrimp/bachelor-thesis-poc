@@ -172,7 +172,9 @@ class CartCalculation
         $cart = DataLoader::cartScenario($scenario);
 
         // Warm up
-        self::calculate($cart, 10);
+        if ($iterations > 1){
+            self::calculate($cart, 10);
+        }
 
         $times = [];
         $memoryStart = memory_get_usage(true);

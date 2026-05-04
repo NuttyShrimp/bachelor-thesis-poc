@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Benchmarks\BenchmarkRunner;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * BENCHMARK API CONTROLLER
@@ -91,6 +92,24 @@ class BenchmarkController extends Controller
             ];
 
             return response()->json($result);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'available_operations' => array_keys(BenchmarkRunner::OPERATIONS),
+            ], 400);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Benchmark failed: ' . $e->getMessage(),
+                'trace' => config('app.debug') ? $e->getTraceAsString() : null,
+            ], 500);
+        }
+    }
+
+    public function runSingle(Request $request,string $operation, string $scenario): Response {
+        try {
+            $benchmark = BenchmarkRunner::runScenario($operation, $scenario);
+
+            return response()->noContent();
         } catch (\InvalidArgumentException $e) {
             return response()->json([
                 'error' => $e->getMessage(),

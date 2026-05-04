@@ -27,6 +27,41 @@ struct PdfGeneration: BenchmarkOperation {
         ]
     }
 
+    func single(scenario: String) async {
+        switch scenario {
+        case "single":
+            do {
+                let orders = dataLoader.ordersData()
+                let decoder = createDecoder()
+                let payload = try decoder.decode(ExcelOrdersPayload.self, from: orders)
+
+                let order = getFullOrder(payload: payload, for: 0)
+                let pdf = try renderInvoiceHtml(order: order)
+                FileManager.default.createFile(atPath: "/tmp/swift-invoice.pdf", contents: pdf)
+            } catch {
+                logger.error("Failed to render invoice: \(error)")
+            }
+            break
+        case "zip":
+            do {
+                let orders = dataLoader.ordersData()
+                let decoder = createDecoder()
+                let payload = try decoder.decode(ExcelOrdersPayload.self, from: orders)
+                try FileManager.default.createDirectory(
+                    at: FileManager.default.temporaryDirectory.appending(path: "bap"),
+                    withIntermediateDirectories: true)
+
+                _ = try await generateInvoiceZip(payload: payload)
+            } catch {
+                logger.error("Failed to render invoice: \(error)")
+            }
+            break
+        default:
+            logger.error("Invalid scenario: \(scenario) in pdf generation operation")
+            return
+        }
+    }
+
     func benchmarkSingle() -> ScenarioResult {
         let orders = dataLoader.ordersData()
         let payload: ExcelOrdersPayload
