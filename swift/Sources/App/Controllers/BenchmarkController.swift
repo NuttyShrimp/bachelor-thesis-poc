@@ -11,6 +11,7 @@ struct BenchmarkController: Sendable {
             .get(use: self.list)
             .get("run/:operation", use: self.run)
             .get("single/:operation/:scenario", use: self.single)
+            .post("preload", use: self.preloadData)
     }
 
     func list(_ request: Request, ctx: MyRequestContext) async throws
@@ -41,5 +42,10 @@ struct BenchmarkController: Sendable {
             throw HTTPError(.internalServerError)
         }
         return .init(status: .ok)
+    }
+
+    func preloadData(_ request: Request, ctx: MyRequestContext) -> Response {
+        benchmark.preloadData()
+        return .init(status: .noContent)
     }
 }

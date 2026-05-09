@@ -10,7 +10,7 @@ typealias AppRequestContext = MyRequestContext
 func buildApplication(reader: ConfigReader) async throws -> some ApplicationProtocol {
     let logger = {
         var logger = Logger(label: "bap")
-        logger.logLevel = reader.string(forKey: "log.level", as: Logger.Level.self, default: .info)
+        logger.logLevel = reader.string(forKey: "log.level", as: Logger.Level.self, default: .error)
         return logger
     }()
 

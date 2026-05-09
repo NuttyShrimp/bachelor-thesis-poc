@@ -6,33 +6,98 @@ enum DataLoaderError: Error {
     case jsonSerializationFailed
 }
 
-struct DataLoader {
+final class DataLoader: @unchecked Sendable {
     let logger: Logger
+
+    private var isCacheEnabled: Bool = false
+    private var memoryCache: [String: Any] = [:]
+    private let lock = NSLock()
 
     init(logger: Logger) {
         self.logger = logger
     }
 
+    func enableCache() {
+        lock.lock()
+        defer { lock.unlock() }
+        isCacheEnabled = true
+    }
+
+    func disableCache() {
+        lock.lock()
+        defer { lock.unlock() }
+        isCacheEnabled = false
+        memoryCache.removeAll()
+    }
+
+    private func getCached<T>(key: String) -> T? {
+        lock.lock()
+        defer { lock.unlock() }
+        guard isCacheEnabled else { return nil }
+        return memoryCache[key] as? T
+    }
+
+    private func setCached(key: String, value: Any) {
+        lock.lock()
+        defer { lock.unlock() }
+        if isCacheEnabled {
+            memoryCache[key] = value
+        }
+    }
+
+    func preloadData() {
+        enableCache()
+
+        _ = productsMap()
+        _ = ordersMap()
+        _ = shopData()
+        _ = ordersData()
+        _ = productSettingsData()
+        _ = orderSettingsData()
+        _ = orderProductsData()
+
+        _ = loadData(from: "cart_scenarios")
+    }
+
     func productsMap() -> [Any] {
-        extractArray(key: "products", from: "products")
+        if let cached: [Any] = getCached(key: "productsMap") { return cached }
+        let result = extractArray(key: "products", from: "products")
+        setCached(key: "productsMap", value: result)
+        return result
     }
 
     func ordersMap() -> [Data] {
-        extractArrayData(key: "orders", from: "orders")
+        if let cached: [Data] = getCached(key: "ordersMap") { return cached }
+        let result = extractArrayData(key: "orders", from: "orders")
+        setCached(key: "ordersMap", value: result)
+        return result
     }
 
     func shopData() -> Data {
-        loadData(from: "shop") ?? Data()
+        if let cached: Data = getCached(key: "shopData") { return cached }
+        let result = loadData(from: "shop") ?? Data()
+        setCached(key: "shopData", value: result)
+        return result
     }
 
     func ordersData() -> Data {
-        loadData(from: "orders") ?? Data()
+        if let cached: Data = getCached(key: "ordersData") { return cached }
+        let result = loadData(from: "orders") ?? Data()
+        setCached(key: "ordersData", value: result)
+        return result
     }
 
     func cartScenario<T: Decodable>(_ size: String, as type: T.Type = T.self) -> T? {
-        guard let scenarios: [String: T] = decode(from: "cart_scenarios", as: [String: T].self)
-        else {
-            return nil
+        let cacheKey = "cartScenarios_\(String(describing: T.self))"
+        let scenarios: [String: T]
+
+        if let cached: [String: T] = getCached(key: cacheKey) {
+            scenarios = cached
+        } else {
+            guard let decoded: [String: T] = decode(from: "cart_scenarios", as: [String: T].self)
+            else { return nil }
+            scenarios = decoded
+            setCached(key: cacheKey, value: scenarios)
         }
 
         if let scenario = scenarios[size] {
@@ -50,15 +115,24 @@ struct DataLoader {
     }
 
     func productSettingsData() -> [Data] {
-        extractFields("settings_json", fromArray: "products", in: "products")
+        if let cached: [Data] = getCached(key: "productSettingsData") { return cached }
+        let result = extractFields("settings_json", fromArray: "products", in: "products")
+        setCached(key: "productSettingsData", value: result)
+        return result
     }
 
     func orderSettingsData() -> [Data] {
-        extractFields("settings_json", fromArray: "orders", in: "orders")
+        if let cached: [Data] = getCached(key: "orderSettingsData") { return cached }
+        let result = extractFields("settings_json", fromArray: "orders", in: "orders")
+        setCached(key: "orderSettingsData", value: result)
+        return result
     }
 
     func orderProductsData() -> [Data] {
-        extractFields("products_json", fromArray: "orders", in: "orders")
+        if let cached: [Data] = getCached(key: "orderProductsData") { return cached }
+        let result = extractFields("products_json", fromArray: "orders", in: "orders")
+        setCached(key: "orderProductsData", value: result)
+        return result
     }
 
     private func extractArray(key: String, from file: String) -> [Any] {
@@ -95,6 +169,7 @@ struct DataLoader {
             return []
         }
     }
+
     private func extractFields(_ field: String, fromArray arrayKey: String, in file: String)
         -> [Data]
     {
@@ -119,11 +194,16 @@ struct DataLoader {
     }
 
     private func loadData(from file: String) -> Data? {
+        if let cached: Data = getCached(key: "raw_\(file)") {
+            return cached
+        }
+
         guard let data = try? Data(contentsOf: URL(filePath: "../data/\(file).json")) else {
-            // guard let data = FileManager.default.contents(atPath: "../data/\(file).json") else {
             logger.error("No data found in file: \(file).json")
             return nil
         }
+
+        setCached(key: "raw_\(file)", value: data)
         return data
     }
 
@@ -138,7 +218,3 @@ struct DataLoader {
         }
     }
 }
-
-// DataLoader is only used in a read-only context without mutable state
-// So we can flag it as sendable without actually meeting the requirements
-// extension DataLoader: @unchecked Sendable {}

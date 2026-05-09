@@ -18,6 +18,10 @@ final class BenchmarkService: Sendable {
         ]
     }
 
+    func preloadData() {
+        dataLoader.preloadData()
+    }
+
     func getAvailableOperations() -> [BenchmarkOperationDescription] {
         return operations.map { $0.description() }
     }
