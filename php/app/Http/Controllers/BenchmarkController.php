@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Benchmarks\BenchmarkRunner;
+use App\Benchmarks\DataLoader;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -121,6 +122,17 @@ class BenchmarkController extends Controller
                 'trace' => config('app.debug') ? $e->getTraceAsString() : null,
             ], 500);
         }
+    }
+
+    /**
+     * Preload benchmark data into memory
+     *
+     * POST /api/benchmarks/preload
+     */
+    public function preloadData(): Response
+    {
+        DataLoader::preloadData();
+        return response()->noContent();
     }
 
     /**
