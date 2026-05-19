@@ -40,7 +40,7 @@ struct DtoMapping: BenchmarkOperation {
             let products = dataLoader.productSettingsData()
             for settings in products {
                 do {
-                    _ = try decoder.decode(ProductSettings.self, from: settings)
+                    _ = try decoder.decode(ProductSettings.self, from: settings.bytes)
                 } catch {
                     logger.error("Failed to decode: \(error)")
                 }
@@ -50,7 +50,7 @@ struct DtoMapping: BenchmarkOperation {
             let orders = dataLoader.orderSettingsData()
             for settings in orders {
                 do {
-                    _ = try decoder.decode(OrderSettings.self, from: settings)
+                    _ = try decoder.decode(OrderSettings.self, from: settings.bytes)
                 } catch {
                     logger.error("Failed to decode: \(error)")
                 }
@@ -60,7 +60,7 @@ struct DtoMapping: BenchmarkOperation {
             let orders = dataLoader.orderProductsData()
             for products in orders {
                 do {
-                    _ = try decoder.decode([OrderProduct].self, from: products)
+                    _ = try decoder.decode([OrderProduct].self, from: products.bytes)
                 } catch {
                     logger.error("Failed to decode: \(error)")
                 }
@@ -70,7 +70,7 @@ struct DtoMapping: BenchmarkOperation {
             let orders = dataLoader.ordersMap()
             for fullOrder in orders {
                 do {
-                    _ = try decoder.decode(FullOrder.self, from: fullOrder)
+                    _ = try decoder.decode(FullOrder.self, from: fullOrder.bytes)
                 } catch {
                     logger.error("Failed to decode: \(error)")
                 }
@@ -97,7 +97,7 @@ struct DtoMapping: BenchmarkOperation {
 
             for settings in products {
                 do {
-                    _ = try decoder.decode(ProductSettings.self, from: settings)
+                    _ = try decoder.decode(ProductSettings.self, from: settings.bytes)
                     mappedCount += 1
                 } catch {
                     failedCount += 1
@@ -145,7 +145,7 @@ struct DtoMapping: BenchmarkOperation {
 
             for settings in orders {
                 do {
-                    _ = try decoder.decode(OrderSettings.self, from: settings)
+                    _ = try decoder.decode(OrderSettings.self, from: settings.bytes)
                     mappedCount += 1
                 } catch {
                     failedCount += 1
@@ -193,7 +193,7 @@ struct DtoMapping: BenchmarkOperation {
 
             for products in orders {
                 do {
-                    _ = try decoder.decode([OrderProduct].self, from: products)
+                    _ = try decoder.decode([OrderProduct].self, from: products.bytes)
                     mappedCount += 1
                 } catch {
                     failedCount += 1
@@ -241,7 +241,7 @@ struct DtoMapping: BenchmarkOperation {
 
             for fullOrder in orders {
                 do {
-                    _ = try decoder.decode(FullOrder.self, from: fullOrder)
+                    _ = try decoder.decode(FullOrder.self, from: fullOrder.bytes)
                     mappedCount += 1
                 } catch {
                     failedCount += 1

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import NewCodable
 
 func reportMemory() -> Double {
     // let factory = MetricsSystem.factory as? PrometheusMetricsFactory
@@ -72,15 +73,15 @@ extension String {
     }
 }
 
-func createDecoder() -> JSONDecoder {
-    let decoder = JSONDecoder()
-    decoder.dateDecodingStrategy = .iso8601
+func createDecoder() -> NewJSONDecoder {
+    let decoder = NewJSONDecoder()
+    // decoder.dateDecodingStrategy = .iso8601
     // decoder.keyDecodingStrategy = .convertFromSnakeCase
     return decoder
 }
 
-func createEncoder() -> JSONEncoder {
-    let encoder = JSONEncoder()
-    encoder.dateEncodingStrategy = .iso8601
+func createEncoder() -> NewJSONEncoder {
+    let encoder = NewJSONEncoder()
+    // encoder.dateEncodingStrategy = .iso8601
     return encoder
 }

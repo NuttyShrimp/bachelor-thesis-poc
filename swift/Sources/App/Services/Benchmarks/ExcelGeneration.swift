@@ -51,7 +51,7 @@ struct ExcelGeneration: BenchmarkOperation {
 
         do {
             let decoder = createDecoder()
-            let payload = try decoder.decode(ExcelOrdersPayload.self, from: rawData)
+            let payload = try decoder.decode(ExcelOrdersPayload.self, from: rawData.bytes)
             let outputDirectory = benchmarkOutputDirectory()
 
             let fileURL = try generateProductionList(
@@ -83,7 +83,7 @@ struct ExcelGeneration: BenchmarkOperation {
         let payload: ExcelOrdersPayload
         do {
             let decoder = createDecoder()
-            payload = try decoder.decode(ExcelOrdersPayload.self, from: rawData)
+            payload = try decoder.decode(ExcelOrdersPayload.self, from: rawData.bytes)
         } catch {
             logger.error("Failed to decode orders payload for excel benchmark: \(error)")
             return ScenarioResult.create(

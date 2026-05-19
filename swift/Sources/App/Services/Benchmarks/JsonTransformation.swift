@@ -1,5 +1,6 @@
 import Foundation
 import Logging
+import NewCodable
 
 struct JsonTransformation: BenchmarkOperation {
     let iterations = 100
@@ -39,7 +40,7 @@ struct JsonTransformation: BenchmarkOperation {
             let startTime = Date()
 
             do {
-                let result = try decoder.decode(Shop.self, from: data)
+                let result = try decoder.decode(Shop.self, from: data.bytes)
                 _ = try encoder.encode(result)
                 transformedCount += 1
             } catch {
@@ -73,7 +74,7 @@ struct JsonTransformation: BenchmarkOperation {
         let encoder = createEncoder()
         let data = dataLoader.shopData()
         do {
-            let result = try decoder.decode(Shop.self, from: data)
+            let result = try decoder.decode(Shop.self, from: data.bytes)
             _ = try encoder.encode(result)
         } catch {
             logger.error("JSON transformation failed: \(error)")

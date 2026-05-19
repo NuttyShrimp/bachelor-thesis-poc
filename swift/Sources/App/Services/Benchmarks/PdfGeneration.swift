@@ -33,7 +33,7 @@ struct PdfGeneration: BenchmarkOperation {
             do {
                 let orders = dataLoader.ordersData()
                 let decoder = createDecoder()
-                let payload = try decoder.decode(ExcelOrdersPayload.self, from: orders)
+                let payload = try decoder.decode(ExcelOrdersPayload.self, from: orders.bytes)
 
                 let order = getFullOrder(payload: payload, for: 0)
                 let pdf = try renderInvoiceHtml(order: order)
@@ -46,7 +46,7 @@ struct PdfGeneration: BenchmarkOperation {
             do {
                 let orders = dataLoader.ordersData()
                 let decoder = createDecoder()
-                let payload = try decoder.decode(ExcelOrdersPayload.self, from: orders)
+                let payload = try decoder.decode(ExcelOrdersPayload.self, from: orders.bytes)
                 try FileManager.default.createDirectory(
                     at: FileManager.default.temporaryDirectory.appending(path: "bap"),
                     withIntermediateDirectories: true)
@@ -67,7 +67,7 @@ struct PdfGeneration: BenchmarkOperation {
         let payload: ExcelOrdersPayload
         do {
             let decoder = createDecoder()
-            payload = try decoder.decode(ExcelOrdersPayload.self, from: orders)
+            payload = try decoder.decode(ExcelOrdersPayload.self, from: orders.bytes)
         } catch {
             logger.error("Failed to decode orders payload for excel benchmark: \(error)")
             return ScenarioResult.create(
@@ -119,7 +119,7 @@ struct PdfGeneration: BenchmarkOperation {
         let payload: ExcelOrdersPayload
         do {
             let decoder = createDecoder()
-            payload = try decoder.decode(ExcelOrdersPayload.self, from: orders)
+            payload = try decoder.decode(ExcelOrdersPayload.self, from: orders.bytes)
         } catch {
             logger.error("Failed to decode orders payload for excel benchmark: \(error)")
             return ScenarioResult.create(

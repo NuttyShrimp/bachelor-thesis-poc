@@ -1,46 +1,40 @@
-struct CartScenario: Decodable {
+import Foundation
+import NewCodable
+
+@JSONCodable
+struct CartScenario {
+    @CodingKey("item_count")
     let itemCount: Int
     let items: [CartItem]
-
-    enum CodingKeys: String, CodingKey {
-        case items
-        case itemCount = "item_count"
-    }
-
 }
 
-struct CartItem: Decodable, Sendable {
+@JSONCodable
+struct CartItem: Sendable {
+    @CodingKey("product_id")
     let productId: Int
     let quantity: Int
+    @CodingKey("unit_price")
     let unitPrice: Double
+    @CodingKey("vat_rate")
     let vatRate: Int
     let options: [CartOption]
-
-    enum CodingKeys: String, CodingKey {
-        case productId = "product_id"
-        case quantity
-        case unitPrice = "unit_price"
-        case vatRate = "vat_rate"
-        case options
-    }
 }
 
-struct CartOption: Decodable, Sendable {
+@JSONCodable
+struct CartOption: Sendable {
     let price: Double
+    @CodingKey("vat_rate")
     let vatRate: Int
-
-    enum CodingKeys: String, CodingKey {
-        case vatRate = "vat_rate"
-        case price
-    }
 }
 
+@JSONCodable
 struct VatGroup: Sendable {
     let rate: Int
     var base: Double
     var vat: Double
 }
 
+@JSONCodable
 struct VatResult: Sendable {
     let subtotal: Double
     let vatTotal: Double
@@ -48,6 +42,7 @@ struct VatResult: Sendable {
     let vatBreakdown: [VatGroup]
 }
 
+@JSONCodable
 struct CartTotal: Sendable {
     var items: [CartTotalItem]
     var itemCount: Int
@@ -58,6 +53,7 @@ struct CartTotal: Sendable {
     var total: Double
 }
 
+@JSONCodable
 struct CartTotalItem: Sendable {
     var productId: Int
     var quantity: Int

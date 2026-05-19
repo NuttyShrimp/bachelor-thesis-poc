@@ -1,5 +1,6 @@
 import Foundation
 import Logging
+import NewCodable
 
 enum DataLoaderError: Error {
     case noDataInFile(file: String)
@@ -87,7 +88,7 @@ final class DataLoader: @unchecked Sendable {
         return result
     }
 
-    func cartScenario<T: Decodable>(_ size: String, as type: T.Type = T.self) -> T? {
+    func cartScenario<T: JSONCodable>(_ size: String, as type: T.Type = T.self) -> T? {
         let cacheKey = "cartScenarios_\(String(describing: T.self))"
         let scenarios: [String: T]
 
@@ -207,11 +208,13 @@ final class DataLoader: @unchecked Sendable {
         return data
     }
 
-    private func decode<T: Decodable>(from file: String, as type: T.Type = T.self) -> T? {
+    private func decode<T: JSONCodable>(from file: String, as type: T.Type = T.self)
+        -> T?
+    {
         guard let raw = loadData(from: file) else { return nil }
 
         do {
-            return try createDecoder().decode(type, from: raw)
+            return try createDecoder().decode(type, from: raw.bytes)
         } catch {
             logger.error("Failed to decode \(file).json into \(String(describing: type)): \(error)")
             return nil

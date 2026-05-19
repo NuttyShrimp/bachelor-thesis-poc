@@ -1,7 +1,8 @@
 # ================================
 # Build image
 # ================================
-FROM swift:6.3-bookworm AS build
+FROM swift:6.4-bookworm AS build
+# FROM swiftlang/swift:nightly-bookworm AS build
 
 # Install OS updates
 RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \

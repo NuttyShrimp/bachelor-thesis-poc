@@ -5,96 +5,85 @@
 //  Created by Jan Lecoutere on 22/03/2026.
 //
 
-struct ProductSettings: Decodable {
+import NewCodable
+
+@JSONDecodable
+struct ProductSettings {
     let seo: ProductSettingsSeo?
     let photo: ProductSettingsPhoto?
     let price: ProductSettingsPrice?
     let stock: ProductSettingsStock?
     // NOTE: The php side does not parse this into a type, just a unstructured array
     let photos: [ProductSettingsPhoto]?
+    @CodingKey("photos_fs")
     let photosFs: ProductSettingsPhotosFs?
     let maxOrderAmount: Int?
     let minOrderAmount: Int?
     let suggestedOrderWeight: Int?
     let nutrients: ProductSettingsNutrients?
+    @CodingKey("_version")
     let version: String?
-
-    enum CodingKeys: String, CodingKey {
-        case seo
-        case photo
-        case price
-        case stock
-        case photos
-        case photosFs = "photos_fs"
-        case maxOrderAmount
-        case minOrderAmount
-        case suggestedOrderWeight
-        case nutrients
-        case version = "_version"
-    }
 }
 
-struct ProductSettingsSeo: Decodable {
+@JSONDecodable
+struct ProductSettingsSeo {
     // Can be Empty array, null or Dictionary[string:string]
     let url: FlexibleValue?
     let title: FlexibleValue?
     let description: FlexibleValue?
 }
 
-struct ProductSettingsPhoto: Decodable {
+@JSONDecodable
+struct ProductSettingsPhoto {
     let type: String?
+    @CodingKey("file_id")
     let fileId: Int?
     let resolutions: [ProductSettingsPhotoResolution]
+    @CodingKey("white_background")
     let whiteBackground: Bool
-
-    enum CodingKeys: String, CodingKey {
-        case type
-        case fileId = "file_id"
-        case resolutions
-        case whiteBackground = "white_background"
-    }
 }
 
-struct ProductSettingsPhotoResolution: Decodable {
+@JSONDecodable
+struct ProductSettingsPhotoResolution {
     let url: String?
     let width: Int?
     let height: Int?
 }
 
-struct ProductSettingsPrice: Decodable {
+@JSONDecodable
+struct ProductSettingsPrice {
     // NOTE: the array is always empty in the sample data
     let deviations: [String]
 }
 
-struct ProductSettingsStock: Decodable {
+@JSONDecodable
+struct ProductSettingsStock {
     let amount: Double?
     let soldout: Bool?
+    @CodingKey("soldout_until")
     let soldoutUntil: String?
+    @CodingKey("max_amount_per_day")
     let maxAmountPerDay: Int?
+    @CodingKey("max_weight_per_day")
     let maxWeightPerDay: Double?
+    @CodingKey("max_amount_per_week")
     let maxAmountPerWeek: Int?
+    @CodingKey("max_weight_per_week")
     let maxWeightPerWeek: Double?
-
-    enum CodingKeys: String, CodingKey {
-        case amount
-        case soldout
-        case soldoutUntil = "soldout_until"
-        case maxAmountPerDay = "max_amount_per_day"
-        case maxWeightPerDay = "max_weight_per_day"
-        case maxAmountPerWeek = "max_amount_per_week"
-        case maxWeightPerWeek = "max_weight_per_week"
-    }
 }
 
-struct ProductSettingsPhotosFs: Decodable {
+@JSONDecodable
+struct ProductSettingsPhotosFs {
     let items: [ProductSettingsPhoto]
 }
 
-struct ProductSettingsNutrients: Decodable {
+@JSONDecodable
+struct ProductSettingsNutrients {
     let items: [ProductSettingsNutrient]
 }
 
-struct ProductSettingsNutrient: Decodable {
+@JSONDecodable
+struct ProductSettingsNutrient {
     let type: String
     let value: Double
     let unitLabel: String
