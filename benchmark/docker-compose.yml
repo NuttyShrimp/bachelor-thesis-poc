@@ -64,8 +64,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: 4
-          memory: 8G
+          cpus: 8
+          memory: 32G
     ulimits:
       nproc: 65535
       nofile:
@@ -90,8 +90,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: 4
-          memory: 8G
+          cpus: 8
+          memory: 32G
     volumes:
       - ../data:/var/www/data:ro
 
@@ -134,8 +134,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: 4
-          memory: 8G
+          cpus: 8
+          memory: 32G
     ulimits:
       nproc: 65535
       nofile:
