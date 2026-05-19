@@ -96,6 +96,8 @@ RUN mkdir -p \
     && rm -f bootstrap/cache/*.php \
     && chown -R www-data:www-data /var/www/html
 
+RUN echo "access.log = /dev/null" >> /usr/local/etc/php-fpm.d/www.conf
+
 USER www-data
 
 ENV APP_ENV=production \
