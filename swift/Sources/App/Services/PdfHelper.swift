@@ -6,7 +6,7 @@ struct PdfHelper {
     func render() throws -> Data {
         let process = Process()
         process.executableURL = try resolvePaperMuncherExecutable()
-        process.arguments = ["--quiet", "--output", "-", "pipe:stdin"]
+        process.arguments = ["-q", "-", "-"]
 
         let inputPipe = Pipe()
         let outputPipe = Pipe()
@@ -22,13 +22,8 @@ struct PdfHelper {
         }
 
         let htmlData = Data(content.utf8)
-        var stdinPayload = Data()
-        stdinPayload.append(Data("HTTP/1.1 200 OK\r\n".utf8))
-        stdinPayload.append(Data("Content-Type: text/html; charset=utf-8\r\n".utf8))
-        stdinPayload.append(Data("Content-Length: \(htmlData.count)\r\n\r\n".utf8))
-        stdinPayload.append(htmlData)
 
-        inputPipe.fileHandleForWriting.write(stdinPayload)
+        inputPipe.fileHandleForWriting.write(htmlData)
         try? inputPipe.fileHandleForWriting.close()
 
         let rawOutput = outputPipe.fileHandleForReading.readDataToEndOfFile()
@@ -55,11 +50,11 @@ struct PdfHelper {
     }
 
     private func resolvePaperMuncherExecutable() throws -> URL {
-        if let executable = locateExecutableInPath(named: "paper-muncher") {
+        if let executable = locateExecutableInPath(named: "wkhtmltopdf") {
             return executable
         }
 
-        let fallback = URL(fileURLWithPath: "/usr/local/bin/paper-muncher")
+        let fallback = URL(fileURLWithPath: "/usr/bin/wkhtmltopdf")
         if FileManager.default.isExecutableFile(atPath: fallback.path) {
             return fallback
         }

@@ -51,8 +51,6 @@ RUN [ -d /build/public ] && { mv /build/public ./public && chmod -R a-w ./public
 # FROM ubuntu:noble
 FROM debian:trixie
 
-COPY ./packages/paper-muncher_0.3.0_trixie_amd64.deb /tmp/packages/paper-muncher_0.3.0_trixie_amd64.deb
-
 # Make sure all system packages are up to date, and install only essential packages.
 RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
     && apt-get -q update \
@@ -62,12 +60,14 @@ RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
       ca-certificates \
       tzdata \
       libxlsxwriter8 \
-      # paper-muncher dependencies
-      liburing2  libseccomp2  libsdl3-0 \
-    && apt-get -q install -y /tmp/packages/paper-muncher_0.3.0_trixie_amd64.deb \
+      weasyprint \
+      curl \
+      fontconfig libfontconfig1 libjpeg62-turbo libxrender1 xfonts-75dpi xfonts-base libxext6 \
     && rm -r /var/lib/apt/lists/*
 
-RUN ln -s /opt/paper-muncher/bin/paper-muncher /usr/local/bin/paper-muncher
+RUN curl "https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_amd64.deb" -L -o "/tmp/wkhtmltopdf.deb"
+
+RUN apt -q install -y "/tmp/wkhtmltopdf.deb"
 
 # Create a hummingbird user and group with /app as its home directory
 RUN useradd --user-group --create-home --system --skel /dev/null --home-dir /app hummingbird
