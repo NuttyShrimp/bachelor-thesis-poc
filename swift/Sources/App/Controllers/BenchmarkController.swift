@@ -37,11 +37,13 @@ struct BenchmarkController: Sendable {
         let scenario = ctx.parameters.get("scenario")!
         do {
             let results = try await benchmark.runScenario(for: operation, scenario)
+            return try ctx.responseEncoder.encode(results, from: request, context: ctx)
+            // return results
+            // return .init(status: .ok)
         } catch {
             logger.error("Failed to run benchmark operation: \(error)")
             throw HTTPError(.internalServerError)
         }
-        return .init(status: .ok)
     }
 
     func preloadData(_ request: Request, ctx: MyRequestContext) -> Response {

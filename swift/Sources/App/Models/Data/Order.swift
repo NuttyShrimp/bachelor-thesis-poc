@@ -1,4 +1,4 @@
-struct FullOrder: Decodable {
+struct FullOrder: Codable {
     let productsJson: [OrderProduct]
     let settingsJson: OrderSettings
 
@@ -8,7 +8,7 @@ struct FullOrder: Decodable {
     }
 }
 
-struct OrderProduct: Decodable {
+struct OrderProduct: Codable {
     let vat: OrderProductVatData?
     let gram: Int?
     let shop: OrderProductShopData?
@@ -40,16 +40,16 @@ struct OrderProduct: Decodable {
     }
 }
 
-struct OrderProductVatData: Decodable {
+struct OrderProductVatData: Codable {
     let rate: Int?
     let id: Int?
 }
 
-struct OrderProductShopData: Decodable {
+struct OrderProductShopData: Codable {
     let id: Int?
 }
 
-struct OrderProductOption: Decodable {
+struct OrderProductOption: Codable {
     let amount: Int?
     let product: OrderProductData?
     let productPrice: OrderProductPrice?
@@ -61,7 +61,7 @@ struct OrderProductOption: Decodable {
     }
 }
 
-struct OrderProductData: Decodable {
+struct OrderProductData: Codable {
     let id: Int?
     let plu: String?
     let ppp: Float?
@@ -101,41 +101,41 @@ struct OrderProductData: Decodable {
     }
 }
 
-struct OrderProductMinMax: Decodable {
+struct OrderProductMinMax: Codable {
     let stock: OrderProductMinMaxStock?
     let amount: OrderProductMinMaxAmount?
     let weight: OrderProductMinMaxWeight?
     let persons: OrderProductMinMaxPersons?
 }
 
-struct OrderProductMinMaxStock: Decodable {
+struct OrderProductMinMaxStock: Codable {
     let amount: Int?
 }
 
-struct OrderProductMinMaxAmount: Decodable {
+struct OrderProductMinMaxAmount: Codable {
     let max: Int?
     let min: Int?
     let suggested: Int?
 }
 
-struct OrderProductMinMaxWeight: Decodable {
+struct OrderProductMinMaxWeight: Codable {
     let max: Int?
     let min: Int?
     let suggested: Int?
 }
 
-struct OrderProductMinMaxPersons: Decodable {
+struct OrderProductMinMaxPersons: Codable {
     let max: Int?
     let min: Int?
     let suggested: Int?
 }
 
-struct OrderProductWarranty: Decodable {
+struct OrderProductWarranty: Codable {
     let type: Int?
     let price: Double?
 }
 
-struct OrderProductCategory: Decodable {
+struct OrderProductCategory: Codable {
     let id: Int?
     let name: String?
     let nameTranslated: String?
@@ -147,7 +147,7 @@ struct OrderProductCategory: Decodable {
     }
 }
 
-struct OrderProductPrice: Decodable {
+struct OrderProductPrice: Codable {
     let id: Int?
     let name: String?
     let price: Double?
@@ -155,7 +155,7 @@ struct OrderProductPrice: Decodable {
     let translations: [String: String]?
 }
 
-struct OrderProductCalculatedPrices: Decodable {
+struct OrderProductCalculatedPrices: Codable {
     let price: Double?
     let unitPrice: Double?
 
@@ -165,7 +165,7 @@ struct OrderProductCalculatedPrices: Decodable {
     }
 }
 
-struct OrderSettings: Decodable {
+struct OrderSettings: Codable {
     let user: OrderSettingsUser?
     let deliveryAddress: OrderSettingsAddress?
     let invoiceAddress: OrderSettingsAddress?
@@ -192,7 +192,7 @@ struct OrderSettings: Decodable {
     let webpay: OrderSettingsWebpay?
 }
 
-struct OrderSettingsUser: Decodable {
+struct OrderSettingsUser: Codable {
     let email: String?
     let tinNr: String?
     let lastname: String?
@@ -210,7 +210,7 @@ struct OrderSettingsUser: Decodable {
     }
 }
 
-struct OrderSettingsAddress: Decodable {
+struct OrderSettingsAddress: Codable {
     let street: String?
     let nr: String?
     let zipcode: String?
@@ -219,11 +219,11 @@ struct OrderSettingsAddress: Decodable {
     let enable: Bool?
 }
 
-struct OrderSettingsCosts: Decodable {
+struct OrderSettingsCosts: Codable {
     let sms: Double?
 }
 
-struct OrderSettingsEvent: Decodable {
+struct OrderSettingsEvent: Codable {
     let orderNr: Int?
 
     enum CodingKeys: String, CodingKey {
@@ -231,7 +231,7 @@ struct OrderSettingsEvent: Decodable {
     }
 }
 
-struct OrderSettingsLatch: Decodable {
+struct OrderSettingsLatch: Codable {
     let notificationMethod: String?
 
     enum CodingKeys: String, CodingKey {
@@ -239,7 +239,7 @@ struct OrderSettingsLatch: Decodable {
     }
 }
 
-struct OrderSettingsPiggy: Decodable {
+struct OrderSettingsPiggy: Codable {
     let qr: OrderSettingsPiggyQr?
     let sent: Bool?
     let cardNumber: String?
@@ -251,13 +251,13 @@ struct OrderSettingsPiggy: Decodable {
     }
 }
 
-struct OrderSettingsPiggyQr: Decodable {
+struct OrderSettingsPiggyQr: Codable {
     let id: Int?
     let url: String?
     let hash: String?
 }
 
-struct OrderSettingsBackup: Decodable {
+struct OrderSettingsBackup: Codable {
     let shopId: Int?
     let shopName: String?
 
@@ -267,7 +267,7 @@ struct OrderSettingsBackup: Decodable {
     }
 }
 
-struct OrderSettingsStripe: Decodable {
+struct OrderSettingsStripe: Codable {
     let paymentIntentId: String?
 
     enum CodingKeys: String, CodingKey {
@@ -275,7 +275,7 @@ struct OrderSettingsStripe: Decodable {
     }
 }
 
-struct OrderSettingsPayu: Decodable {
+struct OrderSettingsPayu: Codable {
     let void: OrderSettingsPayuVoid?
     let brazil: OrderSettingsPayuBrazil?
     let authToken: String?
@@ -287,7 +287,7 @@ struct OrderSettingsPayu: Decodable {
     }
 }
 
-struct OrderSettingsPayuVoid: Decodable {
+struct OrderSettingsPayuVoid: Codable {
     let lastStatus: String?
 
     enum CodingKeys: String, CodingKey {
@@ -295,7 +295,7 @@ struct OrderSettingsPayuVoid: Decodable {
     }
 }
 
-struct OrderSettingsPayuBrazil: Decodable {
+struct OrderSettingsPayuBrazil: Codable {
     let sessionId: String?
 
     enum CodingKeys: String, CodingKey {
@@ -303,7 +303,7 @@ struct OrderSettingsPayuBrazil: Decodable {
     }
 }
 
-struct OrderSettingsSibs: Decodable {
+struct OrderSettingsSibs: Codable {
     let formContext: String?
     let purchaseRequestSent: Bool?
     let transactionSignature: String?
@@ -315,7 +315,7 @@ struct OrderSettingsSibs: Decodable {
     }
 }
 
-struct OrderSettingsAdyen: Decodable {
+struct OrderSettingsAdyen: Codable {
     let link: OrderSettingsAdyenLink?
     let paymentMethod: String?
 
@@ -325,11 +325,11 @@ struct OrderSettingsAdyen: Decodable {
     }
 }
 
-struct OrderSettingsAdyenLink: Decodable {
+struct OrderSettingsAdyenLink: Codable {
     let id: String?
 }
 
-struct OrderSettingsUrls: Decodable {
+struct OrderSettingsUrls: Codable {
     let failUrl: String?
     let successUrl: String?
 
@@ -339,12 +339,12 @@ struct OrderSettingsUrls: Decodable {
     }
 }
 
-struct OrderSettingsAdelya: Decodable {
+struct OrderSettingsAdelya: Codable {
     let card: String?
     let sent: Bool?
 }
 
-struct OrderSettingsEdenred: Decodable {
+struct OrderSettingsEdenred: Codable {
     let authorizationId: String?
 
     enum CodingKeys: String, CodingKey {
@@ -352,7 +352,7 @@ struct OrderSettingsEdenred: Decodable {
     }
 }
 
-struct OrderSettingsMonizze: Decodable {
+struct OrderSettingsMonizze: Codable {
     let transactionId: String?
 
     enum CodingKeys: String, CodingKey {
@@ -360,7 +360,7 @@ struct OrderSettingsMonizze: Decodable {
     }
 }
 
-struct OrderSettingsParcify: Decodable {
+struct OrderSettingsParcify: Codable {
     let orderId: String?
 
     enum CodingKeys: String, CodingKey {
@@ -368,7 +368,7 @@ struct OrderSettingsParcify: Decodable {
     }
 }
 
-struct OrderSettingsPayconiq: Decodable {
+struct OrderSettingsPayconiq: Codable {
     let paymentId: String?
 
     enum CodingKeys: String, CodingKey {
@@ -376,7 +376,7 @@ struct OrderSettingsPayconiq: Decodable {
     }
 }
 
-struct OrderSettingsJoynBadge: Decodable {
+struct OrderSettingsJoynBadge: Codable {
     let points: Int?
     let token: String?
     let imageUrl: String?
@@ -388,7 +388,7 @@ struct OrderSettingsJoynBadge: Decodable {
     }
 }
 
-struct OrderSettingsExtraInfo: Decodable {
+struct OrderSettingsExtraInfo: Codable {
     let tableNumber: OrderSettingsExtraInfoTableNumber?
     let note: String?
 
@@ -398,12 +398,12 @@ struct OrderSettingsExtraInfo: Decodable {
     }
 }
 
-struct OrderSettingsExtraInfoTableNumber: Decodable {
+struct OrderSettingsExtraInfoTableNumber: Codable {
     let color: String?
     let number: String?
 }
 
-struct OrderSettingsStatistics: Decodable {
+struct OrderSettingsStatistics: Codable {
     let appSpace: String?
     let userAgent: String?
     let deviceInfo: String?
@@ -415,7 +415,7 @@ struct OrderSettingsStatistics: Decodable {
     }
 }
 
-struct OrderSettingsWarranty: Decodable {
+struct OrderSettingsWarranty: Codable {
     let bankAccount: String?
 
     enum CodingKeys: String, CodingKey {
@@ -423,7 +423,7 @@ struct OrderSettingsWarranty: Decodable {
     }
 }
 
-struct OrderSettingsXerxes: Decodable {
+struct OrderSettingsXerxes: Codable {
     let transactionId: String?
 
     enum CodingKeys: String, CodingKey {
@@ -431,12 +431,12 @@ struct OrderSettingsXerxes: Decodable {
     }
 }
 
-struct OrderSettingsWebpay: Decodable {
+struct OrderSettingsWebpay: Codable {
     let token: String?
 }
 
 // TODO: Should be renamed as its also used in the pdf tests
-struct ExcelOrdersPayload: Decodable {
+struct ExcelOrdersPayload: Codable {
     let orders: [ExcelOrder]
     let orderProducts: [ExcelOrderProduct]
     let orderProductOptions: [ExcelOrderProductOption]
@@ -448,7 +448,7 @@ struct ExcelOrdersPayload: Decodable {
     }
 }
 
-struct ExcelOrder: Decodable, Sendable {
+struct ExcelOrder: Codable, Sendable {
     let id: Int
     let createdAt: String?
     var products: [ExcelOrderProduct] = []
@@ -459,7 +459,7 @@ struct ExcelOrder: Decodable, Sendable {
     }
 }
 
-struct ExcelOrderProduct: Decodable, Sendable {
+struct ExcelOrderProduct: Codable, Sendable {
     let id: Int
     let orderId: Int
     let name: String?
@@ -487,7 +487,7 @@ struct ExcelOrderProduct: Decodable, Sendable {
     }
 }
 
-struct ExcelOrderProductOption: Decodable, Sendable {
+struct ExcelOrderProductOption: Codable, Sendable {
     let orderProductId: Int
     let name: String?
 

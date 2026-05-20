@@ -4,8 +4,9 @@
 //
 //  Created by Jan Lecoutere on 22/03/2026.
 //
+import Hummingbird
 
-struct ProductSettings: Decodable {
+struct ProductSettings: Codable {
     let seo: ProductSettingsSeo?
     let photo: ProductSettingsPhoto?
     let price: ProductSettingsPrice?
@@ -34,14 +35,14 @@ struct ProductSettings: Decodable {
     }
 }
 
-struct ProductSettingsSeo: Decodable {
+struct ProductSettingsSeo: Codable {
     // Can be Empty array, null or Dictionary[string:string]
     let url: FlexibleValue?
     let title: FlexibleValue?
     let description: FlexibleValue?
 }
 
-struct ProductSettingsPhoto: Decodable {
+struct ProductSettingsPhoto: Codable {
     let type: String?
     let fileId: Int?
     let resolutions: [ProductSettingsPhotoResolution]
@@ -55,18 +56,18 @@ struct ProductSettingsPhoto: Decodable {
     }
 }
 
-struct ProductSettingsPhotoResolution: Decodable {
+struct ProductSettingsPhotoResolution: Codable {
     let url: String?
     let width: Int?
     let height: Int?
 }
 
-struct ProductSettingsPrice: Decodable {
+struct ProductSettingsPrice: Codable {
     // NOTE: the array is always empty in the sample data
     let deviations: [String]
 }
 
-struct ProductSettingsStock: Decodable {
+struct ProductSettingsStock: Codable {
     let amount: Double?
     let soldout: Bool?
     let soldoutUntil: String?
@@ -86,15 +87,15 @@ struct ProductSettingsStock: Decodable {
     }
 }
 
-struct ProductSettingsPhotosFs: Decodable {
+struct ProductSettingsPhotosFs: Codable {
     let items: [ProductSettingsPhoto]
 }
 
-struct ProductSettingsNutrients: Decodable {
+struct ProductSettingsNutrients: Codable {
     let items: [ProductSettingsNutrient]
 }
 
-struct ProductSettingsNutrient: Decodable {
+struct ProductSettingsNutrient: Codable {
     let type: String
     let value: Double
     let unitLabel: String

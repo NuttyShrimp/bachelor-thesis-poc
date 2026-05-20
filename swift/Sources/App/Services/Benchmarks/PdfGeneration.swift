@@ -1,4 +1,5 @@
 import Foundation
+import Hummingbird
 import Logging
 import ZIPFoundation
 
@@ -27,7 +28,7 @@ struct PdfGeneration: BenchmarkOperation {
         ]
     }
 
-    func single(scenario: String) async {
+    func single(scenario: String) async throws -> Encodable {
         switch scenario {
         case "single":
             do {
@@ -40,6 +41,7 @@ struct PdfGeneration: BenchmarkOperation {
                 FileManager.default.createFile(atPath: "/tmp/swift-invoice.pdf", contents: pdf)
             } catch {
                 logger.error("Failed to render invoice: \(error)")
+                throw BenchmarkError.RenderError(err: error)
             }
             break
         case "zip":
@@ -54,11 +56,12 @@ struct PdfGeneration: BenchmarkOperation {
                 _ = try await generateInvoiceZip(payload: payload)
             } catch {
                 logger.error("Failed to render invoice: \(error)")
+                throw BenchmarkError.RenderError(err: error)
             }
             break
         default:
             logger.error("Invalid scenario: \(scenario) in pdf generation operation")
-            return
+            throw BenchmarkError.UnknownOperation(name: "dto_mapping-\(scenario)")
         }
     }
 
@@ -81,7 +84,7 @@ struct PdfGeneration: BenchmarkOperation {
             )
         }
 
-        var order = getFullOrder(payload: payload, for: 0)
+        let order = getFullOrder(payload: payload, for: 0)
 
         var times: [Double] = []
         let memoryUsageStart = reportMemory()

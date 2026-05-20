@@ -1,4 +1,5 @@
 import Foundation
+import Hummingbird
 import Logging
 
 struct VatCalculation: BenchmarkOperation {
@@ -36,13 +37,13 @@ struct VatCalculation: BenchmarkOperation {
         return resultMap
     }
 
-    func single(scenario: String) async {
+    func single(scenario: String) async throws -> Encodable {
         guard let cart = dataLoader.cartScenario(scenario, as: CartScenario.self) else {
             logger.error("Failed to load cart scenarios")
-            return
+            throw BenchmarkError.LoadFailed(dataName: "cart:\(scenario)")
         }
 
-        _ = calculateForOrder(products: cart.items)
+        return calculateForOrder(products: cart.items)
     }
 
     private func benchmark(scenario: String, cart: CartScenario) -> ScenarioResult {

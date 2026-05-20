@@ -1,3 +1,5 @@
+import Hummingbird
+
 struct CartScenario: Decodable {
     let itemCount: Int
     let items: [CartItem]
@@ -35,20 +37,20 @@ struct CartOption: Decodable, Sendable {
     }
 }
 
-struct VatGroup: Sendable {
+struct VatGroup: Encodable, Sendable {
     let rate: Int
     var base: Double
     var vat: Double
 }
 
-struct VatResult: Sendable {
+struct VatResult: Encodable, Sendable {
     let subtotal: Double
     let vatTotal: Double
     let total: Double
     let vatBreakdown: [VatGroup]
 }
 
-struct CartTotal: Sendable {
+struct CartTotal: Encodable, Sendable {
     var items: [CartTotalItem]
     var itemCount: Int
     var subtotal: Double
@@ -58,7 +60,7 @@ struct CartTotal: Sendable {
     var total: Double
 }
 
-struct CartTotalItem: Sendable {
+struct CartTotalItem: Encodable, Sendable {
     var productId: Int
     var quantity: Int
     var unitPrice: Double

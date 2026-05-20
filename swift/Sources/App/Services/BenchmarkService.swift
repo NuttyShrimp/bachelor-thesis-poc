@@ -34,10 +34,10 @@ final class BenchmarkService: Sendable {
         return await runner.run()
     }
 
-    func runScenario(for operation: String, _ scenario: String) async throws {
+    func runScenario(for operation: String, _ scenario: String) async throws -> Encodable {
         let runner = try createOperation(for: operation)
 
-        return await runner.single(scenario: scenario)
+        return try await runner.single(scenario: scenario)
     }
 
     private func createOperation(for name: String) throws -> any BenchmarkOperation {

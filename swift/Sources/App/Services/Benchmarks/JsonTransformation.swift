@@ -1,4 +1,5 @@
 import Foundation
+import Hummingbird
 import Logging
 
 struct JsonTransformation: BenchmarkOperation {
@@ -68,15 +69,17 @@ struct JsonTransformation: BenchmarkOperation {
         )
     }
 
-    func single(scenario: String) async {
+    func single(scenario: String) async throws -> Encodable {
         let decoder = createDecoder()
         let encoder = createEncoder()
         let data = dataLoader.shopData()
         do {
             let result = try decoder.decode(Shop.self, from: data)
             _ = try encoder.encode(result)
+            return result
         } catch {
             logger.error("JSON transformation failed: \(error)")
+            throw BenchmarkError.DecoderError(err: error)
         }
     }
 

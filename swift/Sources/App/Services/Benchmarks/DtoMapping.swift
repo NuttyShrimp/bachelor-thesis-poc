@@ -33,52 +33,72 @@ struct DtoMapping: BenchmarkOperation {
         ]
     }
 
-    func single(scenario: String) async {
+    func single(scenario: String) async throws -> Encodable {
         let decoder = createDecoder()
         switch scenario {
         case "product_settings":
             let products = dataLoader.productSettingsData()
-            for settings in products {
+            var settingToReturn: ProductSettings? = nil
+            for rawSettings in products {
                 do {
-                    _ = try decoder.decode(ProductSettings.self, from: settings)
+                    let setting = try decoder.decode(ProductSettings.self, from: rawSettings)
+                    if settingToReturn == nil {
+                        settingToReturn = setting
+                    }
                 } catch {
                     logger.error("Failed to decode: \(error)")
+                    throw BenchmarkError.DecoderError(err: error)
                 }
             }
-            break
+            return settingToReturn
         case "order_settings":
             let orders = dataLoader.orderSettingsData()
-            for settings in orders {
+            var settingToReturn: OrderSettings? = nil
+            for rawSettings in orders {
                 do {
-                    _ = try decoder.decode(OrderSettings.self, from: settings)
+                    let setting = try decoder.decode(OrderSettings.self, from: rawSettings)
+                    if settingToReturn == nil {
+                        settingToReturn = setting
+                    }
                 } catch {
                     logger.error("Failed to decode: \(error)")
+                    throw BenchmarkError.DecoderError(err: error)
                 }
             }
-            break
+            return settingToReturn
         case "order_products":
             let orders = dataLoader.orderProductsData()
-            for products in orders {
+            var productToReturn: [OrderProduct]? = nil
+            for rawProducts in orders {
                 do {
-                    _ = try decoder.decode([OrderProduct].self, from: products)
+                    let product = try decoder.decode([OrderProduct].self, from: rawProducts)
+                    if productToReturn == nil {
+                        productToReturn = product
+                    }
                 } catch {
                     logger.error("Failed to decode: \(error)")
+                    throw BenchmarkError.DecoderError(err: error)
                 }
             }
-            break
+            return productToReturn
         case "full_order":
             let orders = dataLoader.ordersMap()
+            var orderToReturn: FullOrder? = nil
             for fullOrder in orders {
                 do {
-                    _ = try decoder.decode(FullOrder.self, from: fullOrder)
+                    let order = try decoder.decode(FullOrder.self, from: fullOrder)
+                    if orderToReturn == nil {
+                        orderToReturn = order
+                    }
                 } catch {
                     logger.error("Failed to decode: \(error)")
+                    throw BenchmarkError.DecoderError(err: error)
                 }
             }
-            break
+            return orderToReturn
         default:
             logger.error("Unknown scenario: \(scenario) in DTO mapping operation")
-            return
+            throw BenchmarkError.UnknownOperation(name: "dto_mapping-\(scenario)")
         }
     }
 
