@@ -1,5 +1,6 @@
 global:
-  scrape_interval: 350ms
+  # scrape_interval: 350ms
+  scrape_interval: 1s
   # Interval at which rules are evaluated, default 1m
   evaluation_interval: 5s
 

@@ -38,9 +38,9 @@ services:
     - cadvisor
     - --docker_only=true
     - --enable_metric=cpu,memory,shed,network,referenced_memory
-    - --housekeeping_interval=100ms        # refresh rate
-    - --max_housekeeping_interval=150ms    # max jitter allowed
-    - --allow_dynamic_housekeeping=false   # disable adaptive throttling
+    # - --housekeeping_interval=100ms        # refresh rate
+    #- --max_housekeeping_interval=150ms    # max jitter allowed
+    #- --allow_dynamic_housekeeping=false   # disable adaptive throttling
     ports:
     - 9080:8080
     volumes:
@@ -66,7 +66,7 @@ services:
       resources:
         limits:
           cpus: 8
-          memory: 32G
+          memory: 16G
     ulimits:
       nproc: 65535
       nofile:
@@ -92,7 +92,7 @@ services:
       resources:
         limits:
           cpus: 8
-          memory: 32G
+          memory: 16G
     volumes:
       - ../data:/var/www/data:ro
 
@@ -136,7 +136,7 @@ services:
       resources:
         limits:
           cpus: 8
-          memory: 32G
+          memory: 16G
     ulimits:
       nproc: 65535
       nofile:

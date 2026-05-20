@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+declare -A operations=(
+  ["dto_mapping"]="product_settings order_settings order_products full_order"
+  ["json_transformation"]="json"
+  ["cart_calculation"]="small_cart medium_cart large_cart xl_cart"
+  ["vat_calculation"]="small_cart medium_cart large_cart xl_cart"
+  ["excel_generation"]="excel"
+  ["pdf_generation"]="single zip"
+)
+
+for key in "${!operations[@]}"; do
+  echo "Key: $key"
+  echo "Values: ${operations[$key]}"
+  # Split the values into an array
+  IFS=' ' read -ra values <<< "${operations[$key]}"
+  for value in "${values[@]}"; do
+    echo "  - $value"
+    startTime=$(date +%s%3N)
+
+    K6_PROMETHEUS_RW_SERVER_URL=http://localhost:9090/api/v1/write K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM=true K6_PROMETHEUS_RW_PUSH_INTERVAL=1s K6_PROMETHEUS_RW_TREND_STATS="p(95),p(99),min,max,avg" OPERATION=$key SCENARIO=$value k6 run -o experimental-prometheus-rw ./script.ts --tag testid="$key-$value";
+
+    endTime=$(date +%s%3N)
+
+    data="{
+        \"time\": $startTime,
+        \"timeEnd\": $endTime,
+        \"tags\": [\"$RUNTIME\", \"$key-$value\"],
+        \"text\": \"$key-$value\"
+      }"
+    curl -X POST http://localhost:3000/api/annotations \
+      -H "Content-Type: application/json" \
+      -d "$data" \
+      --basic -u admin:admin
+  done
+done
+
