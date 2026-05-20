@@ -237,6 +237,32 @@ class ExcelGeneration
     }
 
     /**
+     * Run single scenario and return the result data (Excel binary)
+     *
+     * @param string $scenario Excel generation scenario name (optional)
+     * @return array Custom file result containing binary data
+     */
+    public static function single(string $scenario): array
+    {
+        $orders = DataLoader::orders();
+        $filePath = self::generateProductionList($orders);
+
+        if (!file_exists($filePath)) {
+            throw new \RuntimeException("Failed to generate Excel file");
+        }
+
+        $data = file_get_contents($filePath);
+        unlink($filePath);
+
+        return [
+            'type' => 'file',
+            'data' => $data,
+            'filename' => 'production-list.xlsx',
+            'content_type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ];
+    }
+
+    /**
      * Run benchmark
      *
      * @param int $iterations Number of files to generate (default 10, as this is slow)

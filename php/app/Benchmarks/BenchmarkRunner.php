@@ -160,18 +160,15 @@ class BenchmarkRunner
     }
 
 
-    public static function runScenario(string $operation, string $scenario, array $options = []): array
+    public static function runScenario(string $operation, string $scenario, array $options = []): mixed
     {
         return match ($operation) {
-            'dto_mapping' => DtoMapping::benchmark($scenario,1),
-            'vat_calculation' => VatCalculation::benchmark($scenario, 1),
-            'cart_calculation' => CartCalculation::benchmark($scenario, 1),
-            'json_transformation' => JsonTransformation::benchmark(1),
-            'excel_generation' => ExcelGeneration::benchmark(1),
-            'pdf_generation' => match($scenario) {
-                'single' => PdfGeneration::benchmarkSingle(1),
-                'zip' => PdfGeneration::benchmarkZip(1,1),
-            },
+            'dto_mapping' => DtoMapping::single($scenario),
+            'vat_calculation' => VatCalculation::single($scenario),
+            'cart_calculation' => CartCalculation::single($scenario),
+            'json_transformation' => JsonTransformation::single(),
+            'excel_generation' => ExcelGeneration::single($scenario),
+            'pdf_generation' => PdfGeneration::single($scenario),
             default => throw new \InvalidArgumentException("Unknown operation: {$operation}"),
         };
     }

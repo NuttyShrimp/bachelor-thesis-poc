@@ -161,6 +161,22 @@ class CartCalculation
     }
 
     /**
+     * Run single scenario and return the result data
+     *
+     * @param string $scenario One of: small_cart, medium_cart, large_cart, xl_cart
+     * @return array Calculated cart
+     */
+    public static function single(string $scenario): array
+    {
+        $discount = rand(0, 10);
+        $cart = DataLoader::cartScenario($scenario);
+        if (!$cart) {
+            throw new \InvalidArgumentException("Failed to load cart scenario: {$scenario}");
+        }
+        return self::calculate($cart, $discount);
+    }
+
+    /**
      * Run benchmark
      *
      * @param string $scenario Cart size: small_cart, medium_cart, large_cart, xl_cart

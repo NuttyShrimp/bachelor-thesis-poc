@@ -106,11 +106,17 @@ class BenchmarkController extends Controller
         }
     }
 
-    public function runSingle(Request $request,string $operation, string $scenario): Response {
+    public function runSingle(Request $request, string $operation, string $scenario): \Symfony\Component\HttpFoundation\Response {
         try {
-            $benchmark = BenchmarkRunner::runScenario($operation, $scenario);
+            $result = BenchmarkRunner::runScenario($operation, $scenario);
 
-            return response()->noContent();
+            if (is_array($result) && isset($result['type']) && $result['type'] === 'file') {
+                return response($result['data'])
+                    ->header('Content-Type', $result['content_type'])
+                    ->header('Content-Disposition', 'attachment; filename="' . $result['filename'] . '"');
+            }
+
+            return response()->json($result);
         } catch (\InvalidArgumentException $e) {
             return response()->json([
                 'error' => $e->getMessage(),

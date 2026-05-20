@@ -327,6 +327,69 @@ HTML;
     }
 
     /**
+     * Run single scenario and return the result data (PDF binary or ZIP binary)
+     *
+     * @param string $scenario One of: single, zip
+     * @return array Custom file result containing binary data
+     */
+    public static function single(string $scenario): array
+    {
+        if ($scenario === 'single') {
+            $orders = DataLoader::orders();
+            $order = $orders['orders'][0] ?? ['id' => 1, 'products' => []];
+
+            // Add products to order
+            $orderProducts = array_values(array_filter(
+                $orders['order_products'] ?? [],
+                fn($p) => ($p['order_id'] ?? 0) == ($order['id'] ?? 0)
+            ));
+
+            // Add options to products
+            foreach ($orderProducts as &$product) {
+                $product['options'] = array_values(array_filter(
+                    $orders['order_product_options'] ?? [],
+                    fn($o) => ($o['order_product_id'] ?? 0) == ($product['id'] ?? 0)
+                ));
+            }
+
+            $order['products'] = $orderProducts;
+
+            // If no products, create mock data
+            if (empty($order['products'])) {
+                $order['products'] = self::createMockProducts(10);
+            }
+
+            $pdf = self::generateInvoice($order);
+
+            return [
+                'type' => 'file',
+                'data' => $pdf,
+                'filename' => 'invoice.pdf',
+                'content_type' => 'application/pdf',
+            ];
+        } elseif ($scenario === 'zip') {
+            $orders = DataLoader::orders();
+            $zipPath = self::generateInvoiceZip($orders, 50);
+
+            if (!file_exists($zipPath)) {
+                throw new \RuntimeException("Failed to generate ZIP archive");
+            }
+
+            $data = file_get_contents($zipPath);
+            unlink($zipPath);
+
+            return [
+                'type' => 'file',
+                'data' => $data,
+                'filename' => 'invoices.zip',
+                'content_type' => 'application/zip',
+            ];
+        } else {
+            throw new \InvalidArgumentException("Invalid scenario: {$scenario} in pdf generation operation");
+        }
+    }
+
+    /**
      * Run benchmark - single PDF generation
      */
     public static function benchmarkSingle(int $iterations = 100): array

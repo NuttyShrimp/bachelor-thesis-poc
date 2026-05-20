@@ -403,6 +403,68 @@ class DtoMapping
     }
 
     /**
+     * Run single scenario and return the result data
+     *
+     * @param string $scenario One of: product_settings, order_settings, order_products, full_order
+     * @return mixed Mapped DTO data
+     */
+    public static function single(string $scenario): mixed
+    {
+        switch ($scenario) {
+            case 'product_settings':
+                $productsData = DataLoader::products();
+                $products = $productsData['products'] ?? [];
+                $settingToReturn = null;
+                foreach ($products as $product) {
+                    $setting = self::mapProductSettings($product);
+                    if ($settingToReturn === null) {
+                        $settingToReturn = $setting;
+                    }
+                }
+                return $settingToReturn;
+
+            case 'order_settings':
+                $ordersData = DataLoader::orders();
+                $orders = $ordersData['orders'] ?? [];
+                $settingToReturn = null;
+                foreach ($orders as $order) {
+                    $setting = self::mapOrderSettings($order);
+                    if ($settingToReturn === null) {
+                        $settingToReturn = $setting;
+                    }
+                }
+                return $settingToReturn;
+
+            case 'order_products':
+                $ordersData = DataLoader::orders();
+                $orders = $ordersData['orders'] ?? [];
+                $productToReturn = null;
+                foreach ($orders as $order) {
+                    $product = self::mapOrderProducts($order);
+                    if ($productToReturn === null) {
+                        $productToReturn = $product;
+                    }
+                }
+                return $productToReturn;
+
+            case 'full_order':
+                $ordersData = DataLoader::orders();
+                $orders = $ordersData['orders'] ?? [];
+                $orderToReturn = null;
+                foreach ($orders as $order) {
+                    $orderMapped = self::mapFullOrder($order);
+                    if ($orderToReturn === null) {
+                        $orderToReturn = $orderMapped;
+                    }
+                }
+                return $orderToReturn;
+
+            default:
+                throw new \InvalidArgumentException("Unknown scenario: {$scenario} in DTO mapping operation");
+        }
+    }
+
+    /**
      * Run all DTO mapping benchmarks
      */
     public static function benchmark(string $operation = "all", int $iterations = 50): array

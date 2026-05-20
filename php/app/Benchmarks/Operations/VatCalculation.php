@@ -158,6 +158,21 @@ class VatCalculation
     }
 
     /**
+     * Run single scenario and return the result data
+     *
+     * @param string $scenario One of: small_cart, medium_cart, large_cart, xl_cart
+     * @return array Calculated VAT result
+     */
+    public static function single(string $scenario): array
+    {
+        $cart = DataLoader::cartScenario($scenario);
+        if (!$cart) {
+            throw new \InvalidArgumentException("Failed to load cart scenario: {$scenario}");
+        }
+        return self::calculateForOrder(['products' => $cart['items']]);
+    }
+
+    /**
      * Run benchmark with cart scenarios
      *
      * @param string $scenario One of: small_cart, medium_cart, large_cart, xl_cart

@@ -204,6 +204,17 @@ class JsonTransformation
     }
 
     /**
+     * Run single scenario and return the result data
+     *
+     * @return array Transformed shop data
+     */
+    public static function single(): array
+    {
+        $shop = DataLoader::shop();
+        return self::transformShop($shop);
+    }
+
+    /**
      * Run benchmark
      */
     public static function benchmark(int $iterations = 100): array
