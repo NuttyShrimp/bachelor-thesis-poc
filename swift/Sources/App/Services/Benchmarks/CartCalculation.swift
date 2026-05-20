@@ -36,14 +36,14 @@ struct CartCalculation: BenchmarkOperation {
         return resultMap
     }
 
-    func single(scenario: String) async throws -> Encodable {
+    func single(scenario: String) async throws -> BenchmarkSingleResult {
         let discount = Int.random(in: 0...10)
         guard let cart = dataLoader.cartScenario(scenario, as: CartScenario.self) else {
             logger.error("Failed to load cart scenarios")
             throw BenchmarkError.LoadFailed(dataName: "cart scenarios")
 
         }
-        return calculateCartTotal(cart: cart, discount: discount)
+        return .json(AnyEncodable(calculateCartTotal(cart: cart, discount: discount)))
     }
 
     private func benchmark(scenario: String, cart: CartScenario) -> ScenarioResult {

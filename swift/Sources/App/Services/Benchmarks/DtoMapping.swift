@@ -33,7 +33,7 @@ struct DtoMapping: BenchmarkOperation {
         ]
     }
 
-    func single(scenario: String) async throws -> Encodable {
+    func single(scenario: String) async throws -> BenchmarkSingleResult {
         let decoder = createDecoder()
         switch scenario {
         case "product_settings":
@@ -50,7 +50,7 @@ struct DtoMapping: BenchmarkOperation {
                     throw BenchmarkError.DecoderError(err: error)
                 }
             }
-            return settingToReturn
+            return .json(AnyEncodable(settingToReturn))
         case "order_settings":
             let orders = dataLoader.orderSettingsData()
             var settingToReturn: OrderSettings? = nil
@@ -65,7 +65,7 @@ struct DtoMapping: BenchmarkOperation {
                     throw BenchmarkError.DecoderError(err: error)
                 }
             }
-            return settingToReturn
+            return .json(AnyEncodable(settingToReturn))
         case "order_products":
             let orders = dataLoader.orderProductsData()
             var productToReturn: [OrderProduct]? = nil
@@ -80,7 +80,7 @@ struct DtoMapping: BenchmarkOperation {
                     throw BenchmarkError.DecoderError(err: error)
                 }
             }
-            return productToReturn
+            return .json(AnyEncodable(productToReturn))
         case "full_order":
             let orders = dataLoader.ordersMap()
             var orderToReturn: FullOrder? = nil
@@ -95,7 +95,7 @@ struct DtoMapping: BenchmarkOperation {
                     throw BenchmarkError.DecoderError(err: error)
                 }
             }
-            return orderToReturn
+            return .json(AnyEncodable(orderToReturn))
         default:
             logger.error("Unknown scenario: \(scenario) in DTO mapping operation")
             throw BenchmarkError.UnknownOperation(name: "dto_mapping-\(scenario)")

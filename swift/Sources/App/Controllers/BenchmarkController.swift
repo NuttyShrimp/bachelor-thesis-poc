@@ -1,5 +1,7 @@
 import Hummingbird
+import HTTPTypes
 import Logging
+import Foundation
 
 struct BenchmarkController: Sendable {
     var benchmark: BenchmarkService
@@ -36,14 +38,28 @@ struct BenchmarkController: Sendable {
         let operation = ctx.parameters.get("operation")!
         let scenario = ctx.parameters.get("scenario")!
         do {
-            let results = try await benchmark.runScenario(for: operation, scenario)
-            return try ctx.responseEncoder.encode(results, from: request, context: ctx)
-            // return results
-            // return .init(status: .ok)
+            let result = try await benchmark.runScenario(for: operation, scenario)
+            switch result {
+            case .json(let value):
+                return try ctx.responseEncoder.encode(value, from: request, context: ctx)
+            case .file(let data, let filename, let contentType):
+                return downloadResponse(data: data, filename: filename, contentType: contentType)
+            }
         } catch {
             logger.error("Failed to run benchmark operation: \(error)")
             throw HTTPError(.internalServerError)
         }
+    }
+
+    private func downloadResponse(data: Data, filename: String, contentType: String) -> Response {
+        var response = Response(
+            status: .ok,
+            headers: [:],
+            body: .init(byteBuffer: ByteBuffer(bytes: data))
+        )
+        response.headers[.contentType] = contentType
+        response.headers[HTTPField.Name("Content-Disposition")!] = "attachment; filename=\"\(filename)\""
+        return response
     }
 
     func preloadData(_ request: Request, ctx: MyRequestContext) -> Response {

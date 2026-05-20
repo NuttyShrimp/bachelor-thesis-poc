@@ -37,13 +37,13 @@ struct VatCalculation: BenchmarkOperation {
         return resultMap
     }
 
-    func single(scenario: String) async throws -> Encodable {
+    func single(scenario: String) async throws -> BenchmarkSingleResult {
         guard let cart = dataLoader.cartScenario(scenario, as: CartScenario.self) else {
             logger.error("Failed to load cart scenarios")
             throw BenchmarkError.LoadFailed(dataName: "cart:\(scenario)")
         }
 
-        return calculateForOrder(products: cart.items)
+        return .json(AnyEncodable(calculateForOrder(products: cart.items)))
     }
 
     private func benchmark(scenario: String, cart: CartScenario) -> ScenarioResult {

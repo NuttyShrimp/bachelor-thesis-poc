@@ -28,7 +28,7 @@ struct PdfGeneration: BenchmarkOperation {
         ]
     }
 
-    func single(scenario: String) async throws -> Encodable {
+    func single(scenario: String) async throws -> BenchmarkSingleResult {
         switch scenario {
         case "single":
             do {
@@ -38,12 +38,11 @@ struct PdfGeneration: BenchmarkOperation {
 
                 let order = getFullOrder(payload: payload, for: 0)
                 let pdf = try renderInvoiceHtml(order: order)
-                FileManager.default.createFile(atPath: "/tmp/swift-invoice.pdf", contents: pdf)
+                return .file(data: pdf, filename: "invoice.pdf", contentType: "application/pdf")
             } catch {
                 logger.error("Failed to render invoice: \(error)")
                 throw BenchmarkError.RenderError(err: error)
             }
-            break
         case "zip":
             do {
                 let orders = dataLoader.ordersData()
@@ -53,16 +52,23 @@ struct PdfGeneration: BenchmarkOperation {
                     at: FileManager.default.temporaryDirectory.appending(path: "bap"),
                     withIntermediateDirectories: true)
 
-                _ = try await generateInvoiceZip(payload: payload)
+                let archiveURL = try await generateInvoiceZip(payload: payload)
+                let archiveData = try Data(contentsOf: archiveURL)
+                try? FileManager.default.removeItem(at: archiveURL)
+                return .file(
+                    data: archiveData,
+                    filename: archiveURL.lastPathComponent,
+                    contentType: "application/zip"
+                )
             } catch {
                 logger.error("Failed to render invoice: \(error)")
                 throw BenchmarkError.RenderError(err: error)
             }
-            break
         default:
             logger.error("Invalid scenario: \(scenario) in pdf generation operation")
-            throw BenchmarkError.UnknownOperation(name: "dto_mapping-\(scenario)")
+            throw BenchmarkError.UnknownOperation(name: "pdf_generation-\(scenario)")
         }
+
     }
 
     func benchmarkSingle() -> ScenarioResult {
@@ -186,7 +192,7 @@ struct PdfGeneration: BenchmarkOperation {
         )
     }
 
-    func generateInvoiceZip(payload: ExcelOrdersPayload, limit: Int = 50) async throws -> String {
+    func generateInvoiceZip(payload: ExcelOrdersPayload, limit: Int = 50) async throws -> URL {
         let fileManager = FileManager()
         var archiveURL = fileManager.temporaryDirectory
         archiveURL.appendPathComponent("bap")
@@ -203,7 +209,7 @@ struct PdfGeneration: BenchmarkOperation {
             }
         }
 
-        return archiveURL.absoluteString
+        return archiveURL
     }
 
     private func getFullOrder(payload: ExcelOrdersPayload, for index: Int) -> ExcelOrder {

@@ -69,14 +69,14 @@ struct JsonTransformation: BenchmarkOperation {
         )
     }
 
-    func single(scenario: String) async throws -> Encodable {
+    func single(scenario: String) async throws -> BenchmarkSingleResult {
         let decoder = createDecoder()
         let encoder = createEncoder()
         let data = dataLoader.shopData()
         do {
             let result = try decoder.decode(Shop.self, from: data)
             _ = try encoder.encode(result)
-            return result
+            return .json(AnyEncodable(result))
         } catch {
             logger.error("JSON transformation failed: \(error)")
             throw BenchmarkError.DecoderError(err: error)

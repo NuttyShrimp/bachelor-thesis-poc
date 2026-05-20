@@ -42,7 +42,7 @@ struct ExcelGeneration: BenchmarkOperation {
         ]
     }
 
-    func single(scenario: String) async throws -> Encodable {
+    func single(scenario: String) async throws -> BenchmarkSingleResult {
         let rawData = dataLoader.ordersData()
         if rawData.isEmpty {
             logger.error("Orders payload is empty, cannot run excel generation benchmark")
@@ -59,7 +59,13 @@ struct ExcelGeneration: BenchmarkOperation {
                 outputDirectory: outputDirectory
             )
 
+            let fileData = try Data(contentsOf: fileURL)
             try? FileManager.default.removeItem(at: fileURL)
+            return .file(
+                data: fileData,
+                filename: "production-list.xlsx",
+                contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
         } catch {
             logger.error("Failed to generate excel file in benchmark iteration: \(error)")
             throw error
