@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# sudo sysctl -w net.ipv4.ip_local_port_range="1024 65535"
+# sudo sysctl -w net.ipv4.tcp_tw_reuse=1
+# sudo sysctl -w net.ipv4.tcp_timestamps=1
+# ulimit -n 250000
+
 declare -A operations=(
   ["dto_mapping"]="product_settings order_settings order_products full_order"
   ["json_transformation"]="json"
@@ -32,6 +37,10 @@ for key in "${!operations[@]}"; do
       -H "Content-Type: application/json" \
       -d "$data" \
       --basic -u admin:admin
+
+    docker compose restart php-fpm php-nginx php-octane
+    sleep 120
+
   done
 done
 

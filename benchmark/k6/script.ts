@@ -10,24 +10,25 @@ const runtimePort: Record<string, number> = {
 }
 
 export const options = {
+  setupTimeout: 180000,
   scenarios: {
     openModel: {
       executor: 'ramping-arrival-rate',
       // executor: 'ramping-vus',
       startRate: 1,
       timeUnit: '1s',
-      preAllocatedVUs: 20000,
+      preAllocatedVUs: 30000,
       stages: [
         { duration: '2m', target: 2 << 3 }, // 16
-        { duration: '3m', target: 2 << 4 }, // 32
-        { duration: '4m', target: 2 << 5 }, // 64
-        { duration: '5m', target: 2 << 6 }, // 128
-        { duration: '6m', target: 2 << 7 }, // 256
-        { duration: '7m', target: 2 << 8 }, // 512
-        { duration: '8m', target: 2 << 9 }, // 1024
-        { duration: '9m', target: 2 << 10 }, // 2046
-        { duration: '10m', target: 2 << 11 }, // 4096
-        { duration: '10m', target: 2 << 12 }, // 8192
+        { duration: '2m', target: 2 << 4 }, // 32
+        { duration: '2m', target: 2 << 5 }, // 64
+        { duration: '3m', target: 2 << 6 }, // 128
+        { duration: '4m', target: 2 << 7 }, // 256
+        { duration: '5m', target: 2 << 8 }, // 512
+        { duration: '6m', target: 2 << 9 }, // 1024
+        { duration: '7m', target: 2 << 10 }, // 2046
+        { duration: '8m', target: 2 << 11 }, // 4096
+        { duration: '9m', target: 2 << 12 }, // 8192
         { duration: '10m', target: 2 << 13 }, // 16394
         { duration: '10m', target: 2 << 14 }, // 32788
         { duration: '10m', target: 2 << 15 }, // 65536
@@ -52,6 +53,12 @@ export const options = {
     checks: [
       {
         threshold: 'rate>=0.99',
+        abortOnFail: true,
+      }
+    ],
+    dropped_iterations: [
+      {
+        threshold: 'count < 1000',
         abortOnFail: true,
       }
     ],
