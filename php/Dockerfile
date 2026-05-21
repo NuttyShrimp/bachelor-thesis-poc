@@ -74,10 +74,10 @@ RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
         echo "listen = 9000"; \
         echo "listen.mode = 0660"; \
         echo "pm = dynamic"; \
-        echo "pm.max_children = 32"; \
-        echo "pm.start_servers = 4"; \
-        echo "pm.min_spare_servers = 2"; \
-        echo "pm.max_spare_servers = 8"; \
+        echo "pm.max_children = 75"; \
+        echo "pm.start_servers = 10"; \
+        echo "pm.min_spare_servers = 5"; \
+        echo "pm.max_spare_servers = 20"; \
         echo "pm.max_requests = 500"; \
         echo "clear_env = no"; \
     } > /usr/local/etc/php-fpm.d/www.conf
