@@ -2,7 +2,9 @@
 
 namespace App\Benchmarks;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 
 /**
  * DATA LOADER
@@ -17,73 +19,101 @@ use Illuminate\Support\Facades\File;
  */
 class DataLoader
 {
+    private static ?DataLoader $instance = null;
     private static bool $isCacheEnabled = false;
     private static array $cache = [];
 
     /**
+     * Get the globally shared DataLoader instance.
+     */
+    public static function getInstance(): self
+    {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    /**
      * Enable in-memory caching
      */
-    public static function enableCache(): void
+    public function enableCache(): void
     {
         self::$isCacheEnabled = true;
+        Cache::forever('dataloader:is_cache_enabled', true);
     }
 
     /**
      * Disable in-memory caching and clear the cache
      */
-    public static function disableCache(): void
+    public function disableCache(): void
     {
         self::$isCacheEnabled = false;
         self::$cache = [];
+        Cache::forget('dataloader:is_cache_enabled');
+        foreach (['orders', 'products', 'shop', 'cartScenarios'] as $key) {
+            Cache::forget("dataloader:{$key}");
+        }
+        foreach (['small_cart', 'medium_cart', 'large_cart', 'xl_cart'] as $size) {
+            Cache::forget("dataloader:cartScenario_{$size}");
+        }
+    }
+
+    /**
+     * Check if caching is enabled
+     */
+    public function isCacheEnabled(): bool
+    {
+        return self::$isCacheEnabled || Cache::get('dataloader:is_cache_enabled', false);
     }
 
     /**
      * Preload all data into memory
      */
-    public static function preloadData(): void
+    public function preloadData(): void
     {
-        self::enableCache();
-        self::orders();
-        self::products();
-        self::shop();
-        self::cartScenarios();
-        
+        $this->enableCache();
+        $this->orders();
+        $this->products();
+        $this->shop();
+        $this->cartScenarios();
+
         // Preload common scenarios
         foreach (['small_cart', 'medium_cart', 'large_cart', 'xl_cart'] as $size) {
-            self::cartScenario($size);
+            $this->cartScenario($size);
         }
     }
 
     /**
      * Get order data including products and options
      */
-    public static function orders(): array
+    public function orders(): array
     {
-        return self::getCachedOrLoad('orders', 'orders.json');
+        return $this->getCachedOrLoad('orders', 'orders.json');
     }
 
     /**
      * Get product catalog data
      */
-    public static function products(): array
+    public function products(): array
     {
-        return self::getCachedOrLoad('products', 'products.json');
+        return $this->getCachedOrLoad('products', 'products.json');
     }
 
     /**
      * Get shop data with categories and products
      */
-    public static function shop(): array
+    public function shop(): array
     {
-        return self::getCachedOrLoad('shop', 'shop.json');
+        return $this->getCachedOrLoad('shop', 'shop.json');
     }
 
     /**
      * Get all cart scenarios
      */
-    public static function cartScenarios(): array
+    public function cartScenarios(): array
     {
-        return self::getCachedOrLoad('cartScenarios', 'cart_scenarios.json');
+        return $this->getCachedOrLoad('cartScenarios', 'cart_scenarios.json');
     }
 
     /**
@@ -91,18 +121,35 @@ class DataLoader
      *
      * @param string $size One of: small_cart, medium_cart, large_cart, xl_cart
      */
-    public static function cartScenario(string $size): array
+    public function cartScenario(string $size): array
     {
         $cacheKey = "cartScenario_{$size}";
         if (self::$isCacheEnabled && isset(self::$cache[$cacheKey])) {
+            Log::info('Loading memory cached for '.$cacheKey);
             return self::$cache[$cacheKey];
         }
 
-        $scenarios = self::cartScenarios();
+        $isCachedInPersistentStore = Cache::get('dataloader:is_cache_enabled', false);
+        if ($isCachedInPersistentStore) {
+            $cached = Cache::get("dataloader:{$cacheKey}");
+            if ($cached !== null) {
+                Log::info('Loading persistent cached for '.$cacheKey);
+                if (self::$isCacheEnabled) {
+                    self::$cache[$cacheKey] = $cached;
+                }
+                return $cached;
+            }
+        }
+
+        $scenarios = $this->cartScenarios();
         $result = $scenarios[$size] ?? $scenarios['medium_cart'];
 
         if (self::$isCacheEnabled) {
             self::$cache[$cacheKey] = $result;
+        }
+
+        if ($isCachedInPersistentStore || self::$isCacheEnabled) {
+            Cache::forever("dataloader:{$cacheKey}", $result);
         }
 
         return $result;
@@ -111,16 +158,33 @@ class DataLoader
     /**
      * Helper to get from cache or load from file
      */
-    private static function getCachedOrLoad(string $key, string $filename): array
+    private function getCachedOrLoad(string $key, string $filename): array
     {
         if (self::$isCacheEnabled && isset(self::$cache[$key])) {
+            Log::info('Loading memory cached for '.$key);
             return self::$cache[$key];
         }
 
-        $result = self::load($filename);
+        $isCachedInPersistentStore = Cache::get('dataloader:is_cache_enabled', false);
+        if ($isCachedInPersistentStore) {
+            $cached = Cache::get("dataloader:{$key}");
+            if ($cached !== null) {
+                Log::info('Loading persistent cached for '.$key);
+                if (self::$isCacheEnabled) {
+                    self::$cache[$key] = $cached;
+                }
+                return $cached;
+            }
+        }
+
+        $result = $this->load($filename);
 
         if (self::$isCacheEnabled) {
             self::$cache[$key] = $result;
+        }
+
+        if ($isCachedInPersistentStore || self::$isCacheEnabled) {
+            Cache::forever("dataloader:{$key}", $result);
         }
 
         return $result;
@@ -129,7 +193,7 @@ class DataLoader
     /**
      * Load a JSON file
      */
-    private static function load(string $filename): array
+    private function load(string $filename): array
     {
         $path = base_path('../data/' . $filename);
 
@@ -143,15 +207,21 @@ class DataLoader
     /**
      * Clear the cache (useful for testing)
      */
-    public static function clearCache(): void
+    public function clearCache(): void
     {
         self::$cache = [];
+        foreach (['orders', 'products', 'shop', 'cartScenarios'] as $key) {
+            Cache::forget("dataloader:{$key}");
+        }
+        foreach (['small_cart', 'medium_cart', 'large_cart', 'xl_cart'] as $size) {
+            Cache::forget("dataloader:cartScenario_{$size}");
+        }
     }
 
     /**
      * Check if all required data files exist
      */
-    public static function dataFilesExist(): bool
+    public function dataFilesExist(): bool
     {
         $requiredFiles = ['orders.json', 'products.json', 'shop.json', 'cart_scenarios.json'];
 
@@ -167,7 +237,7 @@ class DataLoader
     /**
      * Get list of missing data files
      */
-    public static function getMissingFiles(): array
+    public function getMissingFiles(): array
     {
         $requiredFiles = ['orders.json', 'products.json', 'shop.json', 'cart_scenarios.json'];
         $missing = [];

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Benchmarks\DataLoader;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
@@ -12,7 +13,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(DataLoader::class, function ($app) {
+            return DataLoader::getInstance();
+        });
     }
 
     /**

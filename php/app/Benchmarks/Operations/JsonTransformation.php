@@ -79,6 +79,9 @@ use App\Benchmarks\DataLoader;
  */
 class JsonTransformation
 {
+    public function __construct(
+        protected DataLoader $dataLoader
+    ) {}
     /**
      * Transform shop to API response format
      */
@@ -208,18 +211,18 @@ class JsonTransformation
      *
      * @return array Transformed shop data
      */
-    public static function single(): array
+    public function single(): array
     {
-        $shop = DataLoader::shop();
+        $shop = $this->dataLoader->shop();
         return self::transformShop($shop);
     }
 
     /**
      * Run benchmark
      */
-    public static function benchmark(int $iterations = 100): array
+    public function benchmark(int $iterations = 100): array
     {
-        $shop = DataLoader::shop();
+        $shop = $this->dataLoader->shop();
 
         // Warm up
         if ($iterations > 1){

@@ -75,6 +75,9 @@ use Barryvdh\DomPDF\Facade\Pdf;
  */
 class PdfGeneration
 {
+    public function __construct(
+        protected DataLoader $dataLoader
+    ) {}
     /**
      * Generate single invoice PDF
      *
@@ -332,10 +335,10 @@ HTML;
      * @param string $scenario One of: single, zip
      * @return array Custom file result containing binary data
      */
-    public static function single(string $scenario): array
+    public function single(string $scenario): array
     {
         if ($scenario === 'single') {
-            $orders = DataLoader::orders();
+            $orders = $this->dataLoader->orders();
             $order = $orders['orders'][0] ?? ['id' => 1, 'products' => []];
 
             // Add products to order
@@ -368,8 +371,8 @@ HTML;
                 'content_type' => 'application/pdf',
             ];
         } elseif ($scenario === 'zip') {
-            $orders = DataLoader::orders();
-            $zipPath = self::generateInvoiceZip($orders, 50);
+            $orders = $this->dataLoader->orders();
+            $zipPath = $this->generateInvoiceZip($orders, 50);
 
             if (!file_exists($zipPath)) {
                 throw new \RuntimeException("Failed to generate ZIP archive");
@@ -392,9 +395,9 @@ HTML;
     /**
      * Run benchmark - single PDF generation
      */
-    public static function benchmarkSingle(int $iterations = 100): array
+    public function benchmarkSingle(int $iterations = 100): array
     {
-        $orders = DataLoader::orders();
+        $orders = $this->dataLoader->orders();
         $order = $orders['orders'][0] ?? ['id' => 1, 'products' => []];
 
         // Add products to order
@@ -467,9 +470,9 @@ HTML;
     /**
      * Run benchmark - ZIP with multiple PDFs
      */
-    public static function benchmarkZip(int $pdfCount = 50, int $iterations = 10): array
+    public function benchmarkZip(int $pdfCount = 50, int $iterations = 10): array
     {
-        $orders = DataLoader::orders();
+        $orders = $this->dataLoader->orders();
 
         // Ensure output directory exists
         if (!is_dir(storage_path('benchmarks'))) {

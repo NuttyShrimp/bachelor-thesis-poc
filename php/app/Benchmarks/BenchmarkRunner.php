@@ -120,37 +120,37 @@ class BenchmarkRunner
     {
         $scenario = $options['scenario'] ?? 'large_cart';
         return match ($operation) {
-            'dto_mapping' => DtoMapping::benchmark(
+            'dto_mapping' => app(DtoMapping::class)->benchmark(
                 "all",
                 $options['iterations'] ?? 50
             ),
             'vat_calculation' => [
-                "small_cart" => VatCalculation::benchmark("small_cart", 100),
-                "medium_cart" => VatCalculation::benchmark("medium_cart", 100),
-                "large_cart" => VatCalculation::benchmark("large_cart", 100),
-                "xl_cart" => VatCalculation::benchmark("xl_cart", 100),
+                "small_cart" => app(VatCalculation::class)->benchmark("small_cart", 100),
+                "medium_cart" => app(VatCalculation::class)->benchmark("medium_cart", 100),
+                "large_cart" => app(VatCalculation::class)->benchmark("large_cart", 100),
+                "xl_cart" => app(VatCalculation::class)->benchmark("xl_cart", 100),
             ],
             'cart_calculation' => [
-                "small_cart" => CartCalculation::benchmark("small_cart", 100),
-                "medium_cart" => CartCalculation::benchmark("medium_cart", 100),
-                "large_cart" => CartCalculation::benchmark("large_cart", 100),
-                "xl_cart" => CartCalculation::benchmark("xl_cart", 100),
+                "small_cart" => app(CartCalculation::class)->benchmark("small_cart", 100),
+                "medium_cart" => app(CartCalculation::class)->benchmark("medium_cart", 100),
+                "large_cart" => app(CartCalculation::class)->benchmark("large_cart", 100),
+                "xl_cart" => app(CartCalculation::class)->benchmark("xl_cart", 100),
             ],
             'json_transformation' => [
-                "json_transformation" => JsonTransformation::benchmark(
+                "json_transformation" => app(JsonTransformation::class)->benchmark(
                     $options['iterations'] ?? 100
                 )
             ],
             'excel_generation' => [
-                'excel_generation' => ExcelGeneration::benchmark(
+                'excel_generation' => app(ExcelGeneration::class)->benchmark(
                     $options['iterations'] ?? 10
                 )
             ],
             'pdf_generation' => [
-                'pdf_generation_single' => PdfGeneration::benchmarkSingle(
+                'pdf_generation_single' => app(PdfGeneration::class)->benchmarkSingle(
                     $options['iterations'] ?? 50
                 ),
-                "pdf_generation_zip" => PdfGeneration::benchmarkZip(
+                "pdf_generation_zip" => app(PdfGeneration::class)->benchmarkZip(
                     $options['pdf_count'] ?? 50,
                     $options['iterations'] ?? 5
                 )
@@ -163,12 +163,12 @@ class BenchmarkRunner
     public static function runScenario(string $operation, string $scenario, array $options = []): mixed
     {
         return match ($operation) {
-            'dto_mapping' => DtoMapping::single($scenario),
-            'vat_calculation' => VatCalculation::single($scenario),
-            'cart_calculation' => CartCalculation::single($scenario),
-            'json_transformation' => JsonTransformation::single(),
-            'excel_generation' => ExcelGeneration::single($scenario),
-            'pdf_generation' => PdfGeneration::single($scenario),
+            'dto_mapping' => app(DtoMapping::class)->single($scenario),
+            'vat_calculation' => app(VatCalculation::class)->single($scenario),
+            'cart_calculation' => app(CartCalculation::class)->single($scenario),
+            'json_transformation' => app(JsonTransformation::class)->single(),
+            'excel_generation' => app(ExcelGeneration::class)->single($scenario),
+            'pdf_generation' => app(PdfGeneration::class)->single($scenario),
             default => throw new \InvalidArgumentException("Unknown operation: {$operation}"),
         };
     }

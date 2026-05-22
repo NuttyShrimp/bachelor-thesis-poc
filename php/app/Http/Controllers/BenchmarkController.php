@@ -44,6 +44,10 @@ use Illuminate\Http\Response;
  */
 class BenchmarkController extends Controller
 {
+    public function __construct(
+        protected DataLoader $dataLoader,
+    ) {}
+
     /**
      * List all available benchmark operations
      *
@@ -137,7 +141,7 @@ class BenchmarkController extends Controller
      */
     public function preloadData(): Response
     {
-        DataLoader::preloadData();
+        $this->dataLoader->preloadData();
         return response()->noContent();
     }
 

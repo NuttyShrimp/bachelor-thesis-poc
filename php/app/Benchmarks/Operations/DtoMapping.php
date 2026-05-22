@@ -70,6 +70,9 @@ use App\Benchmarks\Dtos\OrderProductsData;
  */
 class DtoMapping
 {
+    public function __construct(
+        protected DataLoader $dataLoader
+    ) {}
     /**
      * Map product settings JSON to DTO
      *
@@ -123,9 +126,9 @@ class DtoMapping
      *
      * Maps all products' settings_json to DTOs
      */
-    public static function benchmarkProductSettings(int $iterations = 50): array
+    public function benchmarkProductSettings(int $iterations = 50): array
     {
-        $productsData = DataLoader::products();
+        $productsData = $this->dataLoader->products();
         $products = $productsData['products'] ?? [];
 
         if (empty($products)) {
@@ -193,9 +196,9 @@ class DtoMapping
      * Maps all orders' settings_json to DTOs
      * This tests the 48+ nested payment/metadata objects
      */
-    public static function benchmarkOrderSettings(int $iterations = 50): array
+    public function benchmarkOrderSettings(int $iterations = 50): array
     {
-        $ordersData = DataLoader::orders();
+        $ordersData = $this->dataLoader->orders();
         $orders = $ordersData['orders'] ?? [];
 
         if (empty($orders)) {
@@ -263,9 +266,9 @@ class DtoMapping
      * Maps all orders' products_json to DTOs
      * This is the HEAVIEST operation - deeply nested product data
      */
-    public static function benchmarkOrderProducts(int $iterations = 50): array
+    public function benchmarkOrderProducts(int $iterations = 50): array
     {
-        $ordersData = DataLoader::orders();
+        $ordersData = $this->dataLoader->orders();
         $orders = $ordersData['orders'] ?? [];
 
         if (empty($orders)) {
@@ -340,9 +343,9 @@ class DtoMapping
      *
      * This simulates loading an order detail page
      */
-    public static function benchmarkFullOrder(int $iterations = 50): array
+    public function benchmarkFullOrder(int $iterations = 50): array
     {
-        $ordersData = DataLoader::orders();
+        $ordersData = $this->dataLoader->orders();
         $orders = $ordersData['orders'] ?? [];
 
         if (empty($orders)) {
@@ -408,11 +411,11 @@ class DtoMapping
      * @param string $scenario One of: product_settings, order_settings, order_products, full_order
      * @return mixed Mapped DTO data
      */
-    public static function single(string $scenario): mixed
+    public function single(string $scenario): mixed
     {
         switch ($scenario) {
             case 'product_settings':
-                $productsData = DataLoader::products();
+                $productsData = $this->dataLoader->products();
                 $products = $productsData['products'] ?? [];
                 $settingToReturn = null;
                 foreach ($products as $product) {
@@ -424,7 +427,7 @@ class DtoMapping
                 return $settingToReturn;
 
             case 'order_settings':
-                $ordersData = DataLoader::orders();
+                $ordersData = $this->dataLoader->orders();
                 $orders = $ordersData['orders'] ?? [];
                 $settingToReturn = null;
                 foreach ($orders as $order) {
@@ -436,7 +439,7 @@ class DtoMapping
                 return $settingToReturn;
 
             case 'order_products':
-                $ordersData = DataLoader::orders();
+                $ordersData = $this->dataLoader->orders();
                 $orders = $ordersData['orders'] ?? [];
                 $productToReturn = null;
                 foreach ($orders as $order) {
@@ -448,7 +451,7 @@ class DtoMapping
                 return $productToReturn;
 
             case 'full_order':
-                $ordersData = DataLoader::orders();
+                $ordersData = $this->dataLoader->orders();
                 $orders = $ordersData['orders'] ?? [];
                 $orderToReturn = null;
                 foreach ($orders as $order) {
@@ -467,21 +470,21 @@ class DtoMapping
     /**
      * Run all DTO mapping benchmarks
      */
-    public static function benchmark(string $operation = "all", int $iterations = 50): array
+    public function benchmark(string $operation = "all", int $iterations = 50): array
     {
         if ($operation == "all") {
             return [
-                'product_settings' => self::benchmarkProductSettings($iterations),
-                'order_settings' => self::benchmarkOrderSettings($iterations),
-                'order_products' => self::benchmarkOrderProducts($iterations),
-                'full_order' => self::benchmarkFullOrder($iterations),
+                'product_settings' => $this->benchmarkProductSettings($iterations),
+                'order_settings' => $this->benchmarkOrderSettings($iterations),
+                'order_products' => $this->benchmarkOrderProducts($iterations),
+                'full_order' => $this->benchmarkFullOrder($iterations),
             ];
         }
         return match ($operation) {
-            'product_settings' => [$operation => self::benchmarkProductSettings($iterations)],
-            'order_settings' => [$operation => self::benchmarkOrderSettings($iterations)],
-            'order_products' => [$operation => self::benchmarkOrderProducts($iterations)],
-            'full_order' => [$operation => self::benchmarkFullOrder($iterations)],
+            'product_settings' => [$operation => $this->benchmarkProductSettings($iterations)],
+            'order_settings' => [$operation => $this->benchmarkOrderSettings($iterations)],
+            'order_products' => [$operation => $this->benchmarkOrderProducts($iterations)],
+            'full_order' => [$operation => $this->benchmarkFullOrder($iterations)],
             default => throw new \InvalidArgumentException("Unknown operation: {$operation}"),
         };
     }

@@ -79,6 +79,10 @@ use App\Benchmarks\DataLoader;
  */
 class CartCalculation
 {
+    public function __construct(
+        protected DataLoader $dataLoader
+    ) {}
+
     /**
      * Calculate cart totals
      *
@@ -166,10 +170,10 @@ class CartCalculation
      * @param string $scenario One of: small_cart, medium_cart, large_cart, xl_cart
      * @return array Calculated cart
      */
-    public static function single(string $scenario): array
+    public function single(string $scenario): array
     {
         $discount = rand(0, 10);
-        $cart = DataLoader::cartScenario($scenario);
+        $cart = $this->dataLoader->cartScenario($scenario);
         if (!$cart) {
             throw new \InvalidArgumentException("Failed to load cart scenario: {$scenario}");
         }
@@ -183,9 +187,9 @@ class CartCalculation
      * @param int $iterations Number of calculation iterations
      * @return array Benchmark results
      */
-    public static function benchmark(string $scenario = 'large_cart', int $iterations = 100): array
+    public function benchmark(string $scenario = 'large_cart', int $iterations = 100): array
     {
-        $cart = DataLoader::cartScenario($scenario);
+        $cart = $this->dataLoader->cartScenario($scenario);
 
         // Warm up
         if ($iterations > 1){

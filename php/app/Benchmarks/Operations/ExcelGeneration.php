@@ -85,6 +85,9 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
  */
 class ExcelGeneration
 {
+    public function __construct(
+        protected DataLoader $dataLoader
+    ) {}
     /**
      * Generate production list Excel file
      *
@@ -242,10 +245,10 @@ class ExcelGeneration
      * @param string $scenario Excel generation scenario name (optional)
      * @return array Custom file result containing binary data
      */
-    public static function single(string $scenario): array
+    public function single(string $scenario): array
     {
-        $orders = DataLoader::orders();
-        $filePath = self::generateProductionList($orders);
+        $orders = $this->dataLoader->orders();
+        $filePath = $this->generateProductionList($orders);
 
         if (!file_exists($filePath)) {
             throw new \RuntimeException("Failed to generate Excel file");
@@ -268,9 +271,9 @@ class ExcelGeneration
      * @param int $iterations Number of files to generate (default 10, as this is slow)
      * @return array Benchmark results
      */
-    public static function benchmark(int $iterations = 10): array
+    public function benchmark(int $iterations = 10): array
     {
-        $orders = DataLoader::orders();
+        $orders = $this->dataLoader->orders();
 
         // Ensure output directory exists
         $outputDir = storage_path('benchmarks');

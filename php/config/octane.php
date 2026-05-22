@@ -132,6 +132,7 @@ return [
 
     'warm' => [
         ...Octane::defaultServicesToWarm(),
+        \App\Benchmarks\DataLoader::class,
     ],
 
     'flush' => [
