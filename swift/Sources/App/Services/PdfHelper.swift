@@ -5,7 +5,7 @@ struct PdfHelper {
 
     func render() throws -> Data {
         let process = Process()
-        process.executableURL = try resolvePaperMuncherExecutable()
+        process.executableURL = try resolveWkhtmltopdfExecutable()
         process.arguments = ["-q", "-", "-"]
 
         let inputPipe = Pipe()
@@ -49,7 +49,7 @@ struct PdfHelper {
         return Data(rawOutput[range.lowerBound...])
     }
 
-    private func resolvePaperMuncherExecutable() throws -> URL {
+    private func resolveWkhtmltopdfExecutable() throws -> URL {
         if let executable = locateExecutableInPath(named: "wkhtmltopdf") {
             return executable
         }
