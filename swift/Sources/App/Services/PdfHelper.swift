@@ -3,9 +3,14 @@ import Foundation
 struct PdfHelper {
     let content: String
 
+    private static let cachedExecutableURL: URL? = try? resolveWkhtmltopdfExecutable()
+
     func render() throws -> Data {
         let process = Process()
-        process.executableURL = try resolveWkhtmltopdfExecutable()
+        guard let executableURL = PdfHelper.cachedExecutableURL else {
+            throw PdfHelperError.executableNotFound
+        }
+        process.executableURL = executableURL
         process.arguments = ["-q", "-", "-"]
 
         let inputPipe = Pipe()
@@ -49,7 +54,7 @@ struct PdfHelper {
         return Data(rawOutput[range.lowerBound...])
     }
 
-    private func resolveWkhtmltopdfExecutable() throws -> URL {
+    private static func resolveWkhtmltopdfExecutable() throws -> URL {
         if let executable = locateExecutableInPath(named: "wkhtmltopdf") {
             return executable
         }
@@ -62,7 +67,7 @@ struct PdfHelper {
         throw PdfHelperError.executableNotFound
     }
 
-    private func locateExecutableInPath(named executableName: String) -> URL? {
+    private static func locateExecutableInPath(named executableName: String) -> URL? {
         let path = ProcessInfo.processInfo.environment["PATH"] ?? ""
         for directory in path.split(separator: ":") {
             let candidate = URL(fileURLWithPath: String(directory))
