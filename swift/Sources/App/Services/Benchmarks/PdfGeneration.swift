@@ -114,7 +114,7 @@ struct PdfGeneration: BenchmarkOperation {
         let memoryUsageEnd = reportMemory()
         return ScenarioResult.create(
             for: "pdf_generation_single",
-            orderCount: 100,
+            orderCount: 50,
             iterations: iterations,
             times: times,
             memoryUsage: memoryUsageEnd - memoryUsageStart,

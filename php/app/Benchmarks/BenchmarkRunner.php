@@ -152,7 +152,7 @@ class BenchmarkRunner
                 ),
                 "pdf_generation_zip" => app(PdfGeneration::class)->benchmarkZip(
                     $options['pdf_count'] ?? 50,
-                    $options['iterations'] ?? 5
+                    $options['iterations'] ?? 10
                 )
             ],
             default => throw new \InvalidArgumentException("Unknown operation: {$operation}"),

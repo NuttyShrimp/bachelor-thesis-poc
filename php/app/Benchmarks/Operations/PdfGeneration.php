@@ -395,7 +395,7 @@ HTML;
     /**
      * Run benchmark - single PDF generation
      */
-    public function benchmarkSingle(int $iterations = 100): array
+    public function benchmarkSingle(int $iterations = 50): array
     {
         $orders = $this->dataLoader->orders();
         $order = $orders['orders'][0] ?? ['id' => 1, 'products' => []];
