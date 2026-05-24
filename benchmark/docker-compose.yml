@@ -62,9 +62,11 @@ services:
     volumes:
       - ../data:/data
     sysctls:
+      net.core.somaxconn: 65535
       net.ipv4.ip_local_port_range: "1024 65535"
       net.ipv4.tcp_tw_reuse: 1
       net.ipv4.tcp_timestamps: 1
+    memswap_limit: 8G
     deploy:
       resources:
         limits:
@@ -92,9 +94,11 @@ services:
       APP_KEY: base64:6p01NdMHOMdQPhQWf4PwKm4YQ12b6NWvR4N4ctA4fuY=
       APP_URL: http://localhost:8000
     sysctls:
+      net.core.somaxconn: 65535
       net.ipv4.ip_local_port_range: "1024 65535"
       net.ipv4.tcp_tw_reuse: 1
       net.ipv4.tcp_timestamps: 1
+    memswap_limit: 8G
     deploy:
       resources:
         limits:
@@ -120,6 +124,7 @@ services:
       - php-fpm
       - cadvisor
     sysctls:
+      net.core.somaxconn: 65535
       net.ipv4.ip_local_port_range: "1024 65535"
       net.ipv4.tcp_tw_reuse: 1
       net.ipv4.tcp_timestamps: 1
@@ -149,9 +154,11 @@ services:
     volumes:
       - ../data:/var/www/data:ro
     sysctls:
+      net.core.somaxconn: 65535
       net.ipv4.ip_local_port_range: "1024 65535"
       net.ipv4.tcp_tw_reuse: 1
       net.ipv4.tcp_timestamps: 1
+    memswap_limit: 8G
     deploy:
       resources:
         limits:
