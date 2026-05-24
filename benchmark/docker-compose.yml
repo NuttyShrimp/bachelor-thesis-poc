@@ -56,22 +56,25 @@ services:
       context: ../swift
       tags:
         - bap/swift:latest
-    # ports:
-    #   - '8080:8080'
-    network_mode: host
+    ports:
+      - '8080:8080'
     privileged: true
     volumes:
       - ../data:/data
+    sysctls:
+      net.ipv4.ip_local_port_range: "1024 65535"
+      net.ipv4.tcp_tw_reuse: 1
+      net.ipv4.tcp_timestamps: 1
     deploy:
       resources:
         limits:
           cpus: 8
           memory: 16G
     ulimits:
-      nproc: 65535
+      nproc: 125000
       nofile:
-        soft: 26677
-        hard: 46677
+        soft: 250000
+        hard: 520000
 
   php-fpm:
     depends_on:
@@ -88,11 +91,20 @@ services:
       APP_DEBUG: "false"
       APP_KEY: base64:6p01NdMHOMdQPhQWf4PwKm4YQ12b6NWvR4N4ctA4fuY=
       APP_URL: http://localhost:8000
+    sysctls:
+      net.ipv4.ip_local_port_range: "1024 65535"
+      net.ipv4.tcp_tw_reuse: 1
+      net.ipv4.tcp_timestamps: 1
     deploy:
       resources:
         limits:
           cpus: 8
           memory: 16G
+    ulimits:
+      nproc: 62500
+      nofile:
+        soft: 250000
+        hard: 520000
     volumes:
       - ../data:/var/www/data:ro
 
@@ -107,11 +119,15 @@ services:
     depends_on:
       - php-fpm
       - cadvisor
+    sysctls:
+      net.ipv4.ip_local_port_range: "1024 65535"
+      net.ipv4.tcp_tw_reuse: 1
+      net.ipv4.tcp_timestamps: 1
     ulimits:
-      nproc: 65535
+      nproc: 62500
       nofile:
-        soft: 26677
-        hard: 46677
+        soft: 250000
+        hard: 520000
 
   php-octane:
     depends_on:
@@ -132,16 +148,20 @@ services:
       OCTANE_SERVER: frankenphp
     volumes:
       - ../data:/var/www/data:ro
+    sysctls:
+      net.ipv4.ip_local_port_range: "1024 65535"
+      net.ipv4.tcp_tw_reuse: 1
+      net.ipv4.tcp_timestamps: 1
     deploy:
       resources:
         limits:
           cpus: 8
           memory: 16G
     ulimits:
-      nproc: 65535
+      nproc: 125000
       nofile:
-        soft: 26677
-        hard: 46677
+        soft: 250000
+        hard: 520000
 
 volumes:
   grafana-storage: {}
