@@ -169,6 +169,18 @@ struct ExcelGeneration: BenchmarkOperation {
         )
     }
 
+    private func digitCount(_ n: Int) -> Int {
+        if n < 0 {
+            return digitCount(-n) + 1
+        }
+        if n < 10 { return 1 }
+        if n < 100 { return 2 }
+        if n < 1000 { return 3 }
+        if n < 10000 { return 4 }
+        if n < 100000 { return 5 }
+        return String(n).utf8.count
+    }
+
     private func generateProductionList(payload: ExcelOrdersPayload, outputDirectory: URL) throws
         -> URL
     {
@@ -205,6 +217,7 @@ struct ExcelGeneration: BenchmarkOperation {
         worksheet.write(headers, row: 0, format: headerFormat)
 
         var maxColumnLengths = headers.map { $0.utf8.count }
+        maxColumnLengths[0] = 10 // Date string is always yyyy-MM-dd (10 chars), which is larger than "Date" (4 chars).
 
         var rowIndex = 1
         var logicalRowCount = 0
@@ -218,13 +231,10 @@ struct ExcelGeneration: BenchmarkOperation {
             worksheet.write(.number(Double(row.quantity)), [rowIndex, 4], format: currentFormat)
             worksheet.write(.string(""), [rowIndex, 5], format: currentFormat)
 
-            let quantityText = String(row.quantity)
-
-            maxColumnLengths[0] = max(maxColumnLengths[0], row.date.utf8.count)
             maxColumnLengths[1] = max(maxColumnLengths[1], row.category.utf8.count)
             maxColumnLengths[2] = max(maxColumnLengths[2], row.product.utf8.count)
             maxColumnLengths[3] = max(maxColumnLengths[3], row.options.utf8.count)
-            maxColumnLengths[4] = max(maxColumnLengths[4], quantityText.utf8.count)
+            maxColumnLengths[4] = max(maxColumnLengths[4], digitCount(row.quantity))
 
             rowIndex += 1
             logicalRowCount += 1
@@ -263,17 +273,19 @@ struct ExcelGeneration: BenchmarkOperation {
             productsByOrderId[product.orderId, default: []].append(product)
         }
 
-        var optionNamesByOrderProductId: [Int: [String]] = [:]
-        optionNamesByOrderProductId.reserveCapacity(payload.orderProductOptions.count)
-        for option in payload.orderProductOptions {
-            optionNamesByOrderProductId[option.orderProductId, default: []].append(
-                option.name ?? "")
-        }
-
         var optionStringByOrderProductId: [Int: String] = [:]
-        optionStringByOrderProductId.reserveCapacity(optionNamesByOrderProductId.count)
-        for (orderProductId, optionNames) in optionNamesByOrderProductId {
-            optionStringByOrderProductId[orderProductId] = optionNames.joined(separator: ", ")
+        optionStringByOrderProductId.reserveCapacity(payload.orderProductOptions.count)
+        for option in payload.orderProductOptions {
+            let optionName = option.name ?? ""
+            if let existing = optionStringByOrderProductId[option.orderProductId] {
+                if !existing.isEmpty && !optionName.isEmpty {
+                    optionStringByOrderProductId[option.orderProductId] = existing + ", " + optionName
+                } else if !optionName.isEmpty {
+                    optionStringByOrderProductId[option.orderProductId] = optionName
+                }
+            } else {
+                optionStringByOrderProductId[option.orderProductId] = optionName
+            }
         }
 
         var rows: [ExcelRow] = []
@@ -320,14 +332,20 @@ struct ExcelGeneration: BenchmarkOperation {
             }
         }
 
-        rows.sort(by: { $0.date.compare($1.date) == .orderedAscending })
+        rows.sort(by: { $0.date < $1.date })
 
         return rows
     }
 
     private func benchmarkOutputDirectory() -> URL {
-        let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("bap-benchmarks", isDirectory: true)
+        let shmDirectory = URL(fileURLWithPath: "/dev/shm", isDirectory: true)
+        let directory: URL
+        if FileManager.default.isWritableFile(atPath: shmDirectory.path) {
+            directory = shmDirectory.appendingPathComponent("bap-benchmarks", isDirectory: true)
+        } else {
+            directory = FileManager.default.temporaryDirectory
+                .appendingPathComponent("bap-benchmarks", isDirectory: true)
+        }
         try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         return directory
     }

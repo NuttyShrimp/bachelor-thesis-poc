@@ -36,7 +36,8 @@ struct PdfGeneration: BenchmarkOperation {
                 let decoder = createDecoder()
                 let payload = try decoder.decode(ExcelOrdersPayload.self, from: orders)
 
-                let order = getFullOrder(payload: payload, for: 0)
+                let productsByOrderId = precomputeProductsByOrderId(from: payload)
+                let order = getFullOrder(payload: payload, for: 0, productsByOrderId: productsByOrderId)
                 let pdf = try renderInvoiceHtml(order: order)
                 return .file(data: pdf, filename: "invoice.pdf", contentType: "application/pdf")
             } catch {
@@ -49,10 +50,11 @@ struct PdfGeneration: BenchmarkOperation {
                 let decoder = createDecoder()
                 let payload = try decoder.decode(ExcelOrdersPayload.self, from: orders)
                 try FileManager.default.createDirectory(
-                    at: FileManager.default.temporaryDirectory.appending(path: "bap"),
+                    at: benchmarkOutputDirectory(),
                     withIntermediateDirectories: true)
 
-                let archiveURL = try await generateInvoiceZip(payload: payload)
+                let productsByOrderId = precomputeProductsByOrderId(from: payload)
+                let archiveURL = try await generateInvoiceZip(payload: payload, productsByOrderId: productsByOrderId)
                 let archiveData = try Data(contentsOf: archiveURL)
                 try? FileManager.default.removeItem(at: archiveURL)
                 return .file(
@@ -90,17 +92,21 @@ struct PdfGeneration: BenchmarkOperation {
             )
         }
 
-        let order = getFullOrder(payload: payload, for: 0)
+        let productsByOrderId = precomputeProductsByOrderId(from: payload)
+        let order = getFullOrder(payload: payload, for: 0, productsByOrderId: productsByOrderId)
 
         var times: [Double] = []
         let memoryUsageStart = reportMemory()
         let startTime = Int(Date.now.timeIntervalSince1970)
 
+        let outputDir = benchmarkOutputDirectory()
+        let pdfOutputPath = outputDir.appendingPathComponent("swift-invoice.pdf").path
+
         for _ in 0..<iterations {
             do {
                 let start = Date()
                 let pdf = try renderInvoiceHtml(order: order)
-                FileManager.default.createFile(atPath: "/tmp/swift-invoice.pdf", contents: pdf)
+                FileManager.default.createFile(atPath: pdfOutputPath, contents: pdf)
                 let end = Date()
                 let elapsedTime = end.timeIntervalSince(start) * 1000
                 times.append(elapsedTime)
@@ -109,6 +115,9 @@ struct PdfGeneration: BenchmarkOperation {
                 logger.error("Failed to render invoice: \(error)")
             }
         }
+
+        // Clean up the temporary PDF file when done
+        try? FileManager.default.removeItem(atPath: pdfOutputPath)
 
         let endTime = Int(Date.now.timeIntervalSince1970)
         let memoryUsageEnd = reportMemory()
@@ -142,9 +151,11 @@ struct PdfGeneration: BenchmarkOperation {
             )
         }
 
+        let productsByOrderId = precomputeProductsByOrderId(from: payload)
+
         do {
             try FileManager.default.createDirectory(
-                at: FileManager.default.temporaryDirectory.appending(path: "bap"),
+                at: benchmarkOutputDirectory(),
                 withIntermediateDirectories: true)
         } catch {
             logger.error("Failed to create directory for invoice storage: \(error)")
@@ -167,13 +178,15 @@ struct PdfGeneration: BenchmarkOperation {
             do {
                 let start = Date()
 
-                let url = try await generateInvoiceZip(payload: payload)
+                let url = try await generateInvoiceZip(payload: payload, productsByOrderId: productsByOrderId)
                 logger.debug("\(url)")
 
                 let end = Date()
                 let elapsedTime = end.timeIntervalSince(start) * 1000
                 times.append(elapsedTime)
                 logger.debug("Iteration elapsed in \(elapsedTime)")
+
+                try? FileManager.default.removeItem(at: url)
             } catch {
                 logger.error("Failed to render invoice: \(error)")
             }
@@ -192,17 +205,21 @@ struct PdfGeneration: BenchmarkOperation {
         )
     }
 
-    func generateInvoiceZip(payload: ExcelOrdersPayload, limit: Int = 50) async throws -> URL {
-        let fileManager = FileManager()
-        var archiveURL = fileManager.temporaryDirectory
-        archiveURL.appendPathComponent("bap")
-        archiveURL.appendPathComponent("invoices_\(Int.random(in: 1000...9999)).zip")
+    func generateInvoiceZip(
+        payload: ExcelOrdersPayload,
+        limit: Int = 50,
+        productsByOrderId: [Int: [ExcelOrderProduct]]? = nil
+    ) async throws -> URL {
+        let directory = benchmarkOutputDirectory()
+        let archiveURL = directory.appendingPathComponent("invoices_\(Int.random(in: 1000...9999)).zip")
         let archive = try ArchiveActor(url: archiveURL, accessMode: .create)
+
+        let productsLookup = productsByOrderId ?? precomputeProductsByOrderId(from: payload)
 
         await withThrowingTaskGroup(of: Void.self) { group in
             for i in 0..<limit {
                 group.addTask {
-                    let order = getFullOrder(payload: payload, for: i)
+                    let order = getFullOrder(payload: payload, for: i, productsByOrderId: productsLookup)
                     let invoice = try renderInvoiceHtml(order: order)
                     try await archive.addInvoicePdf(orderId: order.id, invoice: invoice)
                 }
@@ -212,13 +229,38 @@ struct PdfGeneration: BenchmarkOperation {
         return archiveURL
     }
 
-    private func getFullOrder(payload: ExcelOrdersPayload, for index: Int) -> ExcelOrder {
+    private func precomputeProductsByOrderId(from payload: ExcelOrdersPayload) -> [Int: [ExcelOrderProduct]] {
+        var optionsByProductId: [Int: [ExcelOrderProductOption]] = [:]
+        optionsByProductId.reserveCapacity(payload.orderProductOptions.count)
+        for option in payload.orderProductOptions {
+            optionsByProductId[option.orderProductId, default: []].append(option)
+        }
+
+        var productsByOrderId: [Int: [ExcelOrderProduct]] = [:]
+        productsByOrderId.reserveCapacity(payload.orders.count)
+        for product in payload.orderProducts {
+            var productCopy = product
+            productCopy.options = optionsByProductId[product.id] ?? []
+            productsByOrderId[product.orderId, default: []].append(productCopy)
+        }
+        return productsByOrderId
+    }
+
+    private func getFullOrder(
+        payload: ExcelOrdersPayload,
+        for index: Int,
+        productsByOrderId: [Int: [ExcelOrderProduct]]? = nil
+    ) -> ExcelOrder {
         var order = payload.orders[index]
 
-        order.products = payload.orderProducts.filter { $0.orderId == order.id }
-        for i in order.products.indices {
-            order.products[i].options = payload.orderProductOptions.filter {
-                $0.orderProductId == order.products[i].id
+        if let productsLookup = productsByOrderId {
+            order.products = productsLookup[order.id] ?? []
+        } else {
+            order.products = payload.orderProducts.filter { $0.orderId == order.id }
+            for i in order.products.indices {
+                order.products[i].options = payload.orderProductOptions.filter {
+                    $0.orderProductId == order.products[i].id
+                }
             }
         }
 
@@ -227,8 +269,13 @@ struct PdfGeneration: BenchmarkOperation {
 
     func renderInvoiceHtml(order: ExcelOrder) throws -> Data {
         var itemsHtml = ""
+        var subtotal: Double = 0
+        var vatTotal: Double = 0
 
         order.products.forEach { product in
+            subtotal += product.total
+            vatTotal += product.vatTotal
+
             itemsHtml += """
                     <tr>
                         <td>\(product.name ?? "Product")<br><small style="color: #666;">\(product.options.map{$0.name ?? "Option"}.joined(separator: ","))</small></td>
@@ -362,15 +409,15 @@ struct PdfGeneration: BenchmarkOperation {
                         <table>
                             <tr>
                                 <td class="label">Subtotal:</td>
-                                <td class="value">€\(String(format: "%.3f", order.products.reduce(0) { $0 + $1.total}))</td>
+                                <td class="value">€\(String(format: "%.3f", subtotal))</td>
                             </tr>
                             <tr>
                                 <td class="label">VAT:</td>
-                                <td class="value">€\(String(format: "%.3f",order.products.reduce(0, { $0 + $1.vatTotal})))</td>
+                                <td class="value">€\(String(format: "%.3f", vatTotal))</td>
                             </tr>
                             <tr class="grand-total">
                                 <td class="label">Total:</td>
-                                <td class="value">€\(String(format: "%.3f",order.products.reduce(0, { $0 + $1.total + $1.vatTotal})))</td>
+                                <td class="value">€\(String(format: "%.3f", subtotal + vatTotal))</td>
                             </tr>
                         </table>
                     </div>
@@ -386,5 +433,18 @@ struct PdfGeneration: BenchmarkOperation {
         let helper = PdfHelper(content: content)
 
         return try helper.render()
+    }
+
+    private func benchmarkOutputDirectory() -> URL {
+        let shmDirectory = URL(fileURLWithPath: "/dev/shm", isDirectory: true)
+        let directory: URL
+        if FileManager.default.isWritableFile(atPath: shmDirectory.path) {
+            directory = shmDirectory.appendingPathComponent("bap-benchmarks", isDirectory: true)
+        } else {
+            directory = FileManager.default.temporaryDirectory
+                .appendingPathComponent("bap-benchmarks", isDirectory: true)
+        }
+        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        return directory
     }
 }
