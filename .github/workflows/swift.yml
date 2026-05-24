@@ -1,0 +1,56 @@
+name: Swift CI & Docker Build
+
+on:
+  push:
+    paths:
+      - 'swift/**'
+      - '.github/workflows/swift.yml'
+  pull_request:
+    paths:
+      - 'swift/**'
+      - '.github/workflows/swift.yml'
+
+jobs:
+  validate:
+    name: Validate Swift Code
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Swift
+        uses: swift-actions/setup-swift@v3
+        with:
+          swift-version: '6.3'
+
+      - name: Resolve Dependencies
+        run: swift package --package-path swift resolve
+
+      - name: Build Code
+        run: swift build --package-path swift
+
+      - name: Run Tests
+        run: swift test --package-path swift
+
+  build-docker:
+    name: Build Swift Docker Image
+    needs: validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Swift Image
+        uses: docker/build-push-action@v6
+        with:
+          context: swift
+          file: swift/Dockerfile
+          push: false
+          tags: bap/swift:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

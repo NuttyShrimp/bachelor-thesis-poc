@@ -1,0 +1,119 @@
+name: PHP CI & Docker Build
+
+on:
+  push:
+    paths:
+      - 'php/**'
+      - '.github/workflows/php.yml'
+  pull_request:
+    paths:
+      - 'php/**'
+      - '.github/workflows/php.yml'
+
+jobs:
+  validate-php:
+    name: Validate PHP Application
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif
+          coverage: none
+
+      - name: Validate composer.json
+        run: composer validate --strict
+        working-directory: php
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+        working-directory: php
+
+      - name: Cache Composer Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('php/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer Dependencies
+        run: composer install --no-interaction --prefer-dist
+        working-directory: php
+
+      - name: Copy Env File
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+        working-directory: php
+
+      - name: Generate Application Key
+        run: php artisan key:generate
+        working-directory: php
+
+  validate-frontend:
+    name: Validate Frontend Assets
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: php/package-lock.json
+
+      - name: Install Node Dependencies
+        run: npm ci
+        working-directory: php
+
+      - name: Build Frontend Assets
+        run: npm run build
+        working-directory: php
+
+  build-docker:
+    name: Build PHP Docker Images
+    needs: [validate-php, validate-frontend]
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: php-fpm
+            file: php/Dockerfile
+            target: app
+            tag: bap/php-fpm:latest
+          - name: php-nginx
+            file: php/Dockerfile
+            target: web
+            tag: bap/php-nginx:latest
+          - name: php-octane
+            file: php/Dockerfile.octane
+            target: octane
+            tag: bap/php-octane:latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Image
+        uses: docker/build-push-action@v6
+        with:
+          context: php
+          file: ${{ matrix.file }}
+          target: ${{ matrix.target }}
+          push: false
+          tags: ${{ matrix.tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
