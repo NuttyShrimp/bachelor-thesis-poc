@@ -68,8 +68,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: 8
-          memory: 16G
+          cpus: 4
+          memory: 8G
     ulimits:
       nproc: 125000
       nofile:
@@ -98,8 +98,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: 8
-          memory: 16G
+          cpus: 4
+          memory: 8G
     ulimits:
       nproc: 62500
       nofile:
@@ -155,8 +155,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: 8
-          memory: 16G
+          cpus: 4
+          memory: 8G
     ulimits:
       nproc: 125000
       nofile:
