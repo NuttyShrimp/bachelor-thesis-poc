@@ -5,6 +5,7 @@ import { check } from 'k6';
 
 const runtimePort: Record<string, number> = {
   "swift": 8080,
+  "swift-reerjson": 8082,
   "php": 8000,
   "octane": 8001,
 }

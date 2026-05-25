@@ -78,6 +78,37 @@ services:
         soft: 250000
         hard: 520000
 
+  swift-reerjson:
+    depends_on:
+      - cadvisor
+    build:
+      context: ../swift
+      args:
+        SWIFT_BUILD_FLAGS: "--traits ReerJSON"
+      tags:
+        - bap/swift-reerjson:latest
+    ports:
+      - '8082:8080'
+    privileged: true
+    volumes:
+      - ../data:/data
+    sysctls:
+      net.core.somaxconn: 65535
+      net.ipv4.ip_local_port_range: "1024 65535"
+      net.ipv4.tcp_tw_reuse: 1
+      net.ipv4.tcp_timestamps: 1
+    memswap_limit: 8G
+    deploy:
+      resources:
+        limits:
+          cpus: 4
+          memory: 8G
+    ulimits:
+      nproc: 125000
+      nofile:
+        soft: 250000
+        hard: 520000
+
   php-fpm:
     depends_on:
       - cadvisor

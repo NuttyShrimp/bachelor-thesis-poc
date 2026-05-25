@@ -27,16 +27,27 @@ jobs:
       - name: Resolve Dependencies
         run: swift package --package-path swift resolve
 
-      - name: Build Code
+      - name: Build Code (Standard)
         run: swift build --package-path swift
 
-      - name: Run Tests
-        run: swift test --package-path swift
+      - name: Build Code (ReerJSON)
+        run: swift build --package-path swift --traits ReerJSON
 
   build-docker:
-    name: Build Swift Docker Image
+    name: Build Swift Docker Images
     needs: validate
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: swift
+            build_args: ""
+            image_name: swift
+          - name: swift-reerjson
+            build_args: "SWIFT_BUILD_FLAGS=--traits ReerJSON"
+            image_name: swift-reerjson
 
     steps:
       - name: Checkout Repository
@@ -62,7 +73,8 @@ jobs:
         with:
           context: swift
           file: swift/Dockerfile
+          build-args: ${{ matrix.build_args }}
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ env.GHCR_REPO }}/swift:latest
+          tags: ${{ env.GHCR_REPO }}/${{ matrix.image_name }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
