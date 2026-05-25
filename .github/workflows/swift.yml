@@ -14,15 +14,11 @@ jobs:
   validate:
     name: Validate Swift Code
     runs-on: ubuntu-latest
+    container: swift:6.3.1
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Swift
-        uses: swift-actions/setup-swift@v3
-        with:
-          swift-version: '6.3'
+        uses: actions/checkout@v6
 
       - name: Resolve Dependencies
         run: swift package --package-path swift resolve
@@ -53,26 +49,32 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Log in to GitHub Container Registry
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/bap-${{ matrix.image_name }}
 
       - name: Build and Push Swift Image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: swift
           file: swift/Dockerfile
           build-args: ${{ matrix.build_args }}
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ghcr.io/${{ github.repository }}/${{ matrix.image_name }}:latest
+          tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
