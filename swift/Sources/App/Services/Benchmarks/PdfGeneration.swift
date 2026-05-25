@@ -37,7 +37,8 @@ struct PdfGeneration: BenchmarkOperation {
                 let payload = try decoder.decode(ExcelOrdersPayload.self, from: orders)
 
                 let productsByOrderId = precomputeProductsByOrderId(from: payload)
-                let order = getFullOrder(payload: payload, for: 0, productsByOrderId: productsByOrderId)
+                let order = getFullOrder(
+                    payload: payload, for: 0, productsByOrderId: productsByOrderId)
                 let pdf = try renderInvoiceHtml(order: order)
                 return .file(data: pdf, filename: "invoice.pdf", contentType: "application/pdf")
             } catch {
@@ -54,7 +55,8 @@ struct PdfGeneration: BenchmarkOperation {
                     withIntermediateDirectories: true)
 
                 let productsByOrderId = precomputeProductsByOrderId(from: payload)
-                let archiveURL = try await generateInvoiceZip(payload: payload, productsByOrderId: productsByOrderId)
+                let archiveURL = try await generateInvoiceZip(
+                    payload: payload, productsByOrderId: productsByOrderId)
                 let archiveData = try Data(contentsOf: archiveURL)
                 try? FileManager.default.removeItem(at: archiveURL)
                 return .file(
@@ -101,6 +103,13 @@ struct PdfGeneration: BenchmarkOperation {
 
         let outputDir = benchmarkOutputDirectory()
         let pdfOutputPath = outputDir.appendingPathComponent("swift-invoice.pdf").path
+
+        // Warmup
+        do {
+            let _ = try renderInvoiceHtml(order: order)
+        } catch {
+            logger.error("pdf single warmup run failed: \(error)")
+        }
 
         for _ in 0..<iterations {
             do {
@@ -174,11 +183,20 @@ struct PdfGeneration: BenchmarkOperation {
         let memoryUsageStart = reportMemory()
         let startTime = Int(Date.now.timeIntervalSince1970)
 
+        do {
+            let url = try await generateInvoiceZip(
+                payload: payload, productsByOrderId: productsByOrderId)
+            try? FileManager.default.removeItem(at: url)
+        } catch {
+            logger.error("pdf zip warmup run failed: \(error)")
+        }
+
         for _ in 0..<10 {
             do {
                 let start = Date()
 
-                let url = try await generateInvoiceZip(payload: payload, productsByOrderId: productsByOrderId)
+                let url = try await generateInvoiceZip(
+                    payload: payload, productsByOrderId: productsByOrderId)
                 logger.debug("\(url)")
 
                 let end = Date()
@@ -211,7 +229,8 @@ struct PdfGeneration: BenchmarkOperation {
         productsByOrderId: [Int: [ExcelOrderProduct]]? = nil
     ) async throws -> URL {
         let directory = benchmarkOutputDirectory()
-        let archiveURL = directory.appendingPathComponent("invoices_\(Int.random(in: 1000...9999)).zip")
+        let archiveURL = directory.appendingPathComponent(
+            "invoices_\(Int.random(in: 1000...9999)).zip")
         let archive = try ArchiveActor(url: archiveURL, accessMode: .create)
 
         let productsLookup = productsByOrderId ?? precomputeProductsByOrderId(from: payload)
@@ -219,7 +238,8 @@ struct PdfGeneration: BenchmarkOperation {
         await withThrowingTaskGroup(of: Void.self) { group in
             for i in 0..<limit {
                 group.addTask {
-                    let order = getFullOrder(payload: payload, for: i, productsByOrderId: productsLookup)
+                    let order = getFullOrder(
+                        payload: payload, for: i, productsByOrderId: productsLookup)
                     let invoice = try renderInvoiceHtml(order: order)
                     try await archive.addInvoicePdf(orderId: order.id, invoice: invoice)
                 }
@@ -229,7 +249,9 @@ struct PdfGeneration: BenchmarkOperation {
         return archiveURL
     }
 
-    private func precomputeProductsByOrderId(from payload: ExcelOrdersPayload) -> [Int: [ExcelOrderProduct]] {
+    private func precomputeProductsByOrderId(from payload: ExcelOrdersPayload) -> [Int:
+        [ExcelOrderProduct]]
+    {
         var optionsByProductId: [Int: [ExcelOrderProductOption]] = [:]
         optionsByProductId.reserveCapacity(payload.orderProductOptions.count)
         for option in payload.orderProductOptions {
