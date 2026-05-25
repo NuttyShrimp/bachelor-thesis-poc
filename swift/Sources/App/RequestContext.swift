@@ -33,12 +33,49 @@ struct JSONSnakeCaseEncoder: ResponseEncoder {
     }
 }
 
-struct MyRequestContext: RequestContext {
-    var requestDecoder: RequestDecoder {
+#if ReerJSON
+    extension ReerJSONDecoder: RequestDecoder {
+        public func decode<T>(
+            _ type: T.Type, from request: Request, context: some RequestContext
+        ) async throws -> T where T: Decodable {
+            let buffer = try await request.body.collect(upTo: context.maxUploadSize)
+            let data = Data(buffer: buffer)
+            return try self.decode(T.self, from: data)
+        }
+    }
+#endif
+
+struct JSONSnakeCaseDecoder: RequestDecoder {
+    #if ReerJSON
+        let decoder: ReerJSONDecoder
+    #else
+        let decoder: JSONDecoder
+    #endif
+
+    init() {
         let decoder = createDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
-        return decoder
+        self.decoder = decoder
     }
+
+    func decode<T>(_ type: T.Type, from request: Request, context: some RequestContext) async throws
+        -> T where T: Decodable
+    {
+        guard let header = request.headers[.contentType] else { throw HTTPError(.badRequest) }
+        guard let mediaType = MediaType(from: header) else { throw HTTPError(.badRequest) }
+        switch mediaType {
+        case .applicationJson:
+            return try await decoder.decode(type, from: request, context: context)
+        case .applicationUrlEncoded:
+            return try await URLEncodedFormDecoder().decode(type, from: request, context: context)
+        default:
+            throw HTTPError(.badRequest)
+        }
+    }
+}
+
+struct MyRequestContext: RequestContext {
+    var requestDecoder: JSONSnakeCaseDecoder { .init() }
     var responseEncoder: JSONSnakeCaseEncoder { .init() }
     var coreContext: CoreRequestContextStorage
 
