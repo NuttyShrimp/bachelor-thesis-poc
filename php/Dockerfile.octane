@@ -2,7 +2,7 @@
 FROM node:22-alpine AS frontend
 WORKDIR /app
 COPY package.json package-lock.json* ./
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm npm ci
 COPY . .
 RUN npm run build
 
@@ -10,7 +10,8 @@ RUN npm run build
 FROM composer:2.8 AS vendor
 WORKDIR /app
 COPY composer.json composer.lock* ./
-RUN composer install --no-dev --no-interaction --no-scripts --prefer-dist --ignore-platform-reqs
+RUN --mount=type=cache,target=/tmp/cache \
+    composer install --no-dev --no-interaction --no-scripts --prefer-dist --ignore-platform-reqs
 COPY . .
 RUN composer dump-autoload --optimize --classmap-authoritative --no-dev
 

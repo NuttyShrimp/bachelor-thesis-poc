@@ -20,6 +20,16 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v6
 
+      - name: Cache Swift Build
+        uses: actions/cache@v5
+        with:
+          path: swift/.build
+          key: ${{ runner.os }}-swift-${{ hashFiles('swift/Package.resolved') }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            ${{ runner.os }}-swift-${{ hashFiles('swift/Package.resolved') }}-${{ github.run_id }}-
+            ${{ runner.os }}-swift-${{ hashFiles('swift/Package.resolved') }}-
+            ${{ runner.os }}-swift-
+
       - name: Resolve Dependencies
         run: swift package --package-path swift resolve
 
@@ -76,5 +86,5 @@ jobs:
           build-args: ${{ matrix.build_args }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ matrix.image_name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image_name }}

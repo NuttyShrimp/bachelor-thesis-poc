@@ -18,35 +18,28 @@ WORKDIR /build
 # as long as your Package.swift/Package.resolved
 # files do not change.
 COPY ./Package.* ./
-RUN swift package resolve
+RUN --mount=type=cache,target=/build/.build swift package resolve
 
 # Copy entire repo into container
 COPY . .
 
 ARG SWIFT_BUILD_FLAGS=""
 
-# Build the application, with optimizations, with static linking, and using jemalloc
-RUN swift build -c release \
-    --product "Bap" \
-    --static-swift-stdlib \
-    -Xlinker -ljemalloc \
-    $SWIFT_BUILD_FLAGS
+# Build the application, with optimizations, with static linking, using jemalloc, and stage the artifacts
+RUN --mount=type=cache,target=/build/.build \
+    swift build -c release \
+        --product "Bap" \
+        --static-swift-stdlib \
+        -Xlinker -ljemalloc \
+        $SWIFT_BUILD_FLAGS \
+    && mkdir -p /staging \
+    && cp "$(swift build -c release $SWIFT_BUILD_FLAGS --show-bin-path)/Bap" /staging/ \
+    && cp "/usr/libexec/swift/linux/swift-backtrace-static" /staging/ \
+    && find -L "$(swift build -c release $SWIFT_BUILD_FLAGS --show-bin-path)/" -regex '.*\.resources$' -exec cp -Ra {} /staging/ \; \
+    && ([ -d /build/public ] && { cp -Ra /build/public /staging/public && chmod -R a-w /staging/public; } || true)
 
 # Switch to the staging area
 WORKDIR /staging
-
-# Copy main executable to staging area
-RUN cp "$(swift build --package-path /build -c release $SWIFT_BUILD_FLAGS --show-bin-path)/Bap" ./
-
-# Copy static swift backtracer binary to staging area
-RUN cp "/usr/libexec/swift/linux/swift-backtrace-static" ./
-
-# Copy resources bundled by SPM to staging area
-RUN find -L "$(swift build --package-path /build -c release $SWIFT_BUILD_FLAGS --show-bin-path)/" -regex '.*\.resources$' -exec cp -Ra {} ./ \;
-
-# Copy any resouces from the public directory and views directory if the directories exist
-# Ensure that by default, neither the directory nor any of its contents are writable.
-RUN [ -d /build/public ] && { mv /build/public ./public && chmod -R a-w ./public; } || true
 
 # ================================
 # Run image
