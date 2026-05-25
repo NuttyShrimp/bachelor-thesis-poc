@@ -1,11 +1,19 @@
 import Foundation
 import Hummingbird
 
+#if ReerJSON
+    import ReerJSON
+#endif
+
 struct JSONSnakeCaseEncoder: ResponseEncoder {
-    let encoder: JSONEncoder
+    #if ReerJSON
+        let encoder: ReerJSONEncoder
+    #else
+        let encoder: JSONEncoder
+    #endif
 
     init() {
-        let encoder = JSONEncoder()
+        let encoder = createEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
         self.encoder = encoder
     }
@@ -26,7 +34,11 @@ struct JSONSnakeCaseEncoder: ResponseEncoder {
 }
 
 struct MyRequestContext: RequestContext {
-    var requestEncoder: JSONSnakeCaseEncoder { .init() }
+    var requestDecoder: RequestDecoder {
+        let decoder = createDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return decoder
+    }
     var responseEncoder: JSONSnakeCaseEncoder { .init() }
     var coreContext: CoreRequestContextStorage
 
