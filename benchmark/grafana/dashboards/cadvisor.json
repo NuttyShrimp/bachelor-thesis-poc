@@ -77,6 +77,25 @@
           ],
           "type": "tags"
         }
+      },
+      {
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": false,
+        "iconColor": "yellow",
+        "name": "Swift reerjson annotations",
+        "target": {
+          "expr": "",
+          "interval": "",
+          "refId": "Anno",
+          "tags": [
+            "swift-reerjson"
+          ],
+          "type": "tags"
+        }
       }
     ]
   },
@@ -1047,6 +1066,6 @@
   "timezone": "browser",
   "title": "Docker monitoring",
   "uid": "m0arCBf7k",
-  "version": 7,
+  "version": 8,
   "weekStart": ""
 }

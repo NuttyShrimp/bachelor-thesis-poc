@@ -25,5 +25,9 @@ struct BenchmarkMeta: ResponseEncodable {
 }
 
 func CreateMeta() -> BenchmarkMeta {
-    BenchmarkMeta(timestamp: .now, runtime: "swift")
+    #if ReerJSON
+        BenchmarkMeta(timestamp: .now, runtime: "swift-reerjson")
+    #else
+        BenchmarkMeta(timestamp: .now, runtime: "swift")
+    #endif
 }

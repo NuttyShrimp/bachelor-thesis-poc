@@ -71,6 +71,26 @@
           ],
           "type": "tags"
         }
+      },
+      {
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": false,
+        "iconColor": "yellow",
+        "name": "Swift reerjson annotations",
+        "target": {
+          "expr": "",
+          "interval": "",
+          "queryType": "annotations",
+          "refId": "Anno",
+          "tags": [
+            "swift-reerjson"
+          ],
+          "type": "tags"
+        }
       }
     ]
   },
@@ -2085,6 +2105,6 @@
   "timezone": "browser",
   "title": "k6 Prometheus (Native Histograms)",
   "uid": "a3b2aaa8-bb66-4008-a1d8-16c49afedbf0",
-  "version": 2,
+  "version": 3,
   "weekStart": ""
 }
