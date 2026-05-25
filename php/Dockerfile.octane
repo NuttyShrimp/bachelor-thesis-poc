@@ -41,11 +41,15 @@ RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
     && { \
         echo "opcache.enable=1"; \
         echo "opcache.enable_cli=1"; \
-        echo "opcache.memory_consumption=256"; \
-        echo "opcache.interned_strings_buffer=16"; \
-        echo "opcache.max_accelerated_files=20000"; \
+        echo "opcache.memory_consumption=1024"; \
+        echo "opcache.interned_strings_buffer=128"; \
+        echo "opcache.max_accelerated_files=100000"; \
         echo "opcache.validate_timestamps=0"; \
         echo "opcache.save_comments=1"; \
+        echo "opcache.jit=tracing"; \
+        echo "opcache.jit_buffer_size=256M"; \
+        echo "realpath_cache_size=16M"; \
+        echo "realpath_cache_ttl=600"; \
     } > "$PHP_INI_DIR/conf.d/zz-opcache.ini"
 
 COPY --chown=www-data:www-data . .
@@ -69,4 +73,4 @@ ENV APP_ENV=production \
     OCTANE_SERVER=frankenphp
 
 EXPOSE 8000
-CMD ["php", "artisan", "octane:start", "--server=frankenphp", "--host=0.0.0.0", "--port=8000", "--max-requests=500"]
+CMD ["php", "artisan", "octane:start", "--server=frankenphp", "--host=0.0.0.0", "--port=8000", "--max-requests=0"]

@@ -62,23 +62,24 @@ RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
     } > "$PHP_INI_DIR/conf.d/zz-app.ini" \
     && { \
         echo "opcache.enable=1"; \
-        echo "opcache.enable_cli=0"; \
-        echo "opcache.memory_consumption=256"; \
-        echo "opcache.interned_strings_buffer=16"; \
-        echo "opcache.max_accelerated_files=20000"; \
+        echo "opcache.enable_cli=1"; \
+        echo "opcache.memory_consumption=1024"; \
+        echo "opcache.interned_strings_buffer=128"; \
+        echo "opcache.max_accelerated_files=100000"; \
         echo "opcache.validate_timestamps=0"; \
         echo "opcache.save_comments=1"; \
+        echo "opcache.jit=tracing"; \
+        echo "opcache.jit_buffer_size=256M"; \
+        echo "realpath_cache_size=16M"; \
+        echo "realpath_cache_ttl=600"; \
     } > "$PHP_INI_DIR/conf.d/zz-opcache.ini" \
     && { \
         echo "[www]"; \
         echo "listen = 9000"; \
         echo "listen.mode = 0660"; \
-        echo "pm = dynamic"; \
-        echo "pm.max_children = 75"; \
-        echo "pm.start_servers = 10"; \
-        echo "pm.min_spare_servers = 5"; \
-        echo "pm.max_spare_servers = 20"; \
-        echo "pm.max_requests = 500"; \
+        echo "pm = static"; \
+        echo "pm.max_children = 16"; \
+        echo "pm.max_requests = 0"; \
         echo "clear_env = no"; \
     } > /usr/local/etc/php-fpm.d/www.conf
 
