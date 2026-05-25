@@ -7,6 +7,10 @@
 
 import Foundation
 
+#if ReerJSON
+    import ReerJSON
+#endif
+
 func reportMemory() -> Double {
     // let factory = MetricsSystem.factory as? PrometheusMetricsFactory
     // if factory != nil {
@@ -72,15 +76,28 @@ extension String {
     }
 }
 
-func createDecoder() -> JSONDecoder {
-    let decoder = JSONDecoder()
-    decoder.dateDecodingStrategy = .iso8601
-    // decoder.keyDecodingStrategy = .convertFromSnakeCase
-    return decoder
-}
+#if ReerJSON
+    func createDecoder() -> ReerJSONDecoder {
+        let decoder = ReerJSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return decoder
+    }
 
-func createEncoder() -> JSONEncoder {
-    let encoder = JSONEncoder()
-    encoder.dateEncodingStrategy = .iso8601
-    return encoder
-}
+    func createEncoder() -> ReerJSONEncoder {
+        let encoder = ReerJSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        return encoder
+    }
+#else
+    func createDecoder() -> JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return decoder
+    }
+
+    func createEncoder() -> JSONEncoder {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        return encoder
+    }
+#endif

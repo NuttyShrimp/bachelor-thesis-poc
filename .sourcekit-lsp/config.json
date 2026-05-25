@@ -1,0 +1,6 @@
+{
+  "$schema": "https://raw.githubusercontent.com/swiftlang/sourcekit-lsp/refs/heads/release/6.3/config.schema.json",
+  "swiftPM": {
+    "traits": ["ReerJSON"]
+  }
+}

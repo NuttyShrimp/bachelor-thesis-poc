@@ -9,6 +9,9 @@ let package = Package(
     products: [
         .executable(name: "Bap", targets: ["Bap"])
     ],
+    traits: [
+        .trait(name: "ReerJSON")
+    ],
     dependencies: [
         .package(url: "https://github.com/hummingbird-project/hummingbird.git", from: "2.0.0"),
         .package(
@@ -17,6 +20,8 @@ let package = Package(
         .package(url: "https://github.com/damuellen/xlsxwriter.swift", branch: "main"),
         .package(
             url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.0")),
+        .package(
+            url: "https://github.com/reers/ReerJSON.git", from: "1.0.2"),
     ],
     targets: [
         .executableTarget(
@@ -26,6 +31,8 @@ let package = Package(
                 .product(name: "Hummingbird", package: "hummingbird"),
                 .product(name: "xlsxwriter", package: "xlsxwriter.swift"),
                 .product(name: "ZIPFoundation", package: "ZIPFoundation"),
+                .product(
+                    name: "ReerJSON", package: "ReerJSON", condition: .when(traits: ["ReerJSON"])),
             ],
             path: "Sources/App",
             swiftSettings: [

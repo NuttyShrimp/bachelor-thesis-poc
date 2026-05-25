@@ -1,6 +1,10 @@
 import Foundation
 import Logging
 
+#if ReerJSON
+    import ReerJSON
+#endif
+
 enum DataLoaderError: Error {
     case noDataInFile(file: String)
     case jsonSerializationFailed
@@ -48,7 +52,6 @@ final class DataLoader: @unchecked Sendable {
     func preloadData() {
         enableCache()
 
-        _ = productsMap()
         _ = ordersMap()
         _ = shopData()
         _ = ordersData()
@@ -57,13 +60,6 @@ final class DataLoader: @unchecked Sendable {
         _ = orderProductsData()
 
         _ = loadData(from: "cart_scenarios")
-    }
-
-    func productsMap() -> [Any] {
-        if let cached: [Any] = getCached(key: "productsMap") { return cached }
-        let result = extractArray(key: "products", from: "products")
-        setCached(key: "productsMap", value: result)
-        return result
     }
 
     func ordersMap() -> [Data] {
@@ -135,35 +131,30 @@ final class DataLoader: @unchecked Sendable {
         return result
     }
 
-    private func extractArray(key: String, from file: String) -> [Any] {
-        guard let raw = loadData(from: file) else { return [] }
-
-        do {
-            guard
-                let root = try JSONSerialization.jsonObject(with: raw) as? [String: Any],
-                let array = root[key] as? [Any]
-            else {
-                throw DataLoaderError.jsonSerializationFailed
-            }
-            return array
-        } catch {
-            logger.error("Failed to extract '\(key)' array from \(file).json: \(error)")
-            return []
-        }
-    }
-
     private func extractArrayData(key: String, from file: String) -> [Data] {
-        guard let raw = loadData(from: file) else { return [] }
+        guard var raw = loadData(from: file) else { return [] }
 
         do {
-            guard
-                let root = try JSONSerialization.jsonObject(with: raw) as? [String: Any],
-                let array = root[key] as? [Any]
-            else {
-                throw DataLoaderError.jsonSerializationFailed
-            }
+            #if ReerJSON
+                let json = try JSONValue.parseInPlace(consuming: &raw)
 
-            return try array.compactMap { try JSONSerialization.data(withJSONObject: $0) }
+                guard
+                    let val = json[key],
+                    let valArr = val.array
+                else {
+                    throw DataLoaderError.jsonSerializationFailed
+                }
+                return try valArr.map { try $0.data() }
+            #else
+                guard
+                    let root = try JSONSerialization.jsonObject(with: raw) as? [String: Any],
+                    let array = root[key] as? [Any]
+                else {
+                    throw DataLoaderError.jsonSerializationFailed
+                }
+
+                return try array.compactMap { try JSONSerialization.data(withJSONObject: $0) }
+            #endif
         } catch {
             logger.error("Failed to extract '\(key)' array from \(file).json: \(error)")
             return []
@@ -173,20 +164,35 @@ final class DataLoader: @unchecked Sendable {
     private func extractFields(_ field: String, fromArray arrayKey: String, in file: String)
         -> [Data]
     {
-        guard let raw = loadData(from: file) else { return [] }
+        guard var raw = loadData(from: file) else { return [] }
 
         do {
-            guard
-                let root = try JSONSerialization.jsonObject(with: raw) as? [String: Any],
-                let array = root[arrayKey] as? [[String: Any]]
-            else {
-                throw DataLoaderError.jsonSerializationFailed
-            }
+            #if ReerJSON
+                let json = try JSONValue.parseInPlace(consuming: &raw)
 
-            return try array.compactMap { entry -> Data? in
-                guard let value = entry[field] else { return nil }
-                return try JSONSerialization.data(withJSONObject: value)
-            }
+                guard
+                    let val = json[arrayKey],
+                    let valArr = val.array
+                else {
+                    throw DataLoaderError.jsonSerializationFailed
+                }
+                return try valArr.compactMap { entry -> Data? in
+                    guard let val = entry[field] else { return nil }
+                    return try val.data()
+                }
+            #else
+                guard
+                    let root = try JSONSerialization.jsonObject(with: raw) as? [String: Any],
+                    let array = root[arrayKey] as? [[String: Any]]
+                else {
+                    throw DataLoaderError.jsonSerializationFailed
+                }
+
+                return try array.compactMap { entry -> Data? in
+                    guard let value = entry[field] else { return nil }
+                    return try JSONSerialization.data(withJSONObject: value)
+                }
+            #endif
         } catch {
             logger.error("Failed to extract '\(field)' from \(file).json[\(arrayKey)]: \(error)")
             return []
