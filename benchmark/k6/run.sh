@@ -38,8 +38,9 @@ for key in "${!operations[@]}"; do
       -d "$data" \
       --basic -u admin:admin
 
-    docker compose restart php-fpm php-nginx php-octane
-    sleep 120
+    docker compose restart php-fpm php-octane
+    docker compose restart  php-nginx
+    sleep 60
 
   done
 done
