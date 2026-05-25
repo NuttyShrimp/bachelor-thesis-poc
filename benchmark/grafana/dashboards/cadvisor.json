@@ -50,9 +50,11 @@
         "target": {
           "expr": "",
           "interval": "",
+          "matchAny": true,
           "refId": "Anno",
           "tags": [
-            "php-fpm"
+            "php-fpm",
+            "php"
           ],
           "type": "tags"
         }
@@ -1045,6 +1047,6 @@
   "timezone": "browser",
   "title": "Docker monitoring",
   "uid": "m0arCBf7k",
-  "version": 6,
+  "version": 7,
   "weekStart": ""
 }
