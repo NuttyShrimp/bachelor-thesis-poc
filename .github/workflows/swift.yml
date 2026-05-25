@@ -51,10 +51,13 @@ jobs:
       matrix:
         include:
           - name: swift
-            build_args: ""
+            build_args: |
+              CACHE_ID=swift-standard
             image_name: swift
           - name: swift-reerjson
-            build_args: "SWIFT_BUILD_FLAGS=--traits ReerJSON"
+            build_args: |
+              SWIFT_BUILD_FLAGS=--traits ReerJSON
+              CACHE_ID=swift-reerjson
             image_name: swift-reerjson
 
     steps:

@@ -13,12 +13,14 @@ RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
 # Set up a build area
 WORKDIR /build
 
+ARG CACHE_ID="swift-standard"
+
 # First just resolve dependencies.
 # This creates a cached layer that can be reused
 # as long as your Package.swift/Package.resolved
 # files do not change.
 COPY ./Package.* ./
-RUN --mount=type=cache,target=/build/.build swift package resolve
+RUN --mount=type=cache,id=${CACHE_ID},target=/build/.build swift package resolve
 
 # Copy entire repo into container
 COPY . .
@@ -26,7 +28,7 @@ COPY . .
 ARG SWIFT_BUILD_FLAGS=""
 
 # Build the application, with optimizations, with static linking, using jemalloc, and stage the artifacts
-RUN --mount=type=cache,target=/build/.build \
+RUN --mount=type=cache,id=${CACHE_ID},target=/build/.build \
     swift build -c release \
         --product "Bap" \
         --static-swift-stdlib \

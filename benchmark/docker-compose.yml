@@ -54,6 +54,8 @@ services:
       - cadvisor
     build:
       context: ../swift
+      args:
+        CACHE_ID: "swift-standard"
       tags:
         - bap/swift:latest
     shm_size: '4gb'
@@ -86,6 +88,7 @@ services:
       context: ../swift
       args:
         SWIFT_BUILD_FLAGS: "--traits ReerJSON"
+        CACHE_ID: "swift-reerjson"
       tags:
         - bap/swift-reerjson:latest
     ports:
