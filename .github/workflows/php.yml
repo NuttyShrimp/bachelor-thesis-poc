@@ -82,6 +82,8 @@ jobs:
     name: Build PHP Docker Images
     needs: [validate-php, validate-frontend]
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
 
     strategy:
       fail-fast: false
@@ -104,10 +106,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Downcase repository name for GHCR
-        run: |
-          echo "GHCR_REPO=ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]' >> $GITHUB_ENV
-
       - name: Log in to GitHub Container Registry
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
@@ -126,6 +124,6 @@ jobs:
           file: ${{ matrix.file }}
           target: ${{ matrix.target }}
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ env.GHCR_REPO }}/${{ matrix.image_name }}:latest
+          tags: ghcr.io/${{ github.repository }}/${{ matrix.image_name }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
