@@ -22,10 +22,13 @@ struct ExcelGeneration: BenchmarkOperation {
     let iterations = 10
     let dataLoader: DataLoader
     let logger: Logger
+    let outputDirectory: URL
+    let decoder = createDecoder()
 
     init(dataLoader: DataLoader, logger: Logger) {
         self.dataLoader = dataLoader
         self.logger = logger
+        self.outputDirectory = ExcelGeneration.benchmarkOutputDirectory()
     }
 
     func description() -> BenchmarkOperationDescription {
@@ -50,9 +53,7 @@ struct ExcelGeneration: BenchmarkOperation {
         }
 
         do {
-            let decoder = createDecoder()
             let payload = try decoder.decode(ExcelOrdersPayload.self, from: rawData)
-            let outputDirectory = benchmarkOutputDirectory()
 
             let fileURL = try generateProductionList(
                 payload: payload,
@@ -103,8 +104,6 @@ struct ExcelGeneration: BenchmarkOperation {
                 endTime: 0
             )
         }
-
-        let outputDirectory = benchmarkOutputDirectory()
 
         if let warmupFile = try? generateProductionList(
             payload: payload,
@@ -217,7 +216,7 @@ struct ExcelGeneration: BenchmarkOperation {
         worksheet.write(headers, row: 0, format: headerFormat)
 
         var maxColumnLengths = headers.map { $0.utf8.count }
-        maxColumnLengths[0] = 10 // Date string is always yyyy-MM-dd (10 chars), which is larger than "Date" (4 chars).
+        maxColumnLengths[0] = 10  // Date string is always yyyy-MM-dd (10 chars), which is larger than "Date" (4 chars).
 
         var rowIndex = 1
         var logicalRowCount = 0
@@ -279,7 +278,8 @@ struct ExcelGeneration: BenchmarkOperation {
             let optionName = option.name ?? ""
             if let existing = optionStringByOrderProductId[option.orderProductId] {
                 if !existing.isEmpty && !optionName.isEmpty {
-                    optionStringByOrderProductId[option.orderProductId] = existing + ", " + optionName
+                    optionStringByOrderProductId[option.orderProductId] =
+                        existing + ", " + optionName
                 } else if !optionName.isEmpty {
                     optionStringByOrderProductId[option.orderProductId] = optionName
                 }
@@ -337,7 +337,7 @@ struct ExcelGeneration: BenchmarkOperation {
         return rows
     }
 
-    private func benchmarkOutputDirectory() -> URL {
+    private static func benchmarkOutputDirectory() -> URL {
         let shmDirectory = URL(fileURLWithPath: "/dev/shm", isDirectory: true)
         let directory: URL
         if FileManager.default.isWritableFile(atPath: shmDirectory.path) {
