@@ -22,6 +22,8 @@ let package = Package(
             url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.0")),
         .package(
             url: "https://github.com/reers/ReerJSON.git", from: "1.0.2"),
+        .package(
+            url: "https://github.com/swiftlang/swift-subprocess.git", branch: "main"),
     ],
     targets: [
         .executableTarget(
@@ -33,6 +35,7 @@ let package = Package(
                 .product(name: "ZIPFoundation", package: "ZIPFoundation"),
                 .product(
                     name: "ReerJSON", package: "ReerJSON", condition: .when(traits: ["ReerJSON"])),
+                .product(name: "Subprocess", package: "swift-subprocess"),
             ],
             path: "Sources/App",
             swiftSettings: [

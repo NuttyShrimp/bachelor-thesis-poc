@@ -1,69 +1,71 @@
 import Foundation
+import Subprocess
+
+#if canImport(System)
+    import System
+#else
+    import SystemPackage
+#endif
 
 struct PdfHelper {
     let content: String
 
     private static let cachedExecutableURL: URL? = try? resolveWkhtmltopdfExecutable()
 
-    func render() throws -> Data {
-        let process = Process()
+    func render() async throws -> Data {
         guard let executableURL = PdfHelper.cachedExecutableURL else {
             throw PdfHelperError.executableNotFound
         }
-        process.executableURL = executableURL
-        process.arguments = ["-q", "-", "-"]
-
-        let inputPipe = Pipe()
-        let outputPipe = Pipe()
-
-        process.standardInput = inputPipe
-        process.standardOutput = outputPipe
-        process.standardError = FileHandle.standardError
 
         do {
-            try process.run()
+            // Run process asynchronously using Subprocess.run
+            let result = try await Subprocess.run(
+                .path(FilePath(executableURL.path)),
+                arguments: ["-q", "-", "-"],
+                input: .string(content),
+                output: .data(limit: 10 * 1024 * 1024)
+            )
+
+            // Verify termination status
+            guard result.terminationStatus.isSuccess else {
+                let code: Int32
+                switch result.terminationStatus {
+                case .exited(let status):
+                    code = Int32(status)
+                case .signaled(let signal):
+                    code = Int32(signal)
+                }
+                throw PdfHelperError.renderFailed(status: code)
+            }
+
+            let rawOutput = result.standardOutput
+            guard !rawOutput.isEmpty else {
+                throw PdfHelperError.emptyOutput
+            }
+
+            return Data(rawOutput)
+            // return try extractPdfData(from: rawOutput)
         } catch {
             throw PdfHelperError.failedToStart(underlying: error)
         }
-
-        let htmlData = Data(content.utf8)
-
-        inputPipe.fileHandleForWriting.write(htmlData)
-        try? inputPipe.fileHandleForWriting.close()
-
-        let rawOutput = outputPipe.fileHandleForReading.readDataToEndOfFile()
-        process.waitUntilExit()
-
-        guard process.terminationStatus == 0 else {
-            throw PdfHelperError.renderFailed(status: process.terminationStatus)
-        }
-
-        guard !rawOutput.isEmpty else {
-            throw PdfHelperError.emptyOutput
-        }
-
-        return try extractPdfData(from: rawOutput)
     }
 
-    private func extractPdfData(from rawOutput: Data) throws -> Data {
-        let pdfMagic = Data("%PDF-".utf8)
-        guard let range = rawOutput.range(of: pdfMagic) else {
-            throw PdfHelperError.invalidPdfOutput
-        }
-
-        return Data(rawOutput[range.lowerBound...])
-    }
+    // private func extractPdfData(from rawOutput: Data) throws -> Data {
+    //     let pdfMagic = Data("%PDF-".utf8)
+    //     guard let range = rawOutput.range(of: pdfMagic) else {
+    //         throw PdfHelperError.invalidPdfOutput
+    //     }
+    //     return Data(rawOutput[range.lowerBound...])
+    // }
 
     private static func resolveWkhtmltopdfExecutable() throws -> URL {
         if let executable = locateExecutableInPath(named: "wkhtmltopdf") {
             return executable
         }
-
         let fallback = URL(fileURLWithPath: "/usr/bin/wkhtmltopdf")
         if FileManager.default.isExecutableFile(atPath: fallback.path) {
             return fallback
         }
-
         throw PdfHelperError.executableNotFound
     }
 

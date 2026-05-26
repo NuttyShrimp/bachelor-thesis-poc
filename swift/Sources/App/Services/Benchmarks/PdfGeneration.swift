@@ -22,9 +22,11 @@ struct PdfGeneration: BenchmarkOperation {
     }
 
     func run() async -> [String: ScenarioResult] {
-        return await [
-            "single": benchmarkSingle(),
-            "zip": benchmarkZip(),
+        let singleResult = await benchmarkSingle()
+        let zipResult = await benchmarkZip()
+        return [
+            "single": singleResult,
+            "zip": zipResult,
         ]
     }
 
@@ -39,7 +41,7 @@ struct PdfGeneration: BenchmarkOperation {
                 let productsByOrderId = precomputeProductsByOrderId(from: payload)
                 let order = getFullOrder(
                     payload: payload, for: 0, productsByOrderId: productsByOrderId)
-                let pdf = try renderInvoiceHtml(order: order)
+                let pdf = try await renderInvoiceHtml(order: order)
                 return .file(data: pdf, filename: "invoice.pdf", contentType: "application/pdf")
             } catch {
                 logger.error("Failed to render invoice: \(error)")
@@ -75,7 +77,7 @@ struct PdfGeneration: BenchmarkOperation {
 
     }
 
-    func benchmarkSingle() -> ScenarioResult {
+    func benchmarkSingle() async -> ScenarioResult {
         let orders = dataLoader.ordersData()
         let payload: ExcelOrdersPayload
         do {
@@ -106,7 +108,7 @@ struct PdfGeneration: BenchmarkOperation {
 
         // Warmup
         do {
-            let _ = try renderInvoiceHtml(order: order)
+            let _ = try await renderInvoiceHtml(order: order)
         } catch {
             logger.error("pdf single warmup run failed: \(error)")
         }
@@ -114,7 +116,7 @@ struct PdfGeneration: BenchmarkOperation {
         for _ in 0..<iterations {
             do {
                 let start = Date()
-                let pdf = try renderInvoiceHtml(order: order)
+                let pdf = try await renderInvoiceHtml(order: order)
                 FileManager.default.createFile(atPath: pdfOutputPath, contents: pdf)
                 let end = Date()
                 let elapsedTime = end.timeIntervalSince(start) * 1000
@@ -235,14 +237,27 @@ struct PdfGeneration: BenchmarkOperation {
 
         let productsLookup = productsByOrderId ?? precomputeProductsByOrderId(from: payload)
 
+        // Throttle active rendering processes to match CPU cores
+        let maxConcurrency = max(2, ProcessInfo.processInfo.activeProcessorCount)
+
         await withThrowingTaskGroup(of: Void.self) { group in
+            var activeTasks = 0
             for i in 0..<limit {
+                if activeTasks >= maxConcurrency {
+                    _ = try? await group.next()
+                    activeTasks -= 1
+                }
+                activeTasks += 1
                 group.addTask {
-                    let order = getFullOrder(
+                    let order = self.getFullOrder(
                         payload: payload, for: i, productsByOrderId: productsLookup)
-                    let invoice = try renderInvoiceHtml(order: order)
+                    let invoice = try await self.renderInvoiceHtml(order: order)
                     try await archive.addInvoicePdf(orderId: order.id, invoice: invoice)
                 }
+            }
+            while activeTasks > 0 {
+                _ = try? await group.next()
+                activeTasks -= 1
             }
         }
 
@@ -289,7 +304,7 @@ struct PdfGeneration: BenchmarkOperation {
         return order
     }
 
-    func renderInvoiceHtml(order: ExcelOrder) throws -> Data {
+    func renderInvoiceHtml(order: ExcelOrder) async throws -> Data {
         var itemsHtml = ""
         var subtotal: Double = 0
         var vatTotal: Double = 0
@@ -454,7 +469,7 @@ struct PdfGeneration: BenchmarkOperation {
 
         let helper = PdfHelper(content: content)
 
-        return try helper.render()
+        return try await helper.render()
     }
 
     private func benchmarkOutputDirectory() -> URL {

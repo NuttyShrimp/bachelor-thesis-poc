@@ -1,5 +1,5 @@
 {
-  "originHash" : "d8d5fa16c5129c4a3459d4cbbcd5f78422fb682a46c5328dbb3fcbdd67c89015",
+  "originHash" : "bbcea4295ab286367bccb512ace3b733aed0f8a2bc94d11da43b67f09ce55219",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -26,15 +26,6 @@
       "state" : {
         "branch" : "main",
         "revision" : "2894634d65cee6021901a165bfc2bb0fad6da193"
-      }
-    },
-    {
-      "identity" : "reerjson",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/reers/ReerJSON.git",
-      "state" : {
-        "revision" : "60b4c8b11fb95cdac5faefcd45ae56a1db24d44e",
-        "version" : "1.0.2"
       }
     },
     {
@@ -227,6 +218,15 @@
       }
     },
     {
+      "identity" : "swift-subprocess",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-subprocess.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "745d4a78034d3d950e6ad628bd4be6f6897fa8a6"
+      }
+    },
+    {
       "identity" : "swift-system",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-system",
@@ -242,15 +242,6 @@
       "state" : {
         "branch" : "main",
         "revision" : "5f581ad5194e7e7cd1c6f04e98c99f42c4a347e3"
-      }
-    },
-    {
-      "identity" : "yyjson",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/ibireme/yyjson.git",
-      "state" : {
-        "revision" : "8b4a38dc994a110abaec8a400615567bd996105f",
-        "version" : "0.12.0"
       }
     },
     {
