@@ -30,6 +30,14 @@ struct JsonTransformation: BenchmarkOperation {
 
     func benchmark() -> ScenarioResult {
         let data = dataLoader.shopData()
+        // Warmup
+        do {
+            let result = try decoder.decode(Shop.self, from: data)
+            _ = try encoder.encode(result)
+        } catch {
+            logger.error("Failed to run json transformation warmup: \(error)")
+        }
+
         var times: [Double] = []
         var transformedCount = 0
 

@@ -108,9 +108,15 @@ struct DtoMapping: BenchmarkOperation {
         var mappedCount = 0
         var failedCount = 0
 
+        let decoder = createDecoder()
+
+        // Warmup
+        if let first = products.first {
+            _ = try? decoder.decode(ProductSettings.self, from: first)
+        }
+
         let memoryUsageStart = reportMemory()
         let startTime = Int(Date.now.timeIntervalSince1970)
-        let decoder = createDecoder()
 
         for _ in 0..<iterations {
             let startTime = Date()
@@ -156,8 +162,14 @@ struct DtoMapping: BenchmarkOperation {
         var mappedCount = 0
         var failedCount = 0
 
-        let memoryUsageStart = reportMemory()
         let decoder = createDecoder()
+
+        // Warmup
+        if let first = orders.first {
+            _ = try? decoder.decode(OrderSettings.self, from: first)
+        }
+
+        let memoryUsageStart = reportMemory()
         let startTime = Int(Date.now.timeIntervalSince1970)
 
         for _ in 0..<iterations {
@@ -204,8 +216,14 @@ struct DtoMapping: BenchmarkOperation {
         var mappedCount = 0
         var failedCount = 0
 
-        let memoryUsageStart = reportMemory()
         let decoder = createDecoder()
+
+        // Warmup
+        if let first = orders.first {
+            _ = try? decoder.decode([OrderProduct].self, from: first)
+        }
+
+        let memoryUsageStart = reportMemory()
         let startTime = Int(Date.now.timeIntervalSince1970)
 
         for _ in 0..<iterations {
@@ -252,8 +270,14 @@ struct DtoMapping: BenchmarkOperation {
         var mappedCount = 0
         var failedCount = 0
 
-        let memoryUsageStart = reportMemory()
         let decoder = createDecoder()
+
+        // Warmup
+        if let first = orders.first {
+            _ = try? decoder.decode(FullOrder.self, from: first)
+        }
+
+        let memoryUsageStart = reportMemory()
         let startTime = Int(Date.now.timeIntervalSince1970)
 
         for _ in 0..<iterations {

@@ -99,19 +99,19 @@ struct PdfGeneration: BenchmarkOperation {
         let productsByOrderId = precomputeProductsByOrderId(from: payload)
         let order = getFullOrder(payload: payload, for: 0, productsByOrderId: productsByOrderId)
 
-        var times: [Double] = []
-        let memoryUsageStart = reportMemory()
-        let startTime = Int(Date.now.timeIntervalSince1970)
-
-        let outputDir = benchmarkOutputDirectory()
-        let pdfOutputPath = outputDir.appendingPathComponent("swift-invoice.pdf").path
-
         // Warmup
         do {
             let _ = try await renderInvoiceHtml(order: order)
         } catch {
             logger.error("pdf single warmup run failed: \(error)")
         }
+
+        var times: [Double] = []
+        let memoryUsageStart = reportMemory()
+        let startTime = Int(Date.now.timeIntervalSince1970)
+
+        let outputDir = benchmarkOutputDirectory()
+        let pdfOutputPath = outputDir.appendingPathComponent("swift-invoice.pdf").path
 
         for _ in 0..<iterations {
             do {
@@ -181,10 +181,7 @@ struct PdfGeneration: BenchmarkOperation {
             )
         }
 
-        var times: [Double] = []
-        let memoryUsageStart = reportMemory()
-        let startTime = Int(Date.now.timeIntervalSince1970)
-
+        // Warmup
         do {
             let url = try await generateInvoiceZip(
                 payload: payload, productsByOrderId: productsByOrderId)
@@ -192,6 +189,10 @@ struct PdfGeneration: BenchmarkOperation {
         } catch {
             logger.error("pdf zip warmup run failed: \(error)")
         }
+
+        var times: [Double] = []
+        let memoryUsageStart = reportMemory()
+        let startTime = Int(Date.now.timeIntervalSince1970)
 
         for _ in 0..<10 {
             do {
