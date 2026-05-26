@@ -1,3 +1,4 @@
 test-suite/dump.rdb
 data/
 /benchmark/k6/node_modules
+/benchmark/k6/results

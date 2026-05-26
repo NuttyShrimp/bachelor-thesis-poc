@@ -1,4 +1,5 @@
 import http from 'k6/http';
+import { textSummary } from 'https://jslib.k6.io/k6-summary/0.1.0/index.js';
 import { check } from 'k6';
 
 // omitted from package.json but interesting: 
@@ -76,4 +77,11 @@ export default function() {
   let res = http.get(`http://127.0.0.1:${runtimePort[__ENV.RUNTIME ?? "swift"]}/api/benchmarks/single/${__ENV.OPERATION}/${__ENV.SCENARIO}`, { timeout: 120_000, tags: { runtime: __ENV.RUNTIME ?? "swift" } });
   check(res, { "status is in 2xx range": (res) => res.status >= 200 && res.status <= 300 });
   // sleep(1);
+}
+
+export function handleSummary(data) {
+  return {
+    'stdout': textSummary(data, { indent: ' ', enableColors: true }), // Show the text summary to stdout...
+    [`results/${__ENV.RUNTIME ?? "swift"}-${__ENV.OPERATION}-${__ENV.SCENARIO}.json`]: JSON.stringify(data), // and a JSON with all the details...
+  };
 }
