@@ -34,10 +34,31 @@ final class BenchmarkService: Sendable {
         return await runner.run()
     }
 
-    func runScenario(for operation: String, _ scenario: String) async throws -> BenchmarkSingleResult {
+    func runScenario(for operation: String, _ scenario: String) async throws
+        -> BenchmarkSingleResult
+    {
         let runner = try createOperation(for: operation)
 
         return try await runner.single(scenario: scenario)
+    }
+
+    private func getOperation(for name: String) throws -> any BenchmarkOperation {
+        switch name {
+        case "dto_mapping":
+            return self.operations[0]
+        case "json_transformation":
+            return self.operations[1]
+        case "cart_calculation":
+            return self.operations[3]
+        case "vat_calculation":
+            return self.operations[2]
+        case "excel_generation":
+            return self.operations[4]
+        case "pdf_generation":
+            return self.operations[5]
+        default:
+            throw BenchmarkError.UnknownOperation(name: name)
+        }
     }
 
     private func createOperation(for name: String) throws -> any BenchmarkOperation {
