@@ -18,7 +18,7 @@ export const options = {
       // executor: 'ramping-vus',
       startRate: 1,
       timeUnit: '1s',
-      preAllocatedVUs: 30000,
+      preAllocatedVUs: 5000,
       stages: [
         { duration: '2m', target: 2 << 3 }, // 16
         { duration: '2m', target: 2 << 4 }, // 32
@@ -59,7 +59,7 @@ export const options = {
     ],
     dropped_iterations: [
       {
-        threshold: 'count < 1000',
+        threshold: 'count < 250',
         abortOnFail: true,
       }
     ],

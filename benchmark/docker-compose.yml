@@ -96,6 +96,7 @@ services:
     privileged: true
     volumes:
       - ../data:/data
+    shm_size: '4gb'
     sysctls:
       net.core.somaxconn: 65535
       net.ipv4.ip_local_port_range: "1024 65535"
