@@ -6,6 +6,8 @@ struct JsonTransformation: BenchmarkOperation {
     let iterations = 100
     let dataLoader: DataLoader
     let logger: Logger
+    let decoder = createDecoder()
+    let encoder = createEncoder()
 
     init(dataLoader: DataLoader, logger: Logger) {
         self.dataLoader = dataLoader
@@ -33,8 +35,6 @@ struct JsonTransformation: BenchmarkOperation {
 
         let memoryUsageStart = reportMemory()
         let startTime = Int(Date.now.timeIntervalSince1970)
-        let decoder = createDecoder()
-        let encoder = createEncoder()
 
         for _ in 0..<iterations {
             let startTime = Date()
@@ -70,8 +70,6 @@ struct JsonTransformation: BenchmarkOperation {
     }
 
     func single(scenario: String) async throws -> BenchmarkSingleResult {
-        let decoder = createDecoder()
-        let encoder = createEncoder()
         let data = dataLoader.shopData()
         do {
             let result = try decoder.decode(Shop.self, from: data)

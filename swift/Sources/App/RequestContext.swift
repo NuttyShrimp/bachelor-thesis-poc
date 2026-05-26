@@ -5,7 +5,7 @@ import Hummingbird
     import ReerJSON
 #endif
 
-struct JSONSnakeCaseEncoder: ResponseEncoder {
+struct JSONSnakeCaseEncoder: ResponseEncoder, Sendable {
     #if ReerJSON
         let encoder: ReerJSONEncoder
     #else
@@ -34,6 +34,9 @@ struct JSONSnakeCaseEncoder: ResponseEncoder {
 }
 
 #if ReerJSON
+    extension ReerJSONDecoder: @unchecked Sendable {}
+    extension ReerJSONEncoder: @unchecked Sendable {}
+
     extension ReerJSONDecoder: RequestDecoder {
         public func decode<T>(
             _ type: T.Type, from request: Request, context: some RequestContext
@@ -45,7 +48,7 @@ struct JSONSnakeCaseEncoder: ResponseEncoder {
     }
 #endif
 
-struct JSONSnakeCaseDecoder: RequestDecoder {
+struct JSONSnakeCaseDecoder: RequestDecoder, Sendable {
     #if ReerJSON
         let decoder: ReerJSONDecoder
     #else
@@ -75,8 +78,11 @@ struct JSONSnakeCaseDecoder: RequestDecoder {
 }
 
 struct MyRequestContext: RequestContext {
-    var requestDecoder: JSONSnakeCaseDecoder { .init() }
-    var responseEncoder: JSONSnakeCaseEncoder { .init() }
+    static let sharedRequestDecoder = JSONSnakeCaseDecoder()
+    static let sharedResponseEncoder = JSONSnakeCaseEncoder()
+
+    var requestDecoder: JSONSnakeCaseDecoder { Self.sharedRequestDecoder }
+    var responseEncoder: JSONSnakeCaseEncoder { Self.sharedResponseEncoder }
     var coreContext: CoreRequestContextStorage
 
     init(source: Source) {
