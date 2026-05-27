@@ -285,10 +285,14 @@
         "y": 0
       },
       "id": 10,
+      "interval": "1s",
       "options": {
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
         },
@@ -1538,6 +1542,18 @@
                 "value": "s"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p50"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              }
+            ]
           }
         ]
       },
@@ -1594,6 +1610,19 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
+          "expr": "histogram_quantile(0.5, sum by(le, name, method, status) (rate(k6_http_req_duration_seconds{testid=~\"$testid\"}[$__rate_interval])))",
+          "format": "table",
+          "instant": false,
+          "legendFormat": "p50",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
           "expr": "histogram_quantile(0.95, sum by(le, name, method, status) (rate(k6_http_req_duration_seconds{testid=~\"$testid\"}[$__rate_interval])))",
           "format": "table",
           "instant": false,
@@ -1625,6 +1654,12 @@
           "id": "groupBy",
           "options": {
             "fields": {
+              "Value #A": {
+                "aggregations": [
+                  "mean"
+                ],
+                "operation": "aggregate"
+              },
               "Value #B": {
                 "aggregations": [
                   "min"
@@ -1670,6 +1705,7 @@
             "excludeByName": {
               "Time": true
             },
+            "includeByName": {},
             "indexByName": {
               "Time": 0,
               "Value #B": 4,
@@ -1681,6 +1717,7 @@
               "status": 3
             },
             "renameByName": {
+              "Value #A (mean)": "p50",
               "Value #B": "min",
               "Value #B (min)": "min",
               "Value #C": "max",
@@ -2105,6 +2142,6 @@
   "timezone": "browser",
   "title": "k6 Prometheus (Native Histograms)",
   "uid": "a3b2aaa8-bb66-4008-a1d8-16c49afedbf0",
-  "version": 3,
+  "version": 4,
   "weekStart": ""
 }

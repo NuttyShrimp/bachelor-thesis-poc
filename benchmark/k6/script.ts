@@ -2,8 +2,6 @@ import http from 'k6/http';
 import { textSummary } from 'https://jslib.k6.io/k6-summary/0.1.0/index.js';
 import { check } from 'k6';
 
-// omitted from package.json but interesting: 
-
 const runtimePort: Record<string, number> = {
   "swift": 8080,
   "swift-reerjson": 8082,
