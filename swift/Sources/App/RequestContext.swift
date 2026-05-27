@@ -78,11 +78,16 @@ struct JSONSnakeCaseDecoder: RequestDecoder, Sendable {
 }
 
 struct MyRequestContext: RequestContext {
-    static let sharedRequestDecoder = JSONSnakeCaseDecoder()
-    static let sharedResponseEncoder = JSONSnakeCaseEncoder()
+    #if ReerJSON
+        var requestDecoder: JSONSnakeCaseDecoder { JSONSnakeCaseDecoder() }
+        var responseEncoder: JSONSnakeCaseEncoder { JSONSnakeCaseEncoder() }
+    #else
+        static let sharedRequestDecoder = JSONSnakeCaseDecoder()
+        static let sharedResponseEncoder = JSONSnakeCaseEncoder()
 
-    var requestDecoder: JSONSnakeCaseDecoder { Self.sharedRequestDecoder }
-    var responseEncoder: JSONSnakeCaseEncoder { Self.sharedResponseEncoder }
+        var requestDecoder: JSONSnakeCaseDecoder { Self.sharedRequestDecoder }
+        var responseEncoder: JSONSnakeCaseEncoder { Self.sharedResponseEncoder }
+    #endif
     var coreContext: CoreRequestContextStorage
 
     init(source: Source) {

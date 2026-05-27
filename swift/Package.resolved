@@ -1,5 +1,5 @@
 {
-  "originHash" : "bbcea4295ab286367bccb512ace3b733aed0f8a2bc94d11da43b67f09ce55219",
+  "originHash" : "5118eed9a29551040197601bda98de2313738b4611093cd8c1ed50adcf4b9c5a",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -26,6 +26,15 @@
       "state" : {
         "branch" : "main",
         "revision" : "2894634d65cee6021901a165bfc2bb0fad6da193"
+      }
+    },
+    {
+      "identity" : "reerjson",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/reers/ReerJSON.git",
+      "state" : {
+        "revision" : "60b4c8b11fb95cdac5faefcd45ae56a1db24d44e",
+        "version" : "1.0.2"
       }
     },
     {
@@ -242,6 +251,15 @@
       "state" : {
         "branch" : "main",
         "revision" : "5f581ad5194e7e7cd1c6f04e98c99f42c4a347e3"
+      }
+    },
+    {
+      "identity" : "yyjson",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ibireme/yyjson.git",
+      "state" : {
+        "revision" : "8b4a38dc994a110abaec8a400615567bd996105f",
+        "version" : "0.12.0"
       }
     },
     {
