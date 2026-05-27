@@ -163,7 +163,7 @@ class ExcelGeneration
         $sheet->freezePane('A2');
 
         // Save to temp file
-        $filename = storage_path('benchmarks/production_list_' . time() . '_' . rand(1000, 9999) . '.xlsx');
+        $filename = storage_path('benchmarks/production_list_' . hrtime(true) . '_' . bin2hex(random_bytes(8)) . '.xlsx');
 
         // Ensure directory exists
         if (!is_dir(dirname($filename))) {

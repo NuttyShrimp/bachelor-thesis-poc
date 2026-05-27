@@ -288,7 +288,7 @@ HTML;
      */
     public static function generateInvoiceZip(array $ordersData, int $limit = 100): string
     {
-        $zipPath = storage_path('benchmarks/invoices_' . time() . '_' . rand(1000, 9999) . '.zip');
+        $zipPath = storage_path('benchmarks/invoices_' . hrtime(true) . '_' . bin2hex(random_bytes(8)) . '.zip');
 
         // Ensure directory exists
         if (!is_dir(dirname($zipPath))) {

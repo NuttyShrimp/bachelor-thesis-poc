@@ -232,8 +232,9 @@ struct PdfGeneration: BenchmarkOperation {
         productsByOrderId: [Int: [ExcelOrderProduct]]? = nil
     ) async throws -> URL {
         let directory = benchmarkOutputDirectory()
+        let timestamp = DispatchTime.now().uptimeNanoseconds
         let archiveURL = directory.appendingPathComponent(
-            "invoices_\(Int.random(in: 1000...9999)).zip")
+            "invoices_\(timestamp).zip")
         let archive = try ArchiveActor(url: archiveURL, accessMode: .create)
 
         let productsLookup = productsByOrderId ?? precomputeProductsByOrderId(from: payload)
