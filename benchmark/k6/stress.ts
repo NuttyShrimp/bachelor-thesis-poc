@@ -5,117 +5,118 @@ import { check } from 'k6';
 const runtimePort: Record<string, number> = {
   "swift": 8080,
   "swift-reerjson": 8082,
-  "php": 8000,
+  // "php": 8000,
+  "php": 4040,
   "octane": 8001,
 }
 
 const rpsPeak = {
   dto_mapping: {
     product_settings: {
-      "swift": 21,
-      "swift-reerjson": 55,
+      "swift": 18,
+      "swift-reerjson": 18,
       "php": 24,
-      "octane": 25,
+      "octane": 210,
     },
     order_settings: {
-      "swift": 20,
-      "swift-reerjson": 55,
+      "swift": 16,
+      "swift-reerjson": 40,
       "php": 28,
-      "octane": 32,
+      "octane": 170,
     },
     order_products: {
-      "swift": 18,
-      "swift-reerjson": 60,
+      "swift": 15,
+      "swift-reerjson": 45,
       "php": 33,
-      "octane": 38,
+      "octane": 230,
     },
     full_order: {
-      "swift": 10,
-      "swift-reerjson": 27,
+      "swift": 7,
+      "swift-reerjson": 20,
       "php": 31,
-      "octane": 31,
+      "octane": 105,
     },
   },
   json_transformation: {
     json: {
       "swift": 500,
-      "swift-reerjson": 733,
-      "php": 415,
-      "octane": 827,
+      "swift-reerjson": 600,
+      "php": 400,
+      "octane": 1000,
     }
   },
   cart_calculation: {
     small_cart: {
-      "swift": 15700,
-      "swift-reerjson": 13000, //TODO: Validate
+      "swift": 15000,
+      "swift-reerjson": 11500,
       "php": 500,
-      "octane": 2100,
+      "octane": 2000,
     },
     medium_cart: {
-      "swift": 10700,
-      "swift-reerjson": 6300,
+      "swift": 10000,
+      "swift-reerjson": 5000,
       "php": 540,
       "octane": 2000,
     },
     large_cart: {
-      "swift": 3150,
-      "swift-reerjson": 1370,
+      "swift": 3000,
+      "swift-reerjson": 1200,
       "php": 480,
       "octane": 1800,
     },
     xl_cart: {
       "swift": 750,
-      "swift-reerjson": 325,
+      "swift-reerjson": 315,
       "php": 373,
-      "octane": 775,
+      "octane": 1500,
     },
   },
   vat_calculation: {
     small_cart: {
-      "swift": 20000,
-      "swift-reerjson": 20000, // TODO: Validate
-      "php": 530,
+      "swift": 19500,
+      "swift-reerjson": 19000,
+      "php": 500,
       "octane": 2050,
     },
     medium_cart: {
       "swift": 16000,
-      "swift-reerjson": 20000, // TODO: Validate
-      "php": 540,
+      "swift-reerjson": 18500,
+      "php": 500,
       "octane": 2120,
     },
     large_cart: {
       "swift": 14500,
-      "swift-reerjson": 20300, // TODO: Validate
+      "swift-reerjson": 19000,
       "php": 435,
       "octane": 1950,
     },
     xl_cart: {
-      "swift": 18400,
-      "swift-reerjson": 18800,
+      "swift": 14000,
+      "swift-reerjson": 17000,
       "php": 400,
-      "octane": 882,
+      "octane": 1900,
     },
   },
   excel_generation: {
     excel: {
-      "swift": 25, // FIXME: Can be 26
-      "swift-reerjson": 39,
-      "php": 2, // TODO: Can potentially handle 3
-      "octane": 2, // TODO: Validate, can be 1, can be 3
+      "swift": 25,
+      "swift-reerjson": 28,
+      "php": 1,
+      "octane": 2,
     }
   },
   pdf_generation: {
     single: {
-      "swift": 23,
-      "swift-reerjson": 32,
-      "php": 17,
+      "swift": 18,
+      "swift-reerjson": 19,
+      "php": 10,
       "octane": 17,
     },
     zip: {
       "swift": 2,
-      "swift-reerjson": 2,
+      "swift-reerjson": 1,
       "php": 1,
-      "octane": 1, // Will potential die under this
+      "octane": 1,
     },
   }
 }
@@ -176,11 +177,11 @@ options.scenarios.openModel.stages[1].target = rpsPeak[__ENV.OPERATION][__ENV.SC
 
 // Warm the load cache/"DB"
 export function setup() {
-  http.post(`http://127.0.0.1:${runtimePort[__ENV.RUNTIME ?? "swift"]}/api/benchmarks/preload`);
+  http.post(`http://${__ENV.HOST ?? "localhost"}:${runtimePort[__ENV.RUNTIME ?? "swift"]}/api/benchmarks/preload`);
 }
 
 export default function() {
-  let res = http.get(`http://127.0.0.1:${runtimePort[__ENV.RUNTIME ?? "swift"]}/api/benchmarks/single/${__ENV.OPERATION}/${__ENV.SCENARIO}`, { timeout: 120_000, tags: { runtime: __ENV.RUNTIME ?? "swift" } });
+  let res = http.get(`http://${__ENV.HOST ?? "localhost"}:${runtimePort[__ENV.RUNTIME ?? "swift"]}/api/benchmarks/single/${__ENV.OPERATION}/${__ENV.SCENARIO}`, { timeout: 120_000, tags: { runtime: __ENV.RUNTIME ?? "swift" } });
   check(res, { "status is in 2xx range": (res) => res.status >= 200 && res.status <= 300 });
 }
 

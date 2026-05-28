@@ -50,6 +50,8 @@ services:
     - /var/lib/docker/:/var/lib/docker:ro
 
   swift:
+    labels:
+      - "monitoring=benchmark"
     depends_on:
       - cadvisor
     build:
@@ -82,6 +84,8 @@ services:
         hard: 520000
 
   swift-reerjson:
+    labels:
+      - "monitoring=benchmark"
     depends_on:
       - cadvisor
     build:
@@ -115,6 +119,8 @@ services:
         hard: 520000
 
   php-fpm:
+    labels:
+      - "monitoring=benchmark"
     depends_on:
       - cadvisor
     build:
@@ -150,6 +156,8 @@ services:
       - ../data:/var/www/data:ro
 
   php-nginx:
+    labels:
+      - "monitoring=benchmark"
     build:
       context: ../php
       target: web
@@ -172,6 +180,8 @@ services:
         hard: 520000
 
   php-octane:
+    labels:
+      - "monitoring=benchmark"
     depends_on:
       - cadvisor
     build:
@@ -189,6 +199,7 @@ services:
       APP_KEY: base64:6p01NdMHOMdQPhQWf4PwKm4YQ12b6NWvR4N4ctA4fuY=
       APP_URL: http://localhost:8001
       OCTANE_SERVER: frankenphp
+      OCTANE_WORKERS: 4
     volumes:
       - ../data:/var/www/data:ro
     sysctls:

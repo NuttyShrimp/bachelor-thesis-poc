@@ -9,6 +9,10 @@ scrape_configs:
   metric_relabel_configs:
     - source_labels: ['name']
       target_label: 'container'
+    - source_labels: [container_label_monitoring]
+      regex: benchmark
+      action: keep  # Drop all metrics NOT matching this label
   static_configs:
     - targets:
       - cadvisor:8080
+      - 192.168.0.121:4041

@@ -7,11 +7,13 @@
 
 declare -A operations=(
   #["dto_mapping"]="product_settings order_settings order_products full_order"
-  #["json_transformation"]="json"
-  #["cart_calculation"]="small_cart medium_cart large_cart xl_cart"
-  ["vat_calculation"]="xl_cart"
-  #["excel_generation"]="excel"
+  ["json_transformation"]="json"
+  # ["cart_calculation"]="small_cart medium_cart large_cart xl_cart"
+  # ["vat_calculation"]="small_cart medium_cart large_cart xl_cart"
+  ["vat_calculation"]="small_cart medium_cart"
+  # ["excel_generation"]="excel"
   #["pdf_generation"]="single zip"
+  ["pdf_generation"]="single"
 )
 
 for key in "${!operations[@]}"; do
@@ -38,9 +40,10 @@ for key in "${!operations[@]}"; do
       -d "$data" \
       --basic -u admin:admin
 
-    sleep 30  # Let it "cool down" for a minute
-    docker compose restart php-octane
-    sleep 10
+    sleep 60  # Let it "cool down" for a minute
+    ssh srv1 'cd docker-config/bap-benchmark && docker compose restart php-fpm'
+    ssh srv1 'cd docker-config/bap-benchmark && docker compose restart php-nginx'
+    sleep 30
 
   done
 done

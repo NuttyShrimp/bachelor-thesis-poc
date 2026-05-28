@@ -5,7 +5,8 @@ import { check } from 'k6';
 const runtimePort: Record<string, number> = {
   "swift": 8080,
   "swift-reerjson": 8082,
-  "php": 8000,
+  // "php": 8000,
+  "php": 4040,
   "octane": 8001,
 }
 
@@ -69,11 +70,11 @@ export const options = {
 
 // Warm the load cache/"DB"
 export function setup() {
-  http.post(`http://127.0.0.1:${runtimePort[__ENV.RUNTIME ?? "swift"]}/api/benchmarks/preload`);
+  http.post(`http://${__ENV.HOST ?? "127.0.0.1"}:${runtimePort[__ENV.RUNTIME ?? "swift"]}/api/benchmarks/preload`);
 }
 
 export default function() {
-  let res = http.get(`http://127.0.0.1:${runtimePort[__ENV.RUNTIME ?? "swift"]}/api/benchmarks/single/${__ENV.OPERATION}/${__ENV.SCENARIO}`, { timeout: 120_000, tags: { runtime: __ENV.RUNTIME ?? "swift" } });
+  let res = http.get(`http://${__ENV.HOST ?? "127.0.0.1"}:${runtimePort[__ENV.RUNTIME ?? "swift"]}/api/benchmarks/single/${__ENV.OPERATION}/${__ENV.SCENARIO}`, { timeout: 120_000, tags: { runtime: __ENV.RUNTIME ?? "swift" } });
   check(res, { "status is in 2xx range": (res) => res.status >= 200 && res.status <= 300 });
   // sleep(1);
 }
