@@ -78,11 +78,15 @@ RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
         echo "[www]"; \
         echo "listen = 9000"; \
         echo "listen.mode = 0660"; \
+        echo "listen.backlog = 65535"; \
         echo "pm = static"; \
-        echo "pm.max_children = 16"; \
+        echo "pm.max_children = 4"; \
         echo "pm.max_requests = 0"; \
         echo "clear_env = no"; \
+        echo "catch_workers_output = no"; \
+        echo "decorate_workers_output = no"; \
     } > /usr/local/etc/php-fpm.d/www.conf
+
 
 COPY --chown=www-data:www-data . .
 COPY --chown=www-data:www-data --from=vendor /app/vendor/ vendor/
