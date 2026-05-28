@@ -11,7 +11,7 @@ FROM composer:2.8 AS vendor
 WORKDIR /app
 COPY composer.json composer.lock* ./
 RUN --mount=type=cache,target=/tmp/cache \
-    composer install --no-dev --no-interaction --no-scripts --prefer-dist --ignore-platform-reqs
+    composer install --no-dev --no-interaction --no-scripts --prefer-dist --ignore-platform-reqs --optimize-autoloader
 COPY . .
 RUN composer dump-autoload --optimize --classmap-authoritative --no-dev
 
@@ -74,4 +74,4 @@ ENV APP_ENV=production \
     OCTANE_SERVER=frankenphp
 
 EXPOSE 8000
-CMD ["php", "artisan", "octane:start", "--server=frankenphp", "--host=0.0.0.0", "--port=8000", "--max-requests=0"]
+CMD ["sh", "-c", "php artisan octane:start --server=frankenphp --host=0.0.0.0 --port=8000 --workers=${OCTANE_WORKERS:-4} --max-requests=0"]

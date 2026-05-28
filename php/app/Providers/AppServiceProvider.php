@@ -25,5 +25,14 @@ class AppServiceProvider extends ServiceProvider
     {
         Vite::prefetch(concurrency: 3);
         ini_set('memory_limit', '2G');
+
+        // Preload benchmark data in memory if running under Octane worker
+        if (isset($_ENV['OCTANE_SERVER']) && class_exists(DataLoader::class)) {
+            try {
+                DataLoader::getInstance()->preloadData();
+            } catch (\Throwable $e) {
+                // Ignore if files do not exist yet or other boot-time issues
+            }
+        }
     }
 }

@@ -64,7 +64,16 @@ class DataLoader
      */
     public function isCacheEnabled(): bool
     {
-        return self::$isCacheEnabled || Cache::get('dataloader:is_cache_enabled', false);
+        if (self::$isCacheEnabled) {
+            return true;
+        }
+
+        if (Cache::get('dataloader:is_cache_enabled', false)) {
+            self::$isCacheEnabled = true;
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -124,19 +133,16 @@ class DataLoader
     public function cartScenario(string $size): array
     {
         $cacheKey = "cartScenario_{$size}";
-        if (self::$isCacheEnabled && isset(self::$cache[$cacheKey])) {
+        if (isset(self::$cache[$cacheKey])) {
             Log::info('Loading memory cached for '.$cacheKey);
             return self::$cache[$cacheKey];
         }
 
-        $isCachedInPersistentStore = Cache::get('dataloader:is_cache_enabled', false);
-        if ($isCachedInPersistentStore) {
+        if ($this->isCacheEnabled()) {
             $cached = Cache::get("dataloader:{$cacheKey}");
             if ($cached !== null) {
                 Log::info('Loading persistent cached for '.$cacheKey);
-                if (self::$isCacheEnabled) {
-                    self::$cache[$cacheKey] = $cached;
-                }
+                self::$cache[$cacheKey] = $cached;
                 return $cached;
             }
         }
@@ -144,11 +150,8 @@ class DataLoader
         $scenarios = $this->cartScenarios();
         $result = $scenarios[$size] ?? $scenarios['medium_cart'];
 
-        if (self::$isCacheEnabled) {
+        if ($this->isCacheEnabled()) {
             self::$cache[$cacheKey] = $result;
-        }
-
-        if ($isCachedInPersistentStore || self::$isCacheEnabled) {
             Cache::forever("dataloader:{$cacheKey}", $result);
         }
 
@@ -160,30 +163,24 @@ class DataLoader
      */
     private function getCachedOrLoad(string $key, string $filename): array
     {
-        if (self::$isCacheEnabled && isset(self::$cache[$key])) {
+        if (isset(self::$cache[$key])) {
             Log::info('Loading memory cached for '.$key);
             return self::$cache[$key];
         }
 
-        $isCachedInPersistentStore = Cache::get('dataloader:is_cache_enabled', false);
-        if ($isCachedInPersistentStore) {
+        if ($this->isCacheEnabled()) {
             $cached = Cache::get("dataloader:{$key}");
             if ($cached !== null) {
                 Log::info('Loading persistent cached for '.$key);
-                if (self::$isCacheEnabled) {
-                    self::$cache[$key] = $cached;
-                }
+                self::$cache[$key] = $cached;
                 return $cached;
             }
         }
 
         $result = $this->load($filename);
 
-        if (self::$isCacheEnabled) {
+        if ($this->isCacheEnabled()) {
             self::$cache[$key] = $result;
-        }
-
-        if ($isCachedInPersistentStore || self::$isCacheEnabled) {
             Cache::forever("dataloader:{$key}", $result);
         }
 
