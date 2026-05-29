@@ -5,42 +5,47 @@ import { check } from 'k6';
 const runtimePort: Record<string, number> = {
   "swift": 8080,
   "swift-reerjson": 8082,
-  // "php": 8000,
-  "php": 4040,
+  "php": 8000,
   "octane": 8001,
+  "swift-yyjson": 4040
 }
 
 const rpsPeak = {
   dto_mapping: {
     product_settings: {
       "swift": 18,
-      "swift-reerjson": 18,
+      "swift-reerjson": 30,
+      "swift-yyjson": 40,
       "php": 24,
       "octane": 210,
     },
     order_settings: {
       "swift": 16,
-      "swift-reerjson": 40,
+      "swift-reerjson": 30,
+      "swift-yyjson": 52,
       "php": 28,
-      "octane": 170,
+      "octane": 140,
     },
     order_products: {
       "swift": 15,
-      "swift-reerjson": 45,
+      "swift-reerjson": 33,
+      "swift-yyjson": 46,
       "php": 33,
-      "octane": 230,
+      "octane": 210,
     },
     full_order: {
       "swift": 7,
-      "swift-reerjson": 20,
+      "swift-reerjson": 15,
+      "swift-yyjson": 18,
       "php": 31,
-      "octane": 105,
+      "octane": 100,
     },
   },
   json_transformation: {
     json: {
       "swift": 500,
       "swift-reerjson": 600,
+      "swift-yyjson": 1000,
       "php": 400,
       "octane": 1000,
     }
@@ -49,50 +54,58 @@ const rpsPeak = {
     small_cart: {
       "swift": 15000,
       "swift-reerjson": 11500,
-      "php": 500,
+      "swift-yyjson": 22000,
+      "php": 370,
       "octane": 2000,
     },
     medium_cart: {
       "swift": 10000,
       "swift-reerjson": 5000,
-      "php": 540,
+      "swift-yyjson": 19500,
+      "php": 350,
       "octane": 2000,
     },
     large_cart: {
       "swift": 3000,
       "swift-reerjson": 1200,
-      "php": 480,
+      "swift-yyjson": 11500,
+      "php": 300,
       "octane": 1800,
     },
     xl_cart: {
       "swift": 750,
-      "swift-reerjson": 315,
-      "php": 373,
-      "octane": 1500,
+      "swift-reerjson": 310,
+      "swift-yyjson": 5300,
+      "php": 360,
+      "octane": 1150,
     },
   },
   vat_calculation: {
     small_cart: {
       "swift": 19500,
       "swift-reerjson": 19000,
+      "swift-yyjson": 15300,
       "php": 500,
-      "octane": 2050,
+      "octane": 2000,
     },
     medium_cart: {
       "swift": 16000,
       "swift-reerjson": 18500,
+      "swift-yyjson": 14700,
       "php": 500,
-      "octane": 2120,
+      "octane": 2050,
     },
     large_cart: {
       "swift": 14500,
       "swift-reerjson": 19000,
+      "swift-yyjson": 17500,
       "php": 435,
-      "octane": 1950,
+      "octane": 1850,
     },
     xl_cart: {
       "swift": 14000,
       "swift-reerjson": 17000,
+      "swift-yyjson": 16000,
       "php": 400,
       "octane": 1900,
     },
@@ -101,6 +114,7 @@ const rpsPeak = {
     excel: {
       "swift": 25,
       "swift-reerjson": 28,
+      "swift-yyjson": 60,
       "php": 1,
       "octane": 2,
     }
@@ -109,12 +123,14 @@ const rpsPeak = {
     single: {
       "swift": 18,
       "swift-reerjson": 19,
+      "swift-yyjson": 19,
       "php": 10,
       "octane": 17,
     },
     zip: {
       "swift": 2,
       "swift-reerjson": 1,
+      "swift-yyjson": 1,
       "php": 1,
       "octane": 1,
     },

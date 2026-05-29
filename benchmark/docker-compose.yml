@@ -88,15 +88,51 @@ services:
       - "monitoring=benchmark"
     depends_on:
       - cadvisor
+    image: ghcr.io/nuttyshrimp/bap-swift-reerjson:main
+    # build:
+    #   context: ../swift
+    #   args:
+    #     SWIFT_BUILD_FLAGS: "--traits YYJSON"
+    #     CACHE_ID: "swift-yyjson"
+    #   tags:
+    #     - bap/swift-yyjson:latest
+    ports:
+      - '8082:8080'
+    privileged: true
+    volumes:
+      - ../data:/data
+    shm_size: '4gb'
+    sysctls:
+      net.core.somaxconn: 65535
+      net.ipv4.ip_local_port_range: "1024 65535"
+      net.ipv4.tcp_tw_reuse: 1
+      net.ipv4.tcp_timestamps: 1
+    memswap_limit: 8G
+    deploy:
+      resources:
+        limits:
+          cpus: 4
+          memory: 8G
+    ulimits:
+      nproc: 125000
+      nofile:
+        soft: 250000
+        hard: 520000
+
+  swift-yyjson:
+    labels:
+      - "monitoring=benchmark"
+    depends_on:
+      - cadvisor
     build:
       context: ../swift
       args:
-        SWIFT_BUILD_FLAGS: "--traits ReerJSON"
-        CACHE_ID: "swift-reerjson"
+        SWIFT_BUILD_FLAGS: "--traits YYJSON"
+        CACHE_ID: "swift-yyjson"
       tags:
-        - bap/swift-reerjson:latest
+        - bap/swift-yyjson:latest
     ports:
-      - '8082:8080'
+      - '8083:8080'
     privileged: true
     volumes:
       - ../data:/data
