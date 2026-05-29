@@ -120,6 +120,7 @@ services:
         hard: 520000
 
   swift-yyjson:
+    container_name: srv1-swift-yyjson-1
     labels:
       - "monitoring=benchmark"
     depends_on:

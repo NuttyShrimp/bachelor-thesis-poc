@@ -5,9 +5,9 @@ import { check } from 'k6';
 const runtimePort: Record<string, number> = {
   "swift": 8080,
   "swift-reerjson": 8082,
+  "swift-yyjson": 8083,
   "php": 8000,
   "octane": 8001,
-  "swift-yyjson": 4040
 }
 
 const rpsPeak = {
@@ -22,30 +22,30 @@ const rpsPeak = {
     order_settings: {
       "swift": 16,
       "swift-reerjson": 30,
-      "swift-yyjson": 52,
+      "swift-yyjson": 35,
       "php": 28,
       "octane": 140,
     },
     order_products: {
       "swift": 15,
       "swift-reerjson": 33,
-      "swift-yyjson": 46,
+      "swift-yyjson": 40,
       "php": 33,
-      "octane": 210,
+      "octane": 170,
     },
     full_order: {
       "swift": 7,
       "swift-reerjson": 15,
       "swift-yyjson": 18,
       "php": 31,
-      "octane": 100,
+      "octane": 90,
     },
   },
   json_transformation: {
     json: {
       "swift": 500,
       "swift-reerjson": 600,
-      "swift-yyjson": 1000,
+      "swift-yyjson": 950,
       "php": 400,
       "octane": 1000,
     }
@@ -54,14 +54,14 @@ const rpsPeak = {
     small_cart: {
       "swift": 15000,
       "swift-reerjson": 11500,
-      "swift-yyjson": 22000,
+      "swift-yyjson": 21000,
       "php": 370,
       "octane": 2000,
     },
     medium_cart: {
       "swift": 10000,
       "swift-reerjson": 5000,
-      "swift-yyjson": 19500,
+      "swift-yyjson": 18500,
       "php": 350,
       "octane": 2000,
     },
@@ -84,28 +84,28 @@ const rpsPeak = {
     small_cart: {
       "swift": 19500,
       "swift-reerjson": 19000,
-      "swift-yyjson": 15300,
+      "swift-yyjson": 21000,
       "php": 500,
       "octane": 2000,
     },
     medium_cart: {
       "swift": 16000,
       "swift-reerjson": 18500,
-      "swift-yyjson": 14700,
+      "swift-yyjson": 19500,
       "php": 500,
       "octane": 2050,
     },
     large_cart: {
       "swift": 14500,
       "swift-reerjson": 19000,
-      "swift-yyjson": 17500,
+      "swift-yyjson": 19000,
       "php": 435,
       "octane": 1850,
     },
     xl_cart: {
       "swift": 14000,
       "swift-reerjson": 17000,
-      "swift-yyjson": 16000,
+      "swift-yyjson": 18000,
       "php": 400,
       "octane": 1900,
     },
@@ -123,7 +123,7 @@ const rpsPeak = {
     single: {
       "swift": 18,
       "swift-reerjson": 19,
-      "swift-yyjson": 19,
+      "swift-yyjson": 25,
       "php": 10,
       "octane": 17,
     },
@@ -145,10 +145,10 @@ export const options = {
       // executor: 'ramping-vus',
       startRate: 1,
       timeUnit: '1s',
-      preAllocatedVUs: 5000,
+      preAllocatedVUs: 10000,
       stages: [
         { duration: '1m', target: 1 }, // Scaling up
-        { duration: '15m', target: 1 }, // Hold peakk
+        { duration: '10m', target: 1 }, // Hold peakk
         { duration: '1m', target: 0 }, // Scaling down
       ],
     }
@@ -189,7 +189,6 @@ if (!__ENV.SCENARIO || !__ENV.OPERATION) {
 
 options.scenarios.openModel.stages[0].target = rpsPeak[__ENV.OPERATION][__ENV.SCENARIO][__ENV.RUNTIME]
 options.scenarios.openModel.stages[1].target = rpsPeak[__ENV.OPERATION][__ENV.SCENARIO][__ENV.RUNTIME]
-
 
 // Warm the load cache/"DB"
 export function setup() {
