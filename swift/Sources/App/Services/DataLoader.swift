@@ -1,8 +1,8 @@
 import Foundation
 import Logging
 
-#if ReerJSON
-    import ReerJSON
+#if YYJSON
+    import YYJSON
 #endif
 
 enum DataLoaderError: Error {
@@ -135,8 +135,8 @@ final class DataLoader: @unchecked Sendable {
         guard var raw = loadData(from: file) else { return [] }
 
         do {
-            #if ReerJSON
-                let json = try JSONValue.parseInPlace(consuming: &raw)
+            #if YYJSON
+                let json = try YYJSONValue.parseInPlace(consuming: &raw)
 
                 guard
                     let val = json[key],
@@ -167,8 +167,8 @@ final class DataLoader: @unchecked Sendable {
         guard var raw = loadData(from: file) else { return [] }
 
         do {
-            #if ReerJSON
-                let json = try JSONValue.parseInPlace(consuming: &raw)
+            #if YYJSON
+                let json = try YYJSONValue.parseInPlace(consuming: &raw)
 
                 guard
                     let val = json[arrayKey],

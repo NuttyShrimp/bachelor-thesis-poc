@@ -1,20 +1,19 @@
 import Foundation
 import Hummingbird
 
-#if ReerJSON
-    import ReerJSON
+#if YYJSON
+    import YYJSON
 #endif
 
 struct JSONSnakeCaseEncoder: ResponseEncoder, Sendable {
-    #if ReerJSON
-        let encoder: ReerJSONEncoder
+    #if YYJSON
+        let encoder: YYJSONEncoder
     #else
         let encoder: JSONEncoder
     #endif
 
     init() {
         let encoder = createEncoder()
-        encoder.keyEncodingStrategy = .convertToSnakeCase
         self.encoder = encoder
     }
 
@@ -33,11 +32,8 @@ struct JSONSnakeCaseEncoder: ResponseEncoder, Sendable {
     }
 }
 
-#if ReerJSON
-    extension ReerJSONDecoder: @unchecked Sendable {}
-    extension ReerJSONEncoder: @unchecked Sendable {}
-
-    extension ReerJSONDecoder: RequestDecoder {
+#if YYJSON
+    extension YYJSONDecoder: @retroactive RequestDecoder {
         public func decode<T>(
             _ type: T.Type, from request: Request, context: some RequestContext
         ) async throws -> T where T: Decodable {
@@ -49,15 +45,14 @@ struct JSONSnakeCaseEncoder: ResponseEncoder, Sendable {
 #endif
 
 struct JSONSnakeCaseDecoder: RequestDecoder, Sendable {
-    #if ReerJSON
-        let decoder: ReerJSONDecoder
+    #if YYJSON
+        let decoder: YYJSONDecoder
     #else
         let decoder: JSONDecoder
     #endif
 
     init() {
         let decoder = createDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
         self.decoder = decoder
     }
 
@@ -78,16 +73,11 @@ struct JSONSnakeCaseDecoder: RequestDecoder, Sendable {
 }
 
 struct MyRequestContext: RequestContext {
-    #if ReerJSON
-        var requestDecoder: JSONSnakeCaseDecoder { JSONSnakeCaseDecoder() }
-        var responseEncoder: JSONSnakeCaseEncoder { JSONSnakeCaseEncoder() }
-    #else
-        static let sharedRequestDecoder = JSONSnakeCaseDecoder()
-        static let sharedResponseEncoder = JSONSnakeCaseEncoder()
+    static let sharedRequestDecoder = JSONSnakeCaseDecoder()
+    static let sharedResponseEncoder = JSONSnakeCaseEncoder()
 
-        var requestDecoder: JSONSnakeCaseDecoder { Self.sharedRequestDecoder }
-        var responseEncoder: JSONSnakeCaseEncoder { Self.sharedResponseEncoder }
-    #endif
+    var requestDecoder: JSONSnakeCaseDecoder { Self.sharedRequestDecoder }
+    var responseEncoder: JSONSnakeCaseEncoder { Self.sharedResponseEncoder }
     var coreContext: CoreRequestContextStorage
 
     init(source: Source) {

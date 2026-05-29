@@ -79,11 +79,6 @@ struct JsonTransformation: BenchmarkOperation {
 
     func single(scenario: String) async throws -> BenchmarkSingleResult {
         let data = dataLoader.shopData()
-        // Do not share locks between instances
-        #if ReerJSON
-            let decoder = createDecoder()
-            let encoder = createEncoder()
-        #endif
         do {
             let result = try decoder.decode(Shop.self, from: data)
             _ = try encoder.encode(result)

@@ -7,8 +7,8 @@
 
 import Foundation
 
-#if ReerJSON
-    import ReerJSON
+#if YYJSON
+    import YYJSON
 #endif
 
 func reportMemory() -> Double {
@@ -76,27 +76,30 @@ extension String {
     }
 }
 
-#if ReerJSON
-    func createDecoder() -> ReerJSONDecoder {
-        let decoder = ReerJSONDecoder()
+#if YYJSON
+    extension YYJSONDecoder: @unchecked @retroactive Sendable {}
+    extension YYJSONEncoder: @unchecked @retroactive Sendable {}
+
+    func createDecoder() -> YYJSONDecoder {
+        var decoder = YYJSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         return decoder
     }
 
-    func createEncoder() -> ReerJSONEncoder {
-        let encoder = ReerJSONEncoder()
+    func createEncoder() -> YYJSONEncoder {
+        var encoder = YYJSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         return encoder
     }
 #else
     func createDecoder() -> JSONDecoder {
-        let decoder = JSONDecoder()
+        var decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         return decoder
     }
 
     func createEncoder() -> JSONEncoder {
-        let encoder = JSONEncoder()
+        var encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         return encoder
     }

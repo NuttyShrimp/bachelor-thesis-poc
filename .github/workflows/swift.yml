@@ -36,8 +36,8 @@ jobs:
       - name: Build Code (Standard)
         run: swift build --package-path swift
 
-      - name: Build Code (ReerJSON)
-        run: swift build --package-path swift --traits ReerJSON
+      - name: Build Code (YYJSON)
+        run: swift build --package-path swift --traits YYJSON
 
   build-docker:
     name: Build Swift Docker Images
@@ -54,11 +54,11 @@ jobs:
             build_args: |
               CACHE_ID=swift-standard
             image_name: swift
-          - name: swift-reerjson
+          - name: swift-yyjson
             build_args: |
-              SWIFT_BUILD_FLAGS=--traits ReerJSON
-              CACHE_ID=swift-reerjson
-            image_name: swift-reerjson
+              SWIFT_BUILD_FLAGS=--traits YYJSON
+              CACHE_ID=swift-yyjson
+            image_name: swift-yyjson
 
     steps:
       - name: Checkout Repository

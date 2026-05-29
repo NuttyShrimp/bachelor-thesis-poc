@@ -10,7 +10,7 @@ let package = Package(
         .executable(name: "Bap", targets: ["Bap"])
     ],
     traits: [
-        .trait(name: "ReerJSON")
+        .trait(name: "YYJSON")
     ],
     dependencies: [
         .package(url: "https://github.com/hummingbird-project/hummingbird.git", from: "2.0.0"),
@@ -21,9 +21,10 @@ let package = Package(
         .package(
             url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.0")),
         .package(
-            url: "https://github.com/reers/ReerJSON.git", from: "1.0.2"),
-        .package(
             url: "https://github.com/swiftlang/swift-subprocess.git", branch: "main"),
+        .package(
+            url: "https://github.com/mattt/swift-yyjson.git", from: "0.3.0",
+            traits: ["strictStandardJSON"]),
     ],
     targets: [
         .executableTarget(
@@ -33,9 +34,9 @@ let package = Package(
                 .product(name: "Hummingbird", package: "hummingbird"),
                 .product(name: "xlsxwriter", package: "xlsxwriter.swift"),
                 .product(name: "ZIPFoundation", package: "ZIPFoundation"),
-                .product(
-                    name: "ReerJSON", package: "ReerJSON", condition: .when(traits: ["ReerJSON"])),
                 .product(name: "Subprocess", package: "swift-subprocess"),
+                .product(
+                    name: "YYJSON", package: "swift-yyjson", condition: .when(traits: ["YYJSON"])),
             ],
             path: "Sources/App",
             swiftSettings: [
