@@ -70,7 +70,7 @@ RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
         echo "opcache.validate_timestamps=0"; \
         echo "opcache.save_comments=1"; \
         echo "opcache.jit=tracing"; \
-        echo "opcache.jit_buffer_size=256M"; \
+        echo "opcache.jit_buffer_size=64M"; \
         echo "realpath_cache_size=16M"; \
         echo "realpath_cache_ttl=600"; \
     } > "$PHP_INI_DIR/conf.d/zz-opcache.ini" \
@@ -80,7 +80,7 @@ RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
         echo "listen.mode = 0660"; \
         echo "listen.backlog = 65535"; \
         echo "pm = static"; \
-        echo "pm.max_children = 4"; \
+        echo "pm.max_children = FPM_WORKERS_PLACEHOLDER"; \
         echo "pm.max_requests = 0"; \
         echo "clear_env = no"; \
         echo "catch_workers_output = no"; \
@@ -102,15 +102,20 @@ RUN mkdir -p \
     && rm -f bootstrap/cache/*.php \
     && chown -R www-data:www-data /var/www/html
 
-RUN echo "access.log = /dev/null" >> /usr/local/etc/php-fpm.d/www.conf
+RUN echo "access.log = /dev/null" >> /usr/local/etc/php-fpm.d/www.conf \
+    && chown -R www-data:www-data /usr/local/etc/php-fpm.d
 
 USER www-data
 
 ENV APP_ENV=production \
-    APP_DEBUG=false
+    APP_DEBUG=false \
+    LOG_CHANNEL=null \
+    LOG_LEVEL=warning \
+    SESSION_DRIVER=array \
+    CACHE_STORE=file
 
 EXPOSE 9000
-CMD ["php-fpm", "-F"]
+CMD ["sh", "-c", "sed -i \"s/FPM_WORKERS_PLACEHOLDER/${FPM_WORKERS:-32}/\" /usr/local/etc/php-fpm.d/www.conf && php artisan config:cache && php artisan route:cache && php artisan view:cache && php-fpm -F"]
 
 # Stage 4: Nginx web image
 FROM nginx:1.27-alpine AS web
