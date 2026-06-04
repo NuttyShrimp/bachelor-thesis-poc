@@ -39,9 +39,8 @@ for key in "${!operations[@]}"; do
       --basic -u admin:admin
 
     sleep 60  # Let it "cool down" for a minute
-    docker compose restart php-fpm php-octane swift swift-reerjson
-    docker compose restart php-nginx
-    sleep 30
+    docker compose restart swift-yyjson
+    sleep 10
 
   done
 done

@@ -158,6 +158,7 @@ services:
   php-fpm:
     labels:
       - "monitoring=benchmark"
+    container_name: srv1-php-fpm-1
     depends_on:
       - cadvisor
     build:
@@ -193,6 +194,7 @@ services:
       - ../data:/var/www/data:ro
 
   php-nginx:
+    container_name: srv1-php-nginx-1
     labels:
       - "monitoring=benchmark"
     build:

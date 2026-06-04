@@ -76,7 +76,7 @@ const rpsPeak = {
       "swift": 750,
       "swift-reerjson": 310,
       "swift-yyjson": 5300,
-      "php": 360,
+      "php": 330,
       "octane": 1150,
     },
   },
@@ -145,7 +145,7 @@ export const options = {
       // executor: 'ramping-vus',
       startRate: 1,
       timeUnit: '1s',
-      preAllocatedVUs: 10000,
+      preAllocatedVUs: 5000,
       stages: [
         { duration: '1m', target: 1 }, // Scaling up
         { duration: '10m', target: 1 }, // Hold peakk

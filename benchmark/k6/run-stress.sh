@@ -3,15 +3,15 @@
 # sudo sysctl -w net.ipv4.ip_local_port_range="1024 65535"
 # sudo sysctl -w net.ipv4.tcp_tw_reuse=1
 # sudo sysctl -w net.ipv4.tcp_timestamps=1
-# ulimit -n 250000
+ulimit -n 250000
 
 declare -A operations=(
-  #["dto_mapping"]="product_settings order_settings order_products full_order"
-  #["json_transformation"]="json"
-  #["cart_calculation"]="small_cart medium_cart large_cart xl_cart"
-  ["vat_calculation"]="xl_cart"
-  #["excel_generation"]="excel"
-  #["pdf_generation"]="single zip"
+  ["dto_mapping"]="product_settings order_settings order_products full_order"
+  ["json_transformation"]="json"
+  ["cart_calculation"]="small_cart medium_cart large_cart xl_cart"
+  ["vat_calculation"]="small_cart medium_cart large_cart xl_cart"
+  ["excel_generation"]="excel"
+  ["pdf_generation"]="single zip"
 )
 
 for key in "${!operations[@]}"; do
@@ -38,8 +38,8 @@ for key in "${!operations[@]}"; do
       -d "$data" \
       --basic -u admin:admin
 
-    sleep 30  # Let it "cool down" for a minute
-    docker compose restart php-octane
+    sleep 60  # Let it "cool down" for a minute
+    docker compose restart swift-yyjson
     sleep 10
 
   done

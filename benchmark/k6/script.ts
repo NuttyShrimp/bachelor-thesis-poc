@@ -1,12 +1,12 @@
 import http from 'k6/http';
 import { textSummary } from 'https://jslib.k6.io/k6-summary/0.1.0/index.js';
-import { check } from 'k6';
+import { check, sleep } from 'k6';
 
 const runtimePort: Record<string, number> = {
   "swift": 8080,
   "swift-reerjson": 8082,
-  // "php": 8000,
-  "php": 4040,
+  "swift-yyjson": 8083,
+  "php": 8000,
   "octane": 8001,
 }
 
